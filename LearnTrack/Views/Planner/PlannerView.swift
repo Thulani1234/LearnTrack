@@ -12,86 +12,129 @@ struct PlannerView: View {
     @State private var selectedDate = Date()
     
     var body: some View {
-        VStack(spacing: 20) {
-            // Header
-            HStack {
-                Text("Weekly Planner")
-                    .font(AppTypography.title)
-                    .foregroundColor(AppColors.textPrimary)
-                Spacer()
-                Button(action: { router.navigate(to: .planSession) }) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title)
-                        .foregroundColor(AppColors.primary)
-                }
-            }
-            .padding(.horizontal)
-            .padding(.top, 20)
-            
-            Button(action: { router.navigate(to: .planSetup) }) {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 32) {
+                // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Create Study Plan")
-                            .font(AppTypography.headline)
+                        Text("Study Planner")
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundColor(AppColors.textPrimary)
-                        Text("Generate a personalized study schedule")
-                            .font(AppTypography.bodySmall)
+                        Text("Stay organized and hit your goals.")
+                            .font(AppTypography.body)
                             .foregroundColor(AppColors.textSecondary)
                     }
                     Spacer()
-                    Image(systemName: "sparkles")
-                        .font(.title2)
-                        .foregroundColor(AppColors.primary)
-                }
-                .padding()
-                .background(AppColors.cardBackground)
-                .cornerRadius(20)
-            }
-            .padding(.horizontal)
-            
-            // Week Calendar (simplified)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(0..<7) { i in
-                        let date = Calendar.current.date(byAdding: .day, value: i, to: Date())!
-                        DayView(date: date, isSelected: Calendar.current.isDate(date, inSameDayAs: selectedDate))
-                            .onTapGesture {
-                                selectedDate = date
-                            }
+                    Button(action: { router.navigate(to: .planSession) }) {
+                        ZStack {
+                            Circle()
+                                .fill(AppColors.primary.opacity(0.1))
+                                .frame(width: 44, height: 44)
+                            Image(systemName: "plus")
+                                .foregroundColor(AppColors.primary)
+                                .fontWeight(.bold)
+                        }
                     }
                 }
                 .padding(.horizontal)
+                .padding(.top, 20)
+                
+                // Smart Plan Card
+                Button(action: { router.navigate(to: .planSetup) }) {
+                    HStack(spacing: 20) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(width: 60, height: 60)
+                            Image(systemName: "sparkles")
+                                .font(.title)
+                                .foregroundColor(.white)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("AI Study Plan")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(.white)
+                            Text("Generate your weekly schedule")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                    .padding(24)
+                    .background(LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .cornerRadius(32)
+                    .shadow(color: AppColors.primary.opacity(0.3), radius: 15, x: 0, y: 10)
+                }
+                .padding(.horizontal)
+                
+                // Calendar Strip
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("SELECT DATE")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                        .padding(.horizontal)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(0..<14) { i in
+                                let date = Calendar.current.date(byAdding: .day, value: i, to: Date())!
+                                DayItem(date: date, isSelected: Calendar.current.isDate(date, inSameDayAs: selectedDate))
+                                    .onTapGesture {
+                                        withAnimation(.spring()) {
+                                            selectedDate = date
+                                        }
+                                    }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+                
+                // Sessions List
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("SESSIONS")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                        .padding(.horizontal)
+                    
+                    ScheduledSessionsView(date: selectedDate)
+                }
+                
+                Spacer(minLength: 40)
             }
-            
-            // Sessions for selected day
-            ScheduledSessionsView(date: selectedDate)
-            
-            Spacer()
         }
         .background(AppColors.background.ignoresSafeArea())
-        .navigationTitle("Planner")
-        .navigationBarHidden(true)
     }
 }
 
-struct DayView: View {
+struct DayItem: View {
     var date: Date
     var isSelected: Bool
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 10) {
             Text(date.formatted(.dateTime.weekday(.abbreviated)))
-                .font(AppTypography.caption)
-                .foregroundColor(isSelected ? AppColors.textPrimary : AppColors.textSecondary)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(isSelected ? .white : AppColors.textSecondary)
             
             Text(date.formatted(.dateTime.day()))
-                .font(AppTypography.headline)
-                .foregroundColor(isSelected ? AppColors.textPrimary : AppColors.textSecondary)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(isSelected ? .white : AppColors.textPrimary)
+            
+            if isSelected {
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 4, height: 4)
+            }
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
+        .frame(width: 60, height: 90)
         .background(isSelected ? AppColors.primary : AppColors.cardBackground)
-        .cornerRadius(12)
+        .cornerRadius(20)
+        .shadow(color: isSelected ? AppColors.primary.opacity(0.3) : Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
     }
 }
+
 

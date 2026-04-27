@@ -11,7 +11,7 @@ struct StudySession: Identifiable, Hashable {
     var id = UUID()
     var subjectId: UUID
     var date: Date
-    var durationMinutes: Int
+    var durationSeconds: Int
     var isCompleted: Bool
     var summary: String?
     var voiceNotePath: String?

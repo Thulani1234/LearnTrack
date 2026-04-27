@@ -21,21 +21,21 @@ class MockData: ObservableObject {
     
     private init() {
         let initialSubjects = [
-            Subject(name: "Mathematics", colorHex: "6366F1", progress: 0.7, targetScore: 95, currentScore: 89),
-            Subject(name: "Science", colorHex: "14B8A6", progress: 0.4, targetScore: 90, currentScore: 75),
-            Subject(name: "English", colorHex: "F59E0B", progress: 0.9, targetScore: 85, currentScore: 82),
-            Subject(name: "ICT", colorHex: "A855F7", progress: 0.6, targetScore: 100, currentScore: 92)
+            Subject(name: "Mathematics", colorHex: "6366F1", progress: 0.7, targetScore: 95, currentScore: 89, icon: "function"),
+            Subject(name: "Science", colorHex: "14B8A6", progress: 0.4, targetScore: 90, currentScore: 75, icon: "flask.fill"),
+            Subject(name: "English", colorHex: "F59E0B", progress: 0.9, targetScore: 85, currentScore: 82, icon: "book.fill"),
+            Subject(name: "ICT", colorHex: "A855F7", progress: 0.6, targetScore: 100, currentScore: 92, icon: "laptopcomputer")
         ]
         subjects = initialSubjects
         
         recentSessions = [
-            StudySession(subjectId: UUID(), date: Date(), durationMinutes: 45, isCompleted: true, summary: "Completed algebra practice."),
-            StudySession(subjectId: UUID(), date: Date().addingTimeInterval(-86400), durationMinutes: 30, isCompleted: true, summary: "Read chapter 3 of biology.")
+            StudySession(subjectId: UUID(), date: Date(), durationSeconds: 45 * 60, isCompleted: true, summary: "Completed algebra practice."),
+            StudySession(subjectId: UUID(), date: Date().addingTimeInterval(-86400), durationSeconds: 30 * 60, isCompleted: true, summary: "Read chapter 3 of biology.")
         ]
         
         scheduledSessions = [
-            StudySession(subjectId: UUID(), date: Date().addingTimeInterval(3600), durationMinutes: 60, isCompleted: false),
-            StudySession(subjectId: UUID(), date: Date().addingTimeInterval(86400 * 2), durationMinutes: 45, isCompleted: false)
+            StudySession(subjectId: UUID(), date: Date().addingTimeInterval(3600), durationSeconds: 60 * 60, isCompleted: false),
+            StudySession(subjectId: UUID(), date: Date().addingTimeInterval(86400 * 2), durationSeconds: 45 * 60, isCompleted: false)
         ]
         
         quizzes = [

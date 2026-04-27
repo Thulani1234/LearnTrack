@@ -1,5 +1,5 @@
 //
-//  DashboardView..swift
+//  DashboardView.swift
 //  LearnTrack
 //
 //  Created by COBSCCOMP242P-028 on 2026-04-24.
@@ -8,101 +8,276 @@
 import SwiftUI
 
 struct DashboardView: View {
+    @EnvironmentObject var appState: AppState
     @EnvironmentObject var router: AppRouter
     let subjects = MockData.shared.subjects
     let scheduledSessions = MockData.shared.scheduledSessions
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 28) {
                 // Header
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Good Morning,")
-                            .font(AppTypography.body)
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(Date().formatted(.dateTime.weekday().month().day()))
+                            .font(AppTypography.caption)
                             .foregroundColor(AppColors.textSecondary)
-                        Text("Alex 👋")
-                            .font(AppTypography.title)
+                        Text("Welcome,")
+                            .font(AppTypography.body)
+                            .foregroundColor(AppColors.textPrimary)
+                        Text("Sara 👋")
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundColor(AppColors.textPrimary)
                     }
                     Spacer()
-                    Button(action: {
-                        router.navigate(to: .notifications)
-                    }) {
-                        Image(systemName: "bell.badge.fill")
-                            .foregroundColor(AppColors.primary)
-                            .font(.title2)
+                    HStack(spacing: 12) {
+                        HStack(spacing: 6) {
+                            Text("🔥")
+                            Text("7")
+                                .font(AppTypography.headline)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.orange.opacity(0.1))
+                        .cornerRadius(20)
+                        
+                        Button(action: {
+                            router.navigate(to: .notifications)
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(AppColors.cardBackground)
+                                    .frame(width: 44, height: 44)
+                                    .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                                Image(systemName: "bell.fill")
+                                    .foregroundColor(AppColors.textPrimary)
+                                    .overlay(
+                                        Circle()
+                                            .fill(Color.red)
+                                            .frame(width: 10, height: 10)
+                                            .offset(x: 8, y: -8)
+                                    )
+                            }
+                        }
+                        
+                        Button(action: {
+                            withAnimation {
+                                appState.selectedTab = 5 // Navigate to Profile tab
+                            }
+                        }) {
+                            Circle()
+                                .fill(AppColors.primary)
+                                .frame(width: 44, height: 44)
+                                .overlay(Text("S").foregroundColor(.white).fontWeight(.bold))
+                        }
                     }
                 }
                 .padding(.horizontal)
                 .padding(.top, 10)
                 
-                // Progress Tracker Summary
-                ProgressTrackerView(subjects: subjects)
-                    .padding(.horizontal)
+                // Daily Study Goal
+                DailyStudyGoalSection()
                 
-                // Today's Plan
+                // Today's Auto Plan
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        Text("Today's Plan")
-                            .font(AppTypography.headline)
-                            .foregroundColor(AppColors.textPrimary)
+                        Text("TODAY'S AUTO PLAN")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(AppColors.textSecondary.opacity(0.6))
                         Spacer()
-                        Button("See All") {
-                            router.navigate(to: .planner)
-                        }
-                        .font(AppTypography.bodySmall)
-                        .foregroundColor(AppColors.primary)
+                        Text("Auto-generated")
+                            .font(.system(size: 10, weight: .bold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(AppColors.primary.opacity(0.1))
+                            .foregroundColor(AppColors.primary)
+                            .cornerRadius(8)
                     }
                     .padding(.horizontal)
                     
-                    if scheduledSessions.isEmpty {
-                        Text("No sessions scheduled for today.")
-                            .font(AppTypography.bodySmall)
-                            .foregroundColor(AppColors.textSecondary)
-                            .padding(.horizontal)
-                    } else {
-                        ForEach(scheduledSessions.prefix(2)) { session in
-                            SessionCard(session: session)
-                                .padding(.horizontal)
-                        }
+                    VStack(spacing: 0) {
+                        AutoPlanItem(icon: "microscope", title: "Science — 60 min", status: "Urgent", isCompleted: false)
+                        Divider().padding(.leading, 60)
+                        AutoPlanItem(icon: "plus", title: "Maths — 45 min", status: "Soon", isCompleted: false)
+                        Divider().padding(.leading, 60)
+                        AutoPlanItem(icon: "laptopcomputer", title: "ICT — 30 min", status: "Planned", isCompleted: true)
                     }
+                    .background(AppColors.cardBackground)
+                    .cornerRadius(24)
+                    .padding(.horizontal)
+                    .shadow(color: Color.black.opacity(0.04), radius: 15, x: 0, y: 5)
                 }
+                
+                // Live Session Card
+                HStack {
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 10, height: 10)
+                        .padding(4)
+                        .background(Color.green.opacity(0.2))
+                        .clipShape(Circle())
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Live Session Active")
+                            .font(AppTypography.headline)
+                            .foregroundColor(.white)
+                        Text("3 students studying Science now")
+                            .font(AppTypography.caption)
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                    Spacer()
+                    Button("Join") {
+                        // Join live session
+                    }
+                    .font(AppTypography.bodySmall)
+                    .fontWeight(.bold)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.white.opacity(0.2))
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                .padding(20)
+                .background(LinearGradient(colors: [Color.purple, Color.blue], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .cornerRadius(24)
+                .padding(.horizontal)
                 
                 // Quick Actions
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Quick Actions")
-                        .font(AppTypography.headline)
-                        .foregroundColor(AppColors.textPrimary)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            SquareActionCard(title: "Timer", icon: "timer", color: .purple) {
+                                router.navigate(to: .timer(subjects.first!))
+                            }
+                            SquareActionCard(title: "Quiz", icon: "pencil.and.outline", color: .pink) {
+                                router.navigate(to: .quizList)
+                            }
+                            SquareActionCard(title: "Notes", icon: "book.closed.fill", color: .green) {
+                                router.navigate(to: .notes)
+                            }
+                            SquareActionCard(title: "Voice", icon: "mic.fill", color: .orange) {
+                                router.navigate(to: .voiceNotes)
+                            }
+                            SquareActionCard(title: "Report", icon: "chart.bar.fill", color: .yellow) {
+                                withAnimation {
+                                    appState.selectedTab = 4 // Navigate to Report tab
+                                }
+                            }
+                        }
                         .padding(.horizontal)
-                    
-                    HStack(spacing: 16) {
-                        QuickActionCard(title: "Start Timer", icon: "timer", color: AppColors.primary) {
-                            router.navigate(to: .timer(subjects.first!))
-                        }
-                        QuickActionCard(title: "Take Quiz", icon: "checkmark.seal.fill", color: AppColors.accent) {
-                            router.navigate(to: .quizList)
-                        }
                     }
-                    .padding(.horizontal)
-                    
-                    HStack(spacing: 16) {
-                        QuickActionCard(title: "Voice Notes", icon: "mic.fill", color: AppColors.secondary) {
-                            router.navigate(to: .voiceNotes)
-                        }
-                        QuickActionCard(title: "Log Result", icon: "rosette", color: AppColors.warning) {
-                            router.navigate(to: .results)
-                        }
-                    }
-                    .padding(.horizontal)
                 }
                 
                 Spacer(minLength: 40)
             }
         }
         .background(AppColors.background.ignoresSafeArea())
-        .navigationTitle("Dashboard")
         .navigationBarHidden(true)
+    }
+}
+
+struct DailyStudyGoalSection: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("DAILY STUDY GOAL")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                .padding(.horizontal)
+            
+            HStack(spacing: 20) {
+                ZStack {
+                    Circle()
+                        .stroke(AppColors.primary.opacity(0.1), lineWidth: 12)
+                    Circle()
+                        .trim(from: 0, to: 0.65)
+                        .stroke(
+                            LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .top, endPoint: .bottom),
+                            style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                        )
+                        .rotationEffect(.degrees(-90))
+                    
+                    VStack(spacing: 0) {
+                        Text("65%")
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(AppColors.textPrimary)
+                        Text("done")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(AppColors.textSecondary)
+                    }
+                }
+                .frame(width: 100, height: 100)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Almost there, Sara!")
+                        .font(.system(size: 18, weight: .bold))
+                    Text("You've completed 4.5 hours of study today. Just 1.5 more to reach your goal.")
+                        .font(.system(size: 14))
+                        .foregroundColor(AppColors.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(24)
+            .background(AppColors.cardBackground)
+            .cornerRadius(32)
+            .padding(.horizontal)
+            .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
+        }
+    }
+}
+
+struct AutoPlanItem: View {
+    var icon: String
+    var title: String
+    var status: String
+    var isCompleted: Bool
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(AppColors.primary)
+                .frame(width: 44, height: 44)
+                .background(AppColors.background)
+                .cornerRadius(14)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(AppColors.textPrimary)
+                Text(status)
+                    .font(.system(size: 12))
+                    .foregroundColor(status == "Urgent" ? .red : (status == "Soon" ? .orange : .blue))
+            }
+            Spacer()
+            Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                .font(.title2)
+                .foregroundColor(isCompleted ? Color.green : AppColors.textSecondary.opacity(0.3))
+        }
+        .padding(16)
+    }
+}
+
+struct SquareActionCard: View {
+    var title: String
+    var icon: String
+    var color: Color
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundColor(.white)
+                Text(title)
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            .frame(width: 80, height: 90)
+            .background(color)
+            .cornerRadius(20)
+            .shadow(color: color.opacity(0.3), radius: 8, x: 0, y: 4)
+        }
     }
 }
 
@@ -116,7 +291,7 @@ struct SessionCard: View {
                     .font(AppTypography.body)
                     .fontWeight(.semibold)
                     .foregroundColor(AppColors.textPrimary)
-                Text("\(timeString(session.durationMinutes * 60))")
+                Text("\(timeString(session.durationSeconds))")
                     .font(AppTypography.caption)
                     .foregroundColor(AppColors.textSecondary)
             }
@@ -138,29 +313,3 @@ struct SessionCard: View {
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
-
-struct QuickActionCard: View {
-    var title: String
-    var icon: String
-    var color: Color
-    var action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.title)
-                    .foregroundColor(color)
-                Text(title)
-                    .font(AppTypography.bodySmall)
-                    .fontWeight(.medium)
-                    .foregroundColor(AppColors.textPrimary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(AppColors.cardBackground)
-            .cornerRadius(16)
-        }
-    }
-}
-

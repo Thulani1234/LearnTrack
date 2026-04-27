@@ -12,68 +12,130 @@ import SwiftUI
 
 struct SubjectsView: View {
     @EnvironmentObject var router: AppRouter
-    let subjects = MockData.shared.subjects
+    @EnvironmentObject var data: MockData
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 28) {
+                // Header
                 HStack {
-                    Text("Your Subjects")
-                        .font(AppTypography.title)
-                        .foregroundColor(AppColors.textPrimary)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("My Subjects")
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .foregroundColor(AppColors.textPrimary)
+                        Text("Manage your academic curriculum.")
+                            .font(AppTypography.body)
+                            .foregroundColor(AppColors.textSecondary)
+                    }
                     Spacer()
                     Button(action: { router.navigate(to: .addSubject) }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title)
-                            .foregroundColor(AppColors.primary)
+                        ZStack {
+                            Circle()
+                                .fill(AppColors.primary)
+                                .frame(width: 44, height: 44)
+                            Image(systemName: "plus")
+                                .foregroundColor(.white)
+                                .fontWeight(.bold)
+                        }
                     }
                 }
                 .padding(.horizontal)
                 .padding(.top, 20)
                 
-                ForEach(subjects) { subject in
-                    SubjectCard(subject: subject)
+                // Active Study Section (Live Feel)
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("ACTIVE NOW")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(AppColors.textSecondary.opacity(0.6))
                         .padding(.horizontal)
-                        .onTapGesture {
-                            // Can show details or quick actions for subject
+                    
+                    HStack(spacing: 12) {
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: 8, height: 8)
+                            .padding(4)
+                            .background(Color.green.opacity(0.2))
+                            .clipShape(Circle())
+                        
+                        Text("24 students are studying right now")
+                            .font(AppTypography.caption)
+                            .foregroundColor(AppColors.textPrimary)
+                        Spacer()
+                        Button("Join Live") {
+                            // Join live session
                         }
+                        .font(.system(size: 10, weight: .bold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(AppColors.primary.opacity(0.1))
+                        .foregroundColor(AppColors.primary)
+                        .cornerRadius(8)
+                    }
+                    .padding()
+                    .background(AppColors.cardBackground)
+                    .cornerRadius(20)
+                    .padding(.horizontal)
                 }
+                
+                // Subjects List
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("YOUR CURRICULUM")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                        .padding(.horizontal)
+                    
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+                        ForEach(data.subjects) { subject in
+                            SubjectGridCard(subject: subject)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                
+                Spacer(minLength: 40)
             }
         }
         .background(AppColors.background.ignoresSafeArea())
-        .navigationTitle("Subjects")
-        .navigationBarHidden(true)
     }
 }
 
-struct SubjectCard: View {
+struct SubjectGridCard: View {
     var subject: Subject
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: subject.colorHex).opacity(0.15))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "book.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(Color(hex: subject.colorHex))
+                }
+                Spacer()
+                Text("\(Int(subject.progress * 100))%")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(Color(hex: subject.colorHex))
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
                 Text(subject.name)
-                    .font(AppTypography.headline)
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(AppColors.textPrimary)
-                Spacer()
-                Circle()
-                    .fill(Color(hex: subject.colorHex))
-                    .frame(width: 12, height: 12)
-            }
-            
-            HStack {
-                Text("Score: \\(subject.currentScore) / \\(subject.targetScore)")
-                    .font(AppTypography.bodySmall)
-                    .foregroundColor(AppColors.textSecondary)
-                Spacer()
-                Text("\\(Int(subject.progress * 100))%")
+                Text("Target: \(subject.targetScore)%")
                     .font(AppTypography.caption)
-                    .foregroundColor(AppColors.textPrimary)
+                    .foregroundColor(AppColors.textSecondary)
             }
             
-            ProgressBar(progress: subject.progress, color: Color(hex: subject.colorHex))
+            ProgressView(value: subject.progress)
+                .tint(Color(hex: subject.colorHex))
+                .scaleEffect(x: 1, y: 1.5, anchor: .center)
+                .clipShape(Capsule())
         }
-        .cardStyle()
+        .padding(20)
+        .background(AppColors.cardBackground)
+        .cornerRadius(28)
+        .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 5)
     }
 }
-

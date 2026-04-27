@@ -23,71 +23,109 @@ struct MainTabView: View {
     }
     
     var body: some View {
-        TabView(selection: $appState.selectedTab) {
-            NavigationStack(path: $router.path) {
-                DashboardView()
-                    .environmentObject(router)
-                    .navigationDestination(for: Route.self) { route in
-                        destination(for: route)
+        ZStack(alignment: .bottom) {
+            // Content
+            Group {
+                switch appState.selectedTab {
+                case 0:
+                    NavigationStack(path: $router.path) {
+                        DashboardView()
+                            .environmentObject(router)
+                            .navigationDestination(for: Route.self) { route in
+                                destination(for: route)
+                            }
                     }
+                case 1:
+                    NavigationStack(path: $router.path) {
+                        PlannerView()
+                            .environmentObject(router)
+                            .navigationDestination(for: Route.self) { route in
+                                destination(for: route)
+                            }
+                    }
+                case 2:
+                    NavigationStack(path: $router.path) {
+                        LiveView()
+                            .environmentObject(router)
+                            .navigationDestination(for: Route.self) { route in
+                                destination(for: route)
+                            }
+                    }
+                case 3:
+                    NavigationStack(path: $router.path) {
+                        SubjectsView()
+                            .environmentObject(router)
+                            .navigationDestination(for: Route.self) { route in
+                                destination(for: route)
+                            }
+                    }
+                case 4:
+                    NavigationStack(path: $router.path) {
+                        ReportView()
+                            .environmentObject(router)
+                            .navigationDestination(for: Route.self) { route in
+                                destination(for: route)
+                            }
+                    }
+                case 5:
+                    NavigationStack(path: $router.path) {
+                        ProfileView()
+                            .environmentObject(router)
+                            .navigationDestination(for: Route.self) { route in
+                                destination(for: route)
+                            }
+                    }
+                default:
+                    DashboardView()
+                }
             }
-            .tabItem {
-                Label("Home", systemImage: "house.fill")
-            }
-            .tag(0)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.bottom, 90) // Space for custom tab bar
             
-            NavigationStack(path: $router.path) {
-                PlannerView()
-                    .environmentObject(router)
-                    .navigationDestination(for: Route.self) { route in
-                        destination(for: route)
-                    }
+            // Custom Tab Bar
+            HStack(spacing: 0) {
+                TabBarItem(icon: "house.fill", label: "Home", isSelected: appState.selectedTab == 0) {
+                    appState.selectedTab = 0
+                }
+                TabBarItem(icon: "calendar", label: "Plan", isSelected: appState.selectedTab == 1) {
+                    appState.selectedTab = 1
+                }
+                TabBarItem(icon: "person.2.fill", label: "Live", isSelected: appState.selectedTab == 2) {
+                    appState.selectedTab = 2
+                }
+                TabBarItem(icon: "books.vertical.fill", label: "Subjects", isSelected: appState.selectedTab == 3) {
+                    appState.selectedTab = 3
+                }
+                TabBarItem(icon: "chart.bar.fill", label: "Report", isSelected: appState.selectedTab == 4) {
+                    appState.selectedTab = 4
+                }
+                TabBarItem(icon: "person.crop.circle.fill", label: "Profile", isSelected: appState.selectedTab == 5) {
+                    appState.selectedTab = 5
+                }
             }
-            .tabItem {
-                Label("Planner", systemImage: "calendar")
-            }
-            .tag(1)
-            
-            NavigationStack(path: $router.path) {
-                SubjectsView()
-                    .environmentObject(router)
-                    .navigationDestination(for: Route.self) { route in
-                        destination(for: route)
-                    }
-            }
-            .tabItem {
-                Label("Subjects", systemImage: "books.vertical.fill")
-            }
-            .tag(2)
-            
-            NavigationStack(path: $router.path) {
-                ReportView()
-                    .environmentObject(router)
-                    .navigationDestination(for: Route.self) { route in
-                        destination(for: route)
-                    }
-            }
-            .tabItem {
-                Label("Reports", systemImage: "chart.bar.fill")
-            }
-            .tag(3)
-            
-            NavigationStack(path: $router.path) {
-                ProfileView()
-                    .environmentObject(router)
-                    .navigationDestination(for: Route.self) { route in
-                        destination(for: route)
-                    }
-            }
-            .tabItem {
-                Label("Profile", systemImage: "person.crop.circle.fill")
-            }
-            .tag(4)
+            .padding(.top, 12)
+            .padding(.bottom, 34)
+            .background(
+                AppColors.cardBackground
+                    .ignoresSafeArea()
+                    .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: -5)
+            )
         }
         .accentColor(AppColors.primary)
         .environmentObject(router)
+        .overlay(alignment: .top) {
+            if let alert = appState.currentAlert {
+                InAppAlertView(alert: alert) {
+                    withAnimation(.spring()) {
+                        appState.currentAlert = nil
+                    }
+                }
+                .transition(AnyTransition.move(edge: Edge.top).combined(with: AnyTransition.opacity))
+                .zIndex(100)
+            }
+        }
     }
-    
+
     @ViewBuilder
     private func destination(for route: Route) -> some View {
         switch route {
@@ -127,11 +165,20 @@ struct MainTabView: View {
         case .voiceNotes:
             VoiceNotesView()
                 .environmentObject(router)
+        case .notes:
+            NotesView()
+                .environmentObject(router)
+        case .addNote:
+            AddNoteView()
+                .environmentObject(router)
         case .report:
             ReportView()
                 .environmentObject(router)
         case .profile:
             ProfileView()
+                .environmentObject(router)
+        case .editProfile:
+            EditProfileView()
                 .environmentObject(router)
         case .settings:
             SettingsView()
@@ -145,6 +192,36 @@ struct MainTabView: View {
         case .planGenerated:
             PlanGeneratedView()
                 .environmentObject(router)
+        case .privacy:
+            PrivacySecurityView()
+                .environmentObject(router)
+        case .help:
+            HelpCenterView()
+                .environmentObject(router)
+        case .contact:
+            ContactUsView()
+                .environmentObject(router)
+        }
+    }
+}
+
+struct TabBarItem: View {
+    let icon: String
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 20, weight: isSelected ? .bold : .medium))
+                    .foregroundColor(isSelected ? AppColors.primary : AppColors.textSecondary)
+                Text(label)
+                    .font(.system(size: 10, weight: isSelected ? .bold : .medium))
+                    .foregroundColor(isSelected ? AppColors.primary : AppColors.textSecondary)
+            }
+            .frame(maxWidth: .infinity)
         }
     }
 }

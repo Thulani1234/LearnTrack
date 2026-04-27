@@ -30,7 +30,8 @@ struct LearnTrackApp: App {
     @StateObject private var appState = AppState()
     
     init() {
-        FirebaseApp.configure()   // 👈 ADD THIS
+        FirebaseApp.configure()
+        NotificationManager.shared.requestPermission()
     }
     
     var body: some Scene {

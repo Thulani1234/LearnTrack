@@ -13,6 +13,8 @@ class AppState: ObservableObject {
     @Published var isFirstLaunch: Bool = true
     @Published var isLocked: Bool = true
     @Published var selectedTab: Int = 0
+    @Published var isLoggedIn: Bool = false
+    @Published var currentAlert: AppAlert? = nil
     
     init() {
         let defaults = UserDefaults.standard
@@ -37,3 +39,15 @@ class AppState: ObservableObject {
     }
 }
 
+struct AppAlert: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
+    let icon: String
+    let color: Color
+    var type: AppAlertType = .info
+}
+
+enum AppAlertType {
+    case info, warning, success
+}

@@ -97,7 +97,7 @@ struct PlanASessionView: View {
                     scheduledSession = StudySession(
                         subjectId: subjects[selectedSubjectIndex].id,
                         date: sessionDate,
-                        durationMinutes: duration,
+                        durationSeconds: duration * 60,
                         isCompleted: false,
                         summary: nil
                     )
@@ -171,7 +171,7 @@ private struct SessionConfirmationCard: View {
                         .foregroundColor(AppColors.textSecondary)
                 }
                 Spacer()
-                Text("\(session.durationMinutes) min")
+                Text("\(session.durationSeconds / 60) min")
                     .font(AppTypography.caption)
                     .foregroundColor(AppColors.textSecondary)
                     .padding(.vertical, 8)

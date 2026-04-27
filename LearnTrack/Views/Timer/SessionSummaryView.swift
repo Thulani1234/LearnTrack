@@ -1,305 +1,258 @@
-//
-//  SessionSummaryView..swift
-//  LearnTrack
-//
-//  Created by COBSCCOMP242P-028 on 2026-04-24.
-//
 import SwiftUI
 
 struct SessionSummaryView: View {
     @EnvironmentObject var router: AppRouter
-    @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var data: MockData
+    @Environment(\.dismiss) var dismiss
     
     var subject: Subject
     var duration: Int
     var quizScore: Int? = nil
     var progressGain: Int? = nil
     
-    @State private var notesText = ""
-    @State private var showAddNoteSheet = false
-    @State private var newNoteText = ""
-    
-    private var summaryText: String {
-        if !notesText.isEmpty {
-            return notesText
-        }
-        return "You studied \(subject.name) for \(timeString(duration)) — covering core concepts, reviewing examples, and strengthening your recall. Keep the momentum going with one more review before your next test."
-    }
+    @State private var isSummarizing = false
+    @State private var summaryText: String? = nil
     
     var body: some View {
-        ZStack(alignment: .top) {
-            AppColors.background.ignoresSafeArea()
+        ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
-                LinearGradient(
-                    gradient: Gradient(colors: [AppColors.primary, AppColors.secondary]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .frame(height: 260)
-                Spacer()
-            }
-            VStack(spacing: 20) {
-                HStack {
-                    Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "chevron.left")
-                            Text("Back to Timer")
-                                .font(AppTypography.bodySmall)
+                // Celebration Header
+                ZStack {
+                    LinearGradient(
+                        colors: [AppColors.primary, AppColors.secondary],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .clipShape(RoundedCorner(radius: 40, corners: [.bottomLeft, .bottomRight]))
+                    
+                    VStack(spacing: 16) {
+                        Image(systemName: "checkmark.seal.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                        
+                        VStack(spacing: 4) {
+                            Text("Brilliant Work!")
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                            Text("Session complete for \(subject.name)")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white.opacity(0.9))
                         }
-                        .foregroundColor(.white)
                     }
-                    Spacer()
+                    .padding(.top, 40)
+                    .padding(.bottom, 40)
                 }
-                .padding(.horizontal)
-                .padding(.top, 40)
+                .ignoresSafeArea()
                 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Session Complete!")
-                        .font(AppTypography.title)
-                        .foregroundColor(.white)
-                    Text("Here’s your study summary")
-                        .font(AppTypography.body)
-                        .foregroundColor(.white.opacity(0.85))
-                }
-                .padding(.horizontal)
-                
-                HStack(spacing: 14) {
-                    SummaryMetric(title: "Time", value: timeString(duration), subtitle: "Study time", color: Color.white.opacity(0.2))
-                    SummaryMetric(title: "Score", value: quizScore != nil ? "\(quizScore!)/10" : "8/10", subtitle: "Quiz score", color: Color.white.opacity(0.2))
-                    SummaryMetric(title: "Gain", value: progressGain != nil ? "+\(progressGain!)%" : "+10%", subtitle: "Progress", color: Color.white.opacity(0.2))
-                }
-                .padding(.horizontal)
-                
-                VStack(spacing: 18) {
-                    SessionOverviewCard(subject: subject, duration: timeString(duration))
-                    AISummaryCard(text: summaryText)
-                    WeeklyProgressCard()
-                }
-                .padding(.horizontal)
-                
-                HStack(spacing: 14) {
-                    ActionButton(icon: "mic.fill", title: "Voice Note", color: AppColors.cardBackground) {
-                        presentationMode.wrappedValue.dismiss()
-                        router.navigate(to: .voiceNotes)
-                    }
-                    ActionButton(icon: "checkmark.seal.fill", title: "Take Quiz", color: AppColors.cardBackground) {
-                        presentationMode.wrappedValue.dismiss()
-                        router.navigate(to: .quizList)
-                    }
-                    ActionButton(icon: "note.text", title: "Add Note", color: AppColors.cardBackground) {
-                        showAddNoteSheet = true
-                    }
-                }
-                .padding(.horizontal)
-                
-                PrimaryButton(title: "Done") {
-                    presentationMode.wrappedValue.dismiss()
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 20)
-            }
-        }
-        .sheet(isPresented: $showAddNoteSheet) {
-            NavigationStack {
-                VStack(spacing: 18) {
-                    Text("Add Session Note")
-                        .font(AppTypography.title)
-                        .foregroundColor(AppColors.textPrimary)
-                        .padding(.top, 20)
-                    TextEditor(text: $newNoteText)
-                        .foregroundColor(AppColors.textPrimary)
-                        .padding(16)
-                        .background(AppColors.cardBackground)
-                        .cornerRadius(20)
-                        .frame(height: 220)
-                    Spacer()
-                    PrimaryButton(title: "Save Note") {
-                        notesText = newNoteText
-                        showAddNoteSheet = false
+                VStack(spacing: 24) {
+                    // Stats
+                    HStack(spacing: 16) {
+                        SummaryCard(title: "Duration", value: timeString(duration), icon: "timer", color: .blue)
+                        SummaryCard(title: "Efficiency", value: "92%", icon: "bolt.fill", color: .green)
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 20)
-                }
-                .padding(.horizontal)
-                .background(AppColors.background.ignoresSafeArea())
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            showAddNoteSheet = false
+                    .offset(y: -20)
+                    
+                    // Auto Summarize Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Text("AI SESSION INSIGHTS")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                            Spacer()
+                            if summaryText == nil {
+                                Button(action: autoSummarize) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "sparkles")
+                                        Text("Auto Summarize")
+                                    }
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(AppColors.primary)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(AppColors.primary.opacity(0.1))
+                                    .cornerRadius(20)
+                                }
+                            }
+                        }
+                        
+                        if isSummarizing {
+                            HStack(spacing: 12) {
+                                ProgressView()
+                                    .tint(AppColors.primary)
+                                Text("AI is analyzing your study patterns...")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(AppColors.textSecondary)
+                                Spacer()
+                            }
+                            .padding(20)
+                            .background(AppColors.cardBackground)
+                            .cornerRadius(24)
+                        } else if let summary = summaryText {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text(summary)
+                                    .font(.system(size: 15))
+                                    .foregroundColor(AppColors.textPrimary)
+                                    .lineSpacing(4)
+                                
+                                Divider()
+                                
+                                HStack {
+                                    Label("Deep Focus", systemImage: "brain.head.profile.fill")
+                                    Spacer()
+                                    Label("Productive", systemImage: "chart.line.uptrend.xyaxis")
+                                }
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AppColors.primary)
+                            }
+                            .padding(20)
+                            .background(AppColors.cardBackground)
+                            .cornerRadius(24)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .stroke(AppColors.primary.opacity(0.2), lineWidth: 1)
+                            )
                         }
                     }
+                    .padding(.horizontal)
+                    
+                    // Quick Actions
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("NEXT STEPS")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                        
+                        VStack(spacing: 0) {
+                            ActionRow(title: "Add Session Note", icon: "note.text", color: .orange) {
+                                dismiss()
+                                router.navigate(to: .addNote)
+                            }
+                            Divider().padding(.leading, 60)
+                            ActionRow(title: "Take Performance Quiz", icon: "pencil.and.outline", color: .purple) {
+                                dismiss()
+                                router.navigate(to: .quizList)
+                            }
+                            Divider().padding(.leading, 60)
+                            ActionRow(title: "Record Voice Summary", icon: "mic.fill", color: .blue) {
+                                dismiss()
+                                router.navigate(to: .voiceNotes)
+                            }
+                        }
+                        .background(AppColors.cardBackground)
+                        .cornerRadius(24)
+                        .shadow(color: Color.black.opacity(0.02), radius: 10, x: 0, y: 5)
+                    }
+                    .padding(.horizontal)
+                    
+                    // Done Button
+                    Button(action: { dismiss() }) {
+                        Text("Done")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 18)
+                            .background(AppColors.primary)
+                            .cornerRadius(24)
+                            .shadow(color: AppColors.primary.opacity(0.3), radius: 15, x: 0, y: 8)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 40)
                 }
+            }
+        }
+        .background(AppColors.background.ignoresSafeArea())
+    }
+    
+    private func autoSummarize() {
+        isSummarizing = true
+        // Simulate AI generation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            withAnimation {
+                isSummarizing = false
+                summaryText = "During this \(subject.name) session, you maintained a high focus level for 85% of the time. You successfully covered the core concepts and showed strong retention in the interactive segments. Great job staying on track!"
             }
         }
     }
     
-    // Convert seconds → hh:mm:ss
     func timeString(_ time: Int) -> String {
-        let hours = time / 3600
-        let minutes = (time % 3600) / 60
+        let minutes = time / 60
         let seconds = time % 60
-        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 }
 
-private struct SummaryMetric: View {
-    var title: String
-    var value: String
-    var subtitle: String
-    var color: Color
-    
-    var body: some View {
-        VStack(spacing: 6) {
-            Text(value)
-                .font(AppTypography.title)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            Text(subtitle)
-                .font(AppTypography.caption)
-                .foregroundColor(.white.opacity(0.85))
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(color)
-        .cornerRadius(20)
-    }
-}
-
-private struct SessionOverviewCard: View {
-    var subject: Subject
-    var duration: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "flame.fill")
-                    .font(.title2)
-                    .foregroundColor(AppColors.primary)
-                    .frame(width: 44, height: 44)
-                    .background(AppColors.primary.opacity(0.16))
-                    .cornerRadius(14)
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(subject.name)
-                        .font(AppTypography.headline)
-                        .foregroundColor(AppColors.textPrimary)
-                    Text("Today · 2:30 PM - 3:15 PM")
-                        .font(AppTypography.bodySmall)
-                        .foregroundColor(AppColors.textSecondary)
-                }
-                Spacer()
-                Text("Exam in 2 days")
-                    .font(AppTypography.caption)
-                    .foregroundColor(AppColors.error)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .background(AppColors.error.opacity(0.12))
-                    .cornerRadius(16)
-            }
-            Divider()
-            HStack {
-                Text("\(duration) session")
-                    .font(AppTypography.bodySmall)
-                    .foregroundColor(AppColors.textSecondary)
-                Spacer()
-                Text("Focused review")
-                    .font(AppTypography.bodySmall)
-                    .foregroundColor(AppColors.textPrimary)
-            }
-        }
-        .padding()
-        .background(AppColors.cardBackground)
-        .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 5)
-    }
-}
-
-private struct AISummaryCard: View {
-    var text: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("✨ AI SESSION SUMMARY")
-                .font(AppTypography.caption)
-                .foregroundColor(AppColors.primary)
-                .textCase(.uppercase)
-            Text(text)
-                .font(AppTypography.body)
-                .foregroundColor(AppColors.textPrimary)
-        }
-        .padding()
-        .background(AppColors.cardBackground)
-        .cornerRadius(24)
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(AppColors.primary.opacity(0.12), lineWidth: 1)
-        )
-    }
-}
-
-private struct WeeklyProgressCard: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Progress This Week")
-                .font(AppTypography.headline)
-                .foregroundColor(AppColors.textPrimary)
-            SessionProgressRow(label: "Study time", value: "3h 45m", percent: 0.75, color: AppColors.primary)
-            SessionProgressRow(label: "Quiz avg", value: "80%", percent: 0.8, color: AppColors.accent)
-        }
-        .padding()
-        .background(AppColors.cardBackground)
-        .cornerRadius(24)
-    }
-}
-
-private struct SessionProgressRow: View {
-    var label: String
-    var value: String
-    var percent: Double
-    var color: Color
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(label)
-                    .font(AppTypography.caption)
-                    .foregroundColor(AppColors.textSecondary)
-                Spacer()
-                Text(value)
-                    .font(AppTypography.bodySmall)
-                    .foregroundColor(AppColors.textPrimary)
-            }
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(AppColors.cardBackground)
-                    .frame(height: 10)
-                Capsule()
-                    .fill(color)
-                    .frame(width: CGFloat(percent) * 180, height: 10)
-            }
-        }
-    }
-}
-
-private struct ActionButton: View {
-    var icon: String
-    var title: String
-    var color: Color
-    var action: () -> Void
+struct ActionRow: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.title2)
+            HStack(spacing: 16) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(color.opacity(0.1))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: icon)
+                        .foregroundColor(color)
+                        .font(.system(size: 18, weight: .bold))
+                }
+                
+                Text(title)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(AppColors.textPrimary)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(AppColors.textSecondary.opacity(0.3))
+            }
+            .padding(12)
+        }
+    }
+}
+
+struct SummaryCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 20))
+                .foregroundColor(color)
+                .frame(width: 44, height: 44)
+                .background(color.opacity(0.1))
+                .clipShape(Circle())
+            
+            VStack(spacing: 2) {
+                Text(value)
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(AppColors.textPrimary)
                 Text(title)
-                    .font(AppTypography.caption)
-                    .foregroundColor(AppColors.textPrimary)
+                    .font(.system(size: 12))
+                    .foregroundColor(AppColors.textSecondary)
             }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(color)
-            .cornerRadius(20)
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(AppColors.cardBackground)
+        .cornerRadius(24)
+        .shadow(color: Color.black.opacity(0.05), radius: 15, x: 0, y: 8)
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
     }
 }

@@ -14,6 +14,8 @@ struct ContentView: View {
         Group {
             if appState.isFirstLaunch {
                 OnboardingView()
+            } else if !appState.isLoggedIn {
+                WelcomeView()
             } else if appState.isLocked {
                 FaceIDView()
             } else {
@@ -21,6 +23,7 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut, value: appState.isFirstLaunch)
+        .animation(.easeInOut, value: appState.isLoggedIn)
         .animation(.easeInOut, value: appState.isLocked)
     }
 }

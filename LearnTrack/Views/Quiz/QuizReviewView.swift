@@ -6,7 +6,7 @@ struct QuizReviewView: View {
     var selectedAnswers: [Int?]
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
                     ForEach(quiz.questions.indices, id: \.self) { index in

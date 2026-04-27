@@ -14,4 +14,5 @@ struct Subject: Identifiable, Hashable {
     var progress: Double // 0.0 to 1.0
     var targetScore: Int
     var currentScore: Int
+    var icon: String
 }

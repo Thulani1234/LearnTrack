@@ -20,12 +20,18 @@ enum Route: Hashable {
     case results
     case targetActual
     case voiceNotes
+    case notes
+    case addNote
     case report
     case profile
+    case editProfile
     case settings
     case notifications
     case planSetup
     case planGenerated
+    case privacy
+    case help
+    case contact
 }
 
 class AppRouter: ObservableObject {
@@ -45,5 +51,3 @@ class AppRouter: ObservableObject {
         path.removeLast(path.count)
     }
 }
-
-
