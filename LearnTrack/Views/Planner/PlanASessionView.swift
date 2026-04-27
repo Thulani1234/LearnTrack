@@ -50,7 +50,42 @@ struct PlanASessionView: View {
                     
                     SectionCard(title: "Duration & Time") {
                         VStack(spacing: 16) {
-                            Stepper("Duration: \\(duration) mins", value: $duration, in: 15...180, step: 15)
+                            HStack(spacing: 12) {
+                                Text("Duration")
+                                    .font(AppTypography.body)
+                                    .foregroundColor(AppColors.textSecondary)
+                                Spacer()
+                                Button(action: {
+                                    if duration > 15 {
+                                        duration -= 15
+                                    }
+                                }) {
+                                    Image(systemName: "minus")
+                                        .frame(width: 36, height: 36)
+                                        .foregroundColor(duration > 15 ? .white : AppColors.textSecondary)
+                                        .background(duration > 15 ? AppColors.primary : AppColors.cardElevated)
+                                        .clipShape(Circle())
+                                }
+                                .disabled(duration <= 15)
+                                
+                                Text("\(duration) mins")
+                                    .font(AppTypography.body)
+                                    .foregroundColor(AppColors.textPrimary)
+                                    .frame(minWidth: 80)
+                                
+                                Button(action: {
+                                    if duration < 180 {
+                                        duration += 15
+                                    }
+                                }) {
+                                    Image(systemName: "plus")
+                                        .frame(width: 36, height: 36)
+                                        .foregroundColor(duration < 180 ? .white : AppColors.textSecondary)
+                                        .background(duration < 180 ? AppColors.primary : AppColors.cardElevated)
+                                        .clipShape(Circle())
+                                }
+                                .disabled(duration >= 180)
+                            }
                             DatePicker("Start Time", selection: $sessionDate, displayedComponents: [.date, .hourAndMinute])
                                 .datePickerStyle(.compact)
                         }

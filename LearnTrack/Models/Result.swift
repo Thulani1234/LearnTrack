@@ -49,8 +49,11 @@ struct Result: Identifiable, Hashable {
     var targetScore: Int {
         switch targetLabel {
         case "A+": return 95
-        case "A": return 80
-        case "B+": return 75
+        case "A": return 90
+        case "B+": return 85
+        case "B": return 80
+        case "C+": return 75
+        case "C": return 70
         default: return 60
         }
     }

@@ -116,7 +116,7 @@ struct SessionCard: View {
                     .font(AppTypography.body)
                     .fontWeight(.semibold)
                     .foregroundColor(AppColors.textPrimary)
-                Text("\\(session.durationMinutes) mins")
+                Text("\(timeString(session.durationMinutes * 60))")
                     .font(AppTypography.caption)
                     .foregroundColor(AppColors.textSecondary)
             }
@@ -128,6 +128,14 @@ struct SessionCard: View {
         .padding()
         .background(AppColors.cardBackground)
         .cornerRadius(16)
+    }
+    
+    // Convert seconds → hh:mm:ss
+    func timeString(_ time: Int) -> String {
+        let hours = time / 3600
+        let minutes = (time % 3600) / 60
+        let seconds = time % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
 

@@ -12,7 +12,7 @@ import SwiftUI
 
 struct LiveActivityView: View {
     var subjectName = "Mathematics"
-    var timeRemaining = "12:34"
+    var timeRemaining = "00:12:34"
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

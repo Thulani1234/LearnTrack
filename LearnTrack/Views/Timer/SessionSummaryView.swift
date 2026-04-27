@@ -23,7 +23,7 @@ struct SessionSummaryView: View {
         if !notesText.isEmpty {
             return notesText
         }
-        return "You studied \(subject.name) for \(duration / 60) minutes — covering core concepts, reviewing examples, and strengthening your recall. Keep the momentum going with one more review before your next test."
+        return "You studied \(subject.name) for \(timeString(duration)) — covering core concepts, reviewing examples, and strengthening your recall. Keep the momentum going with one more review before your next test."
     }
     
     var body: some View {
@@ -64,14 +64,14 @@ struct SessionSummaryView: View {
                 .padding(.horizontal)
                 
                 HStack(spacing: 14) {
-                    SummaryMetric(title: "Minutes", value: "\(duration / 60)", subtitle: "Study time", color: Color.white.opacity(0.2))
+                    SummaryMetric(title: "Time", value: timeString(duration), subtitle: "Study time", color: Color.white.opacity(0.2))
                     SummaryMetric(title: "Score", value: quizScore != nil ? "\(quizScore!)/10" : "8/10", subtitle: "Quiz score", color: Color.white.opacity(0.2))
                     SummaryMetric(title: "Gain", value: progressGain != nil ? "+\(progressGain!)%" : "+10%", subtitle: "Progress", color: Color.white.opacity(0.2))
                 }
                 .padding(.horizontal)
                 
                 VStack(spacing: 18) {
-                    SessionOverviewCard(subject: subject, duration: duration)
+                    SessionOverviewCard(subject: subject, duration: timeString(duration))
                     AISummaryCard(text: summaryText)
                     WeeklyProgressCard()
                 }
@@ -132,6 +132,14 @@ struct SessionSummaryView: View {
             }
         }
     }
+    
+    // Convert seconds → hh:mm:ss
+    func timeString(_ time: Int) -> String {
+        let hours = time / 3600
+        let minutes = (time % 3600) / 60
+        let seconds = time % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+    }
 }
 
 private struct SummaryMetric: View {
@@ -159,7 +167,7 @@ private struct SummaryMetric: View {
 
 private struct SessionOverviewCard: View {
     var subject: Subject
-    var duration: Int
+    var duration: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -189,7 +197,7 @@ private struct SessionOverviewCard: View {
             }
             Divider()
             HStack {
-                Text("\(duration / 60) mins session")
+                Text("\(duration) session")
                     .font(AppTypography.bodySmall)
                     .foregroundColor(AppColors.textSecondary)
                 Spacer()

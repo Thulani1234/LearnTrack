@@ -98,7 +98,8 @@ struct StudyTimerView: View {
     @EnvironmentObject var router: AppRouter
     var subject: Subject
     
-    @State private var timeRemaining = 1500 // 25 minutes
+    private let sessionDuration = 1500 // 25 minutes
+    @State private var timeElapsed = 0
     @State private var isActive = false
     @State private var showSummary = false
     
@@ -117,13 +118,13 @@ struct StudyTimerView: View {
                     .foregroundColor(AppColors.primary)
                 
                 Circle()
-                    .trim(from: 0.0, to: CGFloat(timeRemaining) / 1500.0)
+                    .trim(from: 0.0, to: CGFloat(min(Double(timeElapsed) / Double(sessionDuration), 1.0)))
                     .stroke(style: StrokeStyle(lineWidth: 20, lineCap: .round, lineJoin: .round))
                     .foregroundColor(AppColors.primary)
                     .rotationEffect(Angle(degrees: 270.0))
-                    .animation(.linear, value: timeRemaining)
+                    .animation(.linear, value: timeElapsed)
                 
-                Text(timeString(time: timeRemaining))
+                Text(timeString(time: timeElapsed))
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundColor(AppColors.textPrimary)
             }
@@ -164,9 +165,9 @@ struct StudyTimerView: View {
         
         // Timer logic
         .onReceive(timer) { _ in
-            if isActive && timeRemaining > 0 {
-                timeRemaining -= 1
-            } else if timeRemaining == 0 {
+            if isActive && timeElapsed < sessionDuration {
+                timeElapsed += 1
+            } else if timeElapsed >= sessionDuration {
                 isActive = false
                 showSummary = true
             }
@@ -176,15 +177,16 @@ struct StudyTimerView: View {
         .sheet(isPresented: $showSummary) {
             SessionSummaryView(
                 subject: subject,
-                duration: 1500 - timeRemaining
+                duration: timeElapsed
             )
         }
     }
     
-    // Convert seconds → mm:ss
+    // Convert seconds → hh:mm:ss
     func timeString(time: Int) -> String {
-        let minutes = time / 60
+        let hours = time / 3600
+        let minutes = (time % 3600) / 60
         let seconds = time % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
