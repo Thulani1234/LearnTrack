@@ -127,7 +127,11 @@ struct DashboardView: View {
                     }
                     Spacer()
                     Button("Join") {
-                        // Join live session
+                        withAnimation {
+                            appState.joiningRoomName = "Science Study Group"
+                            appState.isJoiningRoom = true
+                            appState.selectedTab = 2
+                        }
                     }
                     .font(AppTypography.bodySmall)
                     .fontWeight(.bold)
@@ -226,34 +230,44 @@ struct DailyStudyGoalSection: View {
 }
 
 struct AutoPlanItem: View {
+    @EnvironmentObject var router: AppRouter
+    @EnvironmentObject var data: MockData
     var icon: String
     var title: String
     var status: String
     var isCompleted: Bool
     
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundColor(AppColors.primary)
-                .frame(width: 44, height: 44)
-                .background(AppColors.background)
-                .cornerRadius(14)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(AppColors.textPrimary)
-                Text(status)
-                    .font(.system(size: 12))
-                    .foregroundColor(status == "Urgent" ? .red : (status == "Soon" ? .orange : .blue))
+        Button(action: {
+            if let subjectName = title.components(separatedBy: " — ").first,
+               let subject = data.subjects.first(where: { $0.name == subjectName }) {
+                router.navigate(to: .timer(subject))
             }
-            Spacer()
-            Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                .font(.title2)
-                .foregroundColor(isCompleted ? Color.green : AppColors.textSecondary.opacity(0.3))
+        }) {
+            HStack(spacing: 16) {
+                Image(systemName: icon)
+                    .font(.system(size: 18))
+                    .foregroundColor(AppColors.primary)
+                    .frame(width: 44, height: 44)
+                    .background(AppColors.background)
+                    .cornerRadius(14)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(AppColors.textPrimary)
+                    Text(status)
+                        .font(.system(size: 12))
+                        .foregroundColor(status == "Urgent" ? .red : (status == "Soon" ? .orange : .blue))
+                }
+                Spacer()
+                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
+                    .foregroundColor(isCompleted ? Color.green : AppColors.textSecondary.opacity(0.3))
+            }
+            .padding(16)
         }
-        .padding(16)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

@@ -16,7 +16,6 @@ struct LiveView: View {
     
     @State private var sessionCode = ""
     @State private var showingCreateSheet = false
-    @State private var isJoining = false
     
     let activeSessions = [
         LiveSession(title: "Science Revision Group", host: "Ahmed", activeMinutes: 38, participants: ["A", "S", "R"], color: .red),
@@ -28,7 +27,7 @@ struct LiveView: View {
         ZStack {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 28) {
-                    // App Standard Header Style
+                    // Header
                     HStack {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Live Study")
@@ -55,7 +54,7 @@ struct LiveView: View {
                     .padding(.horizontal)
                     .padding(.top, 20)
                     
-                    // Start a Session Card (Integrated Style)
+                    // Start a Session Card
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Start a Session")
@@ -105,7 +104,7 @@ struct LiveView: View {
                             
                             Button(action: {
                                 if !sessionCode.isEmpty {
-                                    triggerJoinAnimation()
+                                    triggerJoinAnimation(roomName: "Private Room")
                                 }
                             }) {
                                 Text("Join")
@@ -178,14 +177,14 @@ struct LiveView: View {
             }
             
             // Joining Overlay
-            if isJoining {
+            if appState.isJoiningRoom {
                 ZStack {
                     Color.black.opacity(0.4).ignoresSafeArea()
                     VStack(spacing: 20) {
                         ProgressView()
                             .scaleEffect(1.5)
                             .tint(.white)
-                        Text("Connecting to Focus Room...")
+                        Text("Connecting to \(appState.joiningRoomName)...")
                             .font(.headline)
                             .foregroundColor(.white)
                     }
@@ -194,6 +193,22 @@ struct LiveView: View {
                     .cornerRadius(32)
                 }
                 .transition(.opacity)
+                .onAppear {
+                    // Automatically dismiss after 2 seconds
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        withAnimation {
+                            let room = appState.joiningRoomName
+                            appState.isJoiningRoom = false
+                            appState.currentAlert = AppAlert(
+                                title: "Room Joined! 🎧",
+                                message: "You are now studying in \(room).",
+                                icon: "headphones",
+                                color: .green,
+                                type: .success
+                            )
+                        }
+                    }
+                }
             }
         }
         .background(AppColors.background.ignoresSafeArea())
@@ -205,18 +220,9 @@ struct LiveView: View {
     }
     
     func triggerJoinAnimation(roomName: String = "Live Room") {
-        withAnimation { isJoining = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation {
-                isJoining = false
-                appState.currentAlert = AppAlert(
-                    title: "Room Joined! 🎧",
-                    message: "You are now studying in \(roomName).",
-                    icon: "headphones",
-                    color: .green,
-                    type: .success
-                )
-            }
+        withAnimation {
+            appState.joiningRoomName = roomName
+            appState.isJoiningRoom = true
         }
     }
 }

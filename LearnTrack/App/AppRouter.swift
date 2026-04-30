@@ -32,6 +32,7 @@ enum Route: Hashable {
     case privacy
     case help
     case contact
+    case resultDetail(Result)
 }
 
 class AppRouter: ObservableObject {

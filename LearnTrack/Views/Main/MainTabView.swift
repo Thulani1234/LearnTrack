@@ -201,6 +201,9 @@ struct MainTabView: View {
         case .contact:
             ContactUsView()
                 .environmentObject(router)
+        case .resultDetail(let result):
+            SubjectResultsDetailView(result: result)
+                .environmentObject(router)
         }
     }
 }

@@ -15,6 +15,8 @@ class AppState: ObservableObject {
     @Published var selectedTab: Int = 0
     @Published var isLoggedIn: Bool = false
     @Published var currentAlert: AppAlert? = nil
+    @Published var isJoiningRoom: Bool = false
+    @Published var joiningRoomName: String = ""
     
     init() {
         let defaults = UserDefaults.standard
