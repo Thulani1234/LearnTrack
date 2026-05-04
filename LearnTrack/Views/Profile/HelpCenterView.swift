@@ -7,7 +7,7 @@ struct HelpCenterView: View {
     let categories = [
         HelpCategory(title: "Getting Started", icon: "sparkles", color: .blue),
         HelpCategory(title: "Study Timer", icon: "timer", color: .orange),
-        HelpCategory(title: "Notes & Quiz", icon: "doc.text.fill", color: .purple),
+        HelpCategory(title: "Notes", icon: "doc.text.fill", color: .purple),
         HelpCategory(title: "Account", icon: "person.fill", color: .green),
         HelpCategory(title: "Live Study", icon: "video.fill", color: .red),
         HelpCategory(title: "Billing", icon: "creditcard.fill", color: .cyan)

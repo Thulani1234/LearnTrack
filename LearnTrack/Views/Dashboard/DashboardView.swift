@@ -130,7 +130,6 @@ struct DashboardView: View {
                         withAnimation {
                             appState.joiningRoomName = "Science Study Group"
                             appState.isJoiningRoom = true
-                            appState.selectedTab = 2
                         }
                     }
                     .font(AppTypography.bodySmall)
@@ -152,9 +151,6 @@ struct DashboardView: View {
                         HStack(spacing: 12) {
                             SquareActionCard(title: "Timer", icon: "timer", color: .purple) {
                                 router.navigate(to: .timer(subjects.first!))
-                            }
-                            SquareActionCard(title: "Quiz", icon: "pencil.and.outline", color: .pink) {
-                                router.navigate(to: .quizList)
                             }
                             SquareActionCard(title: "Notes", icon: "book.closed.fill", color: .green) {
                                 router.navigate(to: .notes)

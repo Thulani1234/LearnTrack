@@ -1,6 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import PhotosUI
+import FirebaseFirestore
 
 struct ProfileView: View {
     @EnvironmentObject var appState: AppState
@@ -41,7 +42,6 @@ struct ProfileView: View {
                 // Achievement Stats
                 HStack(spacing: 16) {
                     AchievementCard(icon: "flame.fill", value: "7", title: "Streak", color: .orange)
-                    AchievementCard(icon: "star.fill", value: "12", title: "Quizzes", color: .yellow)
                     AchievementCard(icon: "timer", value: "45h", title: "Study", color: .purple)
                 }
                 .padding(.horizontal)

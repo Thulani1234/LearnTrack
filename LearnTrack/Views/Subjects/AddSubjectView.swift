@@ -17,7 +17,7 @@ struct AddSubjectView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var subjectImage: Image?
     
-    let categories = ["Exam", "Project", "Assignment"]
+    let categories = ["Exam", "Class Test", "Assignment"]
     let icons = ["book.fill", "function", "flask.fill", "laptopcomputer", "pencil.tip", "globe.americas.fill", "music.note", "sportscourt.fill"]
     let colors: [Color] = [.blue, .purple, .orange, .pink, .green, .red, .cyan, .indigo]
     
@@ -230,7 +230,7 @@ struct AddSubjectView: View {
                             currentScore: marksValue,
                             icon: selectedIcon
                         )
-                        data.subjects.append(newSubject)
+                        data.addSubject(newSubject)
                         
                         withAnimation {
                             appState.currentAlert = AppAlert(

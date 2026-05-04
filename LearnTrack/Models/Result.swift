@@ -7,16 +7,16 @@
 
 import Foundation
 
-enum ResultCategory: String, CaseIterable, Identifiable, Hashable {
+enum ResultCategory: String, CaseIterable, Identifiable, Hashable, Codable {
     case all = "All"
     case exams = "Exams"
-    case projects = "Projects"
+    case classTests = "Class Test"
     case assignments = "Assignments"
     
     var id: String { rawValue }
 }
 
-struct Result: Identifiable, Hashable {
+struct Result: Identifiable, Hashable, Codable {
     var id = UUID()
     var subjectId: UUID
     var title: String

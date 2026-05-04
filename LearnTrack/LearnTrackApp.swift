@@ -23,7 +23,7 @@ struct LearnTrackApp: App {
 }
 */
 import SwiftUI
-import FirebaseCore   // 👈 ADD THIS
+import FirebaseCore
 
 @main
 struct LearnTrackApp: App {
@@ -32,6 +32,9 @@ struct LearnTrackApp: App {
     init() {
         FirebaseApp.configure()
         NotificationManager.shared.requestPermission()
+        
+        // Initialize Core Data and perform migration if needed
+        DataMigrationService.shared.performInitialMigrationIfNeeded()
     }
     
     var body: some Scene {

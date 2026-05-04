@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Subject: Identifiable, Hashable {
+struct Subject: Identifiable, Hashable, Codable {
     var id = UUID()
     var name: String
     var colorHex: String

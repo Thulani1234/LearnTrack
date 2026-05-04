@@ -4,18 +4,22 @@ struct SignUpView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var appState: AppState
     
-    @State private var fullName = ""
+    @State private var name = ""
     @State private var email = ""
+    @State private var phoneNumber = ""
     @State private var password = ""
     @State private var confirmPassword = ""
     @State private var isLoading = false
     @State private var agreedToTerms = false
     
+    @State private var showOTPVerification = false
+    
     var body: some View {
         ZStack {
             AppColors.background.ignoresSafeArea()
             
-            VStack(spacing: 24) {
+            ScrollView {
+                VStack(spacing: 24) {
                 // Header
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Create Account")
@@ -31,12 +35,14 @@ struct SignUpView: View {
                 
                 // Form Fields
                 VStack(spacing: 16) {
-                    CustomTextField(icon: "person.fill", placeholder: "Full Name", text: $fullName)
+                    CustomTextField(icon: "person.fill", placeholder: "Name", text: $name)
                     CustomTextField(icon: "envelope.fill", placeholder: "Email Address", text: $email)
+                    CustomTextField(icon: "phone.fill", placeholder: "Phone Number", text: $phoneNumber)
                     CustomTextField(icon: "lock.fill", placeholder: "Password", text: $password, isSecure: true)
                     CustomTextField(icon: "lock.shield.fill", placeholder: "Confirm Password", text: $confirmPassword, isSecure: true)
                 }
                 .padding(.top, 10)
+                
                 
                 // Terms & Conditions
                 Toggle(isOn: $agreedToTerms) {
@@ -80,7 +86,7 @@ struct SignUpView: View {
                     .cornerRadius(16)
                     .shadow(color: AppColors.primary.opacity(0.3), radius: 10, x: 0, y: 5)
                 }
-                .disabled(isLoading || !agreedToTerms || fullName.isEmpty || email.isEmpty || password.isEmpty || password != confirmPassword)
+                .disabled(isLoading || !agreedToTerms || name.isEmpty || email.isEmpty || phoneNumber.isEmpty || password.isEmpty || password != confirmPassword)
                 .padding(.top, 10)
                 
                 Spacer()
@@ -100,8 +106,9 @@ struct SignUpView: View {
                     }
                 }
                 .padding(.bottom, 20)
+                }
+                .padding(.horizontal, 30)
             }
-            .padding(.horizontal, 30)
         }
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -113,17 +120,72 @@ struct SignUpView: View {
                 }
             }
         }
+        .sheet(isPresented: $showOTPVerification) {
+            OTPVerificationView(userPhone: phoneNumber) {
+                // After successful OTP verification, navigate to main app
+                withAnimation {
+                    appState.isLoggedIn = true
+                }
+                showOTPVerification = false
+                dismiss()
+            }
+        }
     }
     
+    
     private func signUp() {
+        // Validate phone number format
+        guard phoneNumber.count >= 10 else {
+            return
+        }
+        
+        
         isLoading = true
+        
+        
         // Simulate sign up delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             isLoading = false
-            withAnimation {
-                appState.isLoggedIn = true
-            }
+            
+            // Log user data for demonstration
+            print("User Registered:")
+            print("Name: \(name)")
+            print("Email: \(email)")
+            print("Phone: \(phoneNumber)")
+            
+            // Show OTP verification page
+            showOTPVerification = true
         }
+    }
+}
+
+struct SubjectCheckboxRow: View {
+    let subject: String
+    @Binding var isSelected: Bool
+    
+    var body: some View {
+        Button(action: {
+            isSelected.toggle()
+        }) {
+            HStack(spacing: 12) {
+                Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                    .foregroundColor(isSelected ? AppColors.primary : AppColors.textSecondary)
+                    .font(.system(size: 18))
+                
+                Text(subject)
+                    .font(AppTypography.body)
+                    .foregroundColor(AppColors.textPrimary)
+                
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isSelected ? AppColors.primary.opacity(0.1) : Color.clear)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

@@ -100,7 +100,9 @@ struct SubjectsView: View {
 }
 
 struct SubjectGridCard: View {
+    @EnvironmentObject var data: MockData
     var subject: Subject
+    @State private var showDeleteAlert = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -114,18 +116,31 @@ struct SubjectGridCard: View {
                         .foregroundColor(Color(hex: subject.colorHex))
                 }
                 Spacer()
-                Text("\(Int(subject.progress * 100))%")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(Color(hex: subject.colorHex))
+                
+                Button(action: { showDeleteAlert = true }) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 14))
+                        .foregroundColor(.red.opacity(0.6))
+                        .padding(8)
+                        .background(Color.red.opacity(0.05))
+                        .clipShape(Circle())
+                }
             }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(subject.name)
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(AppColors.textPrimary)
-                Text("Target: \(subject.targetScore)%")
-                    .font(AppTypography.caption)
-                    .foregroundColor(AppColors.textSecondary)
+                
+                HStack {
+                    Text("Target: \(subject.targetScore)%")
+                        .font(AppTypography.caption)
+                        .foregroundColor(AppColors.textSecondary)
+                    Spacer()
+                    Text("\(Int(subject.progress * 100))%")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(Color(hex: subject.colorHex))
+                }
             }
             
             ProgressView(value: subject.progress)
@@ -137,5 +152,15 @@ struct SubjectGridCard: View {
         .background(AppColors.cardBackground)
         .cornerRadius(28)
         .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 5)
+        .alert("Delete Subject?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                withAnimation {
+                    data.deleteSubject(subject)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently remove '\(subject.name)' and all its associated data.")
+        }
     }
 }

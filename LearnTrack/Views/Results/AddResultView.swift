@@ -1,5 +1,6 @@
 import SwiftUI
 
+
 struct AddResultView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var data: MockData
@@ -48,7 +49,7 @@ struct AddResultView: View {
                     
                     VStack(alignment: .leading, spacing: 24) {
                         // Title
-                        CustomInputField(title: "RESULT TITLE", placeholder: "Final Exam, Quiz 1...", text: $title)
+                        CustomInputField(title: "RESULT TITLE", placeholder: "Final Exam, Midterm...", text: $title)
                         
                         // Subject Selection
                         VStack(alignment: .leading, spacing: 10) {

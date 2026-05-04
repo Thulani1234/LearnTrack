@@ -10,6 +10,7 @@ struct AttachedImage: Identifiable {
 struct AddNoteView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var data: MockData
     
     @State private var title = ""
     @State private var content = ""
@@ -21,6 +22,8 @@ struct AddNoteView: View {
     @State private var showingFilePicker = false
     @State private var attachedFiles: [String] = []
     
+    @State private var selectedSubjectId: UUID?
+    
     let colors: [Color] = [.blue, .purple, .orange, .pink, .green, .red, .cyan, .indigo]
     
     var body: some View {
@@ -30,6 +33,8 @@ struct AddNoteView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 28) {
                     colorPicker
+                    
+                    subjectPicker
                     
                     VStack(alignment: .leading, spacing: 12) {
                         titleField
@@ -80,6 +85,16 @@ struct AddNoteView: View {
                 .foregroundColor(AppColors.textPrimary)
             Spacer()
             Button(action: { 
+                let newNote = Note(
+                    title: title.isEmpty ? "Untitled Note" : title,
+                    content: content,
+                    colorHex: selectedColor.toHex() ?? "6366F1",
+                    category: data.subjects.first(where: { $0.id == selectedSubjectId })?.name ?? "General",
+                    dateCreated: Date(),
+                    attachedFileNames: attachedFiles
+                )
+                data.addNote(newNote)
+                
                 withAnimation {
                     appState.currentAlert = AppAlert(
                         title: "Note Saved! 📝",
@@ -118,6 +133,43 @@ struct AddNoteView: View {
                 }
             }
             .padding(.vertical, 5)
+        }
+        .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    private var subjectPicker: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("LINK TO SUBJECT")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(AppColors.textSecondary.opacity(0.6))
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(data.subjects) { subject in
+                        Button(action: {
+                            selectedSubjectId = subject.id
+                            selectedColor = Color(hex: subject.colorHex)
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: subject.icon)
+                                    .font(.system(size: 14))
+                                Text(subject.name)
+                                    .font(.system(size: 14, weight: .bold))
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(selectedSubjectId == subject.id ? Color(hex: subject.colorHex) : AppColors.cardBackground)
+                            .foregroundColor(selectedSubjectId == subject.id ? .white : AppColors.textPrimary)
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color(hex: subject.colorHex).opacity(0.3), lineWidth: selectedSubjectId == subject.id ? 0 : 1)
+                            )
+                        }
+                    }
+                }
+            }
         }
         .padding(.horizontal)
     }

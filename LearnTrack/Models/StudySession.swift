@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct StudySession: Identifiable, Hashable {
+struct StudySession: Identifiable, Hashable, Codable {
     var id = UUID()
     var subjectId: UUID
     var date: Date

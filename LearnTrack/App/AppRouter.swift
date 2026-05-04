@@ -15,8 +15,6 @@ enum Route: Hashable {
     case addSubject
     case addResult
     case timer(MockData.SubjectMock)
-    case quizList
-    case quiz(MockData.QuizMock)
     case results
     case targetActual
     case voiceNotes
@@ -33,6 +31,8 @@ enum Route: Hashable {
     case help
     case contact
     case resultDetail(Result)
+    case meetingRoom(String)
+    case fullCalendar
 }
 
 class AppRouter: ObservableObject {

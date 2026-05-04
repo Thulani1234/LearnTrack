@@ -23,7 +23,7 @@ struct NotificationsView: View {
         NotificationItem(title: "Daily Motivation", message: "Success is the sum of small efforts repeated daily. Keep pushing, Sara! 💪", time: "2h ago", icon: "quote.bubble.fill", color: .blue, type: .motivation),
         NotificationItem(title: "Study Reminder", message: "Time to start your Science session. You've got this!", time: "10m ago", icon: "clock.fill", color: .purple, type: .info),
         NotificationItem(title: "New Achievement", message: "Congratulations! You've reached a 7-day study streak.", time: "2h ago", icon: "flame.fill", color: .orange, type: .success),
-        NotificationItem(title: "Quiz Result", message: "Your English quiz result is out. You scored 92%!", time: "Yesterday", icon: "pencil.and.outline", color: .blue, type: .success),
+        NotificationItem(title: "New Note Added", message: "You added a new note to Physics formulas.", time: "Yesterday", icon: "doc.text.fill", color: .purple, type: .info),
         NotificationItem(title: "Goal Reached", message: "You completed all your planned sessions for today.", time: "Yesterday", icon: "target", color: .green, type: .info),
         NotificationItem(title: "Subject Update", message: "Mathematics syllabus has been updated with new materials.", time: "2 days ago", icon: "books.vertical.fill", color: .pink, type: .info)
     ]

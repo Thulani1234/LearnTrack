@@ -10,16 +10,64 @@
 		460EAF012F9BA93800331994 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF002F9BA93800331994 /* FirebaseAnalytics */; };
 		460EAF032F9BA93800331994 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF022F9BA93800331994 /* FirebaseAuth */; };
 		460EAF052F9BA93800331994 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF042F9BA93800331994 /* FirebaseFirestore */; };
+		467C66862FA888DB004A0E7A /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467C66852FA888DB004A0E7A /* SwiftUI.framework */; };
+		467C66952FA888DD004A0E7A /* LearnTrackWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		467C669B2FA8898F004A0E7A /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467C66832FA888DB004A0E7A /* WidgetKit.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		467C66932FA888DD004A0E7A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4604F6A02F9B1CF500EB8FA9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 467C66802FA888DB004A0E7A;
+			remoteInfo = LearnTrackWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		467C669A2FA888DD004A0E7A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				467C66952FA888DD004A0E7A /* LearnTrackWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4604F6A82F9B1CF500EB8FA9 /* LearnTrack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LearnTrack.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LearnTrackWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		467C66832FA888DB004A0E7A /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		467C66852FA888DB004A0E7A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		467C66962FA888DD004A0E7A /* Exceptions for "LearnTrackWidget" folder in "LearnTrackWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 467C66802FA888DB004A0E7A /* LearnTrackWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4604F6AA2F9B1CF500EB8FA9 /* LearnTrack */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = LearnTrack;
+			sourceTree = "<group>";
+		};
+		467C66872FA888DB004A0E7A /* LearnTrackWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				467C66962FA888DD004A0E7A /* Exceptions for "LearnTrackWidget" folder in "LearnTrackWidgetExtension" target */,
+			);
+			path = LearnTrackWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -35,6 +83,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		467C667E2FA888DB004A0E7A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				467C669B2FA8898F004A0E7A /* WidgetKit.framework in Frameworks */,
+				467C66862FA888DB004A0E7A /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -42,6 +99,8 @@
 			isa = PBXGroup;
 			children = (
 				4604F6AA2F9B1CF500EB8FA9 /* LearnTrack */,
+				467C66872FA888DB004A0E7A /* LearnTrackWidget */,
+				467C66822FA888DB004A0E7A /* Frameworks */,
 				4604F6A92F9B1CF500EB8FA9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -50,8 +109,18 @@
 			isa = PBXGroup;
 			children = (
 				4604F6A82F9B1CF500EB8FA9 /* LearnTrack.app */,
+				467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		467C66822FA888DB004A0E7A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				467C66832FA888DB004A0E7A /* WidgetKit.framework */,
+				467C66852FA888DB004A0E7A /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -64,10 +133,12 @@
 				4604F6A42F9B1CF500EB8FA9 /* Sources */,
 				4604F6A52F9B1CF500EB8FA9 /* Frameworks */,
 				4604F6A62F9B1CF500EB8FA9 /* Resources */,
+				467C669A2FA888DD004A0E7A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				467C66942FA888DD004A0E7A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				4604F6AA2F9B1CF500EB8FA9 /* LearnTrack */,
@@ -82,6 +153,28 @@
 			productReference = 4604F6A82F9B1CF500EB8FA9 /* LearnTrack.app */;
 			productType = "com.apple.product-type.application";
 		};
+		467C66802FA888DB004A0E7A /* LearnTrackWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 467C66972FA888DD004A0E7A /* Build configuration list for PBXNativeTarget "LearnTrackWidgetExtension" */;
+			buildPhases = (
+				467C667D2FA888DB004A0E7A /* Sources */,
+				467C667E2FA888DB004A0E7A /* Frameworks */,
+				467C667F2FA888DB004A0E7A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				467C66872FA888DB004A0E7A /* LearnTrackWidget */,
+			);
+			name = LearnTrackWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = LearnTrackWidgetExtension;
+			productReference = 467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -93,6 +186,9 @@
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					4604F6A72F9B1CF500EB8FA9 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					467C66802FA888DB004A0E7A = {
 						CreatedOnToolsVersion = 26.2;
 					};
 				};
@@ -115,12 +211,20 @@
 			projectRoot = "";
 			targets = (
 				4604F6A72F9B1CF500EB8FA9 /* LearnTrack */,
+				467C66802FA888DB004A0E7A /* LearnTrackWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		4604F6A62F9B1CF500EB8FA9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		467C667F2FA888DB004A0E7A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -137,7 +241,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		467C667D2FA888DB004A0E7A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		467C66942FA888DD004A0E7A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 467C66802FA888DB004A0E7A /* LearnTrackWidgetExtension */;
+			targetProxy = 467C66932FA888DD004A0E7A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		4604F6B12F9B1CF600EB8FA9 /* Debug */ = {
@@ -321,6 +440,64 @@
 			};
 			name = Release;
 		};
+		467C66982FA888DD004A0E7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LearnTrackWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LearnTrackWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Thulani.LearnTrack.LearnTrackWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		467C66992FA888DD004A0E7A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LearnTrackWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LearnTrackWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Thulani.LearnTrack.LearnTrackWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -338,6 +515,15 @@
 			buildConfigurations = (
 				4604F6B42F9B1CF600EB8FA9 /* Debug */,
 				4604F6B52F9B1CF600EB8FA9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		467C66972FA888DD004A0E7A /* Build configuration list for PBXNativeTarget "LearnTrackWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				467C66982FA888DD004A0E7A /* Debug */,
+				467C66992FA888DD004A0E7A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

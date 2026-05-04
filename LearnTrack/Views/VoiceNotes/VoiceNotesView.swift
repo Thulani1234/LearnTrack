@@ -10,16 +10,14 @@ struct VoiceRecording: Identifiable {
 
 struct VoiceNotesView: View {
     @EnvironmentObject var router: AppRouter
+    @EnvironmentObject var data: MockData
     @State private var isRecording = false
     @State private var searchText = ""
     @State private var recordingTime = 0
+    @State private var selectedSubjectId: UUID?
     @State private var timer: Timer? = nil
     
-    @State private var mockRecordings = [
-        VoiceRecording(title: "Biology Lecture - Cells", duration: "12:45", date: "Today", waveform: [0.2, 0.5, 0.3, 0.8, 0.4, 0.6, 0.3, 0.5]),
-        VoiceRecording(title: "Math Formulas Recap", duration: "05:20", date: "Yesterday", waveform: [0.4, 0.3, 0.6, 0.2, 0.5, 0.8, 0.4, 0.3]),
-        VoiceRecording(title: "History Project Ideas", duration: "02:15", date: "24 Apr", waveform: [0.3, 0.4, 0.5, 0.3, 0.4, 0.2, 0.6, 0.4])
-    ]
+    @State private var mockRecordings: [VoiceRecording] = []
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -54,6 +52,27 @@ struct VoiceNotesView: View {
                 .background(AppColors.cardBackground)
                 .cornerRadius(20)
                 .padding(.horizontal)
+                
+                // Subject Filter
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(data.subjects) { subject in
+                            Button(action: { selectedSubjectId = subject.id }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: subject.icon)
+                                    Text(subject.name)
+                                }
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(selectedSubjectId == subject.id ? .white : AppColors.textSecondary)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                                .background(selectedSubjectId == subject.id ? AppColors.primary : AppColors.cardBackground)
+                                .cornerRadius(15)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
                 .padding(.bottom, 24)
                 
                 ScrollView(showsIndicators: false) {
@@ -113,6 +132,26 @@ struct VoiceNotesView: View {
         }
         .background(AppColors.background.ignoresSafeArea())
         .navigationBarHidden(true)
+        .onAppear {
+            if mockRecordings.isEmpty {
+                setupMockRecordings()
+            }
+        }
+    }
+    
+    private func setupMockRecordings() {
+        let subjects = data.subjects
+        if subjects.count >= 3 {
+            mockRecordings = [
+                VoiceRecording(title: "\(subjects[0].name) Lecture Notes", duration: "12:45", date: "Today", waveform: [0.2, 0.5, 0.3, 0.8, 0.4, 0.6, 0.3, 0.5]),
+                VoiceRecording(title: "\(subjects[1].name) Formulas Recap", duration: "05:20", date: "Yesterday", waveform: [0.4, 0.3, 0.6, 0.2, 0.5, 0.8, 0.4, 0.3]),
+                VoiceRecording(title: "\(subjects[2].name) Project Ideas", duration: "02:15", date: "24 Apr", waveform: [0.3, 0.4, 0.5, 0.3, 0.4, 0.2, 0.6, 0.4])
+            ]
+        } else {
+            mockRecordings = subjects.map { subject in
+                VoiceRecording(title: "\(subject.name) Session Note", duration: "08:30", date: "Today", waveform: [0.4, 0.6, 0.2, 0.5, 0.8, 0.3, 0.5, 0.4])
+            }
+        }
     }
     
     private func toggleRecording() {
@@ -122,7 +161,8 @@ struct VoiceNotesView: View {
                 startTimer()
             } else {
                 stopTimer()
-                mockRecordings.insert(VoiceRecording(title: "New Note \(mockRecordings.count + 1)", duration: timeString(time: recordingTime), date: "Today", waveform: [0.3, 0.6, 0.4, 0.7, 0.2, 0.5, 0.3, 0.4]), at: 0)
+                let subjectName = data.subjects.first(where: { $0.id == selectedSubjectId })?.name ?? "General"
+                mockRecordings.insert(VoiceRecording(title: "\(subjectName) Note \(mockRecordings.count + 1)", duration: timeString(time: recordingTime), date: "Today", waveform: [0.3, 0.6, 0.4, 0.7, 0.2, 0.5, 0.3, 0.4]), at: 0)
                 recordingTime = 0
             }
         }

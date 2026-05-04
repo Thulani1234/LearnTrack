@@ -204,6 +204,25 @@ struct StudyTimerView: View {
                     Button(action: {
                         withAnimation(.spring()) {
                             isActive.toggle()
+                            
+                            if isActive {
+                                #if canImport(ActivityKit)
+                                StudyActivityManager.shared.startSession(
+                                    subject: currentSubject.name,
+                                    icon: emoji(for: currentSubject.name),
+                                    colorHex: currentSubject.colorHex,
+                                    duration: TimeInterval(sessionDuration)
+                                )
+                                #endif
+                            } else {
+                                #if canImport(ActivityKit)
+                                StudyActivityManager.shared.updateSession(
+                                    elapsed: TimeInterval(timeElapsed),
+                                    progress: Double(timeElapsed) / Double(sessionDuration),
+                                    isPaused: true
+                                )
+                                #endif
+                            }
                         }
                     }) {
                         ZStack {
@@ -223,6 +242,9 @@ struct StudyTimerView: View {
                         withAnimation {
                             timeElapsed = 0
                             isActive = false
+                            #if canImport(ActivityKit)
+                            StudyActivityManager.shared.endSession()
+                            #endif
                         }
                     }) {
                         Image(systemName: "arrow.counterclockwise")
@@ -243,13 +265,30 @@ struct StudyTimerView: View {
                 if isActive {
                     pulseAmount = 1.2
                 }
+                
+                // Update Live Activity every second
+                #if canImport(ActivityKit)
+                StudyActivityManager.shared.updateSession(
+                    elapsed: TimeInterval(timeElapsed),
+                    progress: Double(timeElapsed) / Double(sessionDuration),
+                    isPaused: false
+                )
+                #endif
             } else if timeElapsed >= sessionDuration {
                 isActive = false
                 showSummary = true
+                #if canImport(ActivityKit)
+                StudyActivityManager.shared.endSession()
+                #endif
             }
         }
+        .onDisappear {
+            #if canImport(ActivityKit)
+            StudyActivityManager.shared.endSession()
+            #endif
+        }
         .sheet(isPresented: $showSummary) {
-            SessionSummaryView(subject: currentSubject, duration: timeElapsed)
+            SessionSummaryView(subject: currentSubject, totalTime: timeElapsed, isCompleted: timeElapsed >= sessionDuration)
                 .environmentObject(data)
                 .environmentObject(router)
         }

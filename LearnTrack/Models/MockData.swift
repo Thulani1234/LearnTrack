@@ -7,160 +7,154 @@
 
 import Foundation
 import Combine
+import SwiftUI
+import CoreData
 
 class MockData: ObservableObject {
-    // We use inner structs specifically for MockData UI usage if needed, or directly use the actual Models
-    
     static let shared = MockData()
     
-    @Published var subjects: [Subject]
-    @Published var recentSessions: [StudySession]
-    @Published var scheduledSessions: [StudySession]
-    @Published var quizzes: [Quiz]
-    @Published var academicResults: [Result]
+    @Published var subjects: [Subject] = []
+    @Published var recentSessions: [StudySession] = []
+    @Published var scheduledSessions: [StudySession] = []
+    @Published var academicResults: [Result] = []
+    @Published var notes: [Note] = []
+    
+    private let firestore = FirestoreManager.shared
+    private let coreData = CoreDataManager.shared
     
     private init() {
+        loadInitialData()
+    }
+    
+    func loadInitialData() {
+        // 1. Try to load from CoreData first
+        let cdSubjects = coreData.fetchSubjects()
+        
+        if cdSubjects.isEmpty {
+            // 2. If empty, seed with initial mock data
+            seedInitialData()
+        } else {
+            // 3. Map CoreData entities back to our structs
+            mapCoreDataToState()
+        }
+    }
+    
+    private func seedInitialData() {
         let initialSubjects = [
             Subject(name: "Mathematics", colorHex: "6366F1", progress: 0.7, targetScore: 95, currentScore: 89, icon: "function"),
             Subject(name: "Science", colorHex: "14B8A6", progress: 0.4, targetScore: 90, currentScore: 75, icon: "flask.fill"),
             Subject(name: "English", colorHex: "F59E0B", progress: 0.9, targetScore: 85, currentScore: 82, icon: "book.fill"),
             Subject(name: "ICT", colorHex: "A855F7", progress: 0.6, targetScore: 100, currentScore: 92, icon: "laptopcomputer")
         ]
+        
         subjects = initialSubjects
         
+        // Sync these to databases
+        for subject in subjects {
+            saveSubject(subject)
+        }
+        
         recentSessions = [
-            StudySession(subjectId: UUID(), date: Date(), durationSeconds: 45 * 60, isCompleted: true, summary: "Completed algebra practice."),
-            StudySession(subjectId: UUID(), date: Date().addingTimeInterval(-86400), durationSeconds: 30 * 60, isCompleted: true, summary: "Read chapter 3 of biology.")
+            StudySession(subjectId: subjects[0].id, date: Date(), durationSeconds: 45 * 60, isCompleted: true, summary: "Completed algebra practice."),
+            StudySession(subjectId: subjects[1].id, date: Date().addingTimeInterval(-86400), durationSeconds: 30 * 60, isCompleted: true, summary: "Read chapter 3 of biology.")
         ]
         
-        scheduledSessions = [
-            StudySession(subjectId: UUID(), date: Date().addingTimeInterval(3600), durationSeconds: 60 * 60, isCompleted: false),
-            StudySession(subjectId: UUID(), date: Date().addingTimeInterval(86400 * 2), durationSeconds: 45 * 60, isCompleted: false)
-        ]
-        
-        quizzes = [
-            Quiz(
-                subjectId: UUID(),
-                title: "Algebra Quiz",
-                dateAttempted: Date().addingTimeInterval(-86400 * 3),
-                score: 8,
-                totalQuestions: 4,
-                questions: [
-                    QuizQuestion(
-                        question: "What is the solution to x^2 - 5x + 6 = 0?",
-                        options: ["x = 2 or x = 3", "x = -2 or x = -3", "x = 5", "x = 6"],
-                        correctIndex: 0,
-                        explanation: "Factoring gives (x-2)(x-3)=0, so x=2 or x=3."
-                    ),
-                    QuizQuestion(
-                        question: "Which expression represents the area of a circle?",
-                        options: ["2πr", "πr²", "πd", "r²"],
-                        correctIndex: 1,
-                        explanation: "The area formula for a circle is π times the radius squared."
-                    ),
-                    QuizQuestion(
-                        question: "Simplify: 3(2x - 4) + 5",
-                        options: ["6x - 7", "6x + 1", "2x - 7", "6x - 5"],
-                        correctIndex: 0,
-                        explanation: "Distribute then add: 6x - 12 + 5 = 6x - 7."
-                    ),
-                    QuizQuestion(
-                        question: "What is the slope of a line with equation y = 4x + 1?",
-                        options: ["1", "4", "-4", "0"],
-                        correctIndex: 1,
-                        explanation: "The slope is the coefficient of x, which is 4."
-                    )
-                ]
-            ),
-            Quiz(
-                subjectId: UUID(),
-                title: "Grammar Quiz",
-                dateAttempted: Date().addingTimeInterval(-86400 * 5),
-                score: 7,
-                totalQuestions: 4,
-                questions: [
-                    QuizQuestion(
-                        question: "Which sentence shows correct subject-verb agreement?",
-                        options: ["The dogs runs fast.", "He go to school.", "She likes reading.", "They is happy."],
-                        correctIndex: 2,
-                        explanation: "She likes reading uses the correct third-person singular verb form."
-                    ),
-                    QuizQuestion(
-                        question: "Choose the correct version of the sentence:",
-                        options: ["Its raining outside.", "It’s raining outside.", "Its’ raining outside.", "It raining outside."],
-                        correctIndex: 1,
-                        explanation: "It’s is the contraction for it is, which is correct here."
-                    ),
-                    QuizQuestion(
-                        question: "What is the past tense of the verb 'to begin'?",
-                        options: ["begun", "began", "begins", "begined"],
-                        correctIndex: 1,
-                        explanation: "The correct past tense is began."
-                    ),
-                    QuizQuestion(
-                        question: "Choose the sentence with correct punctuation:",
-                        options: ["Lets eat grandma.", "Let’s eat, grandma.", "Lets eat, grandma.", "Let’s eat grandma."],
-                        correctIndex: 1,
-                        explanation: "The comma and contraction are both correct."
-                    )
-                ]
-            )
-        ]
+        for session in recentSessions {
+            saveStudySession(session)
+        }
         
         academicResults = [
-            Result(
-                subjectId: initialSubjects[1].id,
-                title: "Mid-term Exam",
-                date: Date().addingTimeInterval(-86400 * 4),
-                score: 78,
-                maxScore: 100,
-                weight: 30,
-                category: .exams,
-                targetLabel: "A"
-            ),
-            Result(
-                subjectId: initialSubjects[3].id,
-                title: "Data Structures Project",
-                date: Date().addingTimeInterval(-86400 * 7),
-                score: 85,
-                maxScore: 100,
-                weight: 30,
-                category: .projects,
-                targetLabel: "A"
-            ),
-            Result(
-                subjectId: initialSubjects[0].id,
-                title: "Algebra Final Exam",
-                date: Date().addingTimeInterval(-86400 * 16),
-                score: 58,
-                maxScore: 100,
-                weight: 35,
-                category: .exams,
-                targetLabel: "B+"
-            ),
-            Result(
-                subjectId: initialSubjects[2].id,
-                title: "Essay Assignment",
-                date: Date().addingTimeInterval(-86400 * 20),
-                score: 92,
-                maxScore: 100,
-                weight: 20,
-                category: .assignments,
-                targetLabel: "A"
-            )
+            Result(subjectId: subjects[1].id, title: "Mid-term Exam", date: Date().addingTimeInterval(-86400 * 4), score: 78, maxScore: 100, weight: 30, category: .exams, targetLabel: "A"),
+            Result(subjectId: subjects[3].id, title: "Data Structures Project", date: Date().addingTimeInterval(-86400 * 7), score: 85, maxScore: 100, weight: 30, category: .classTests, targetLabel: "A")
         ]
+        
+        for result in academicResults {
+            saveResult(result)
+        }
+        
+        notes = [
+            Note(title: "Physics Formulas", content: "F=ma, E=mc^2, v=u+at. Important for the upcoming semester finals...", colorHex: "3B82F6", category: "Physics", dateCreated: Date(), attachedFileNames: []),
+            Note(title: "Reaction Mechanisms", content: "Organic chemistry reaction mechanisms. Remember to focus on nucleophilic...", colorHex: "A855F7", category: "Chemistry", dateCreated: Date(), attachedFileNames: [])
+        ]
+        
+        for note in notes {
+            addNote(note)
+        }
     }
     
-    func addResult(
-        title: String,
-        subjectId: UUID,
-        score: Int,
-        maxScore: Int,
-        weight: Int,
-        category: ResultCategory,
-        targetLabel: String,
-        date: Date = Date()
-    ) {
+    private func mapCoreDataToState() {
+        let cdSubjects = coreData.fetchSubjects()
+        self.subjects = cdSubjects.map { cd in
+            Subject(
+                id: cd.id ?? UUID(),
+                name: cd.name ?? "Unknown",
+                colorHex: cd.colorHex ?? "6366F1",
+                progress: cd.progress,
+                targetScore: Int(cd.targetScore),
+                currentScore: Int(cd.progress * 100), // Approximation
+                icon: cd.icon ?? "book.fill"
+            )
+        }
+        
+        let cdResults = coreData.fetchResults()
+        self.academicResults = cdResults.map { cd in
+            Result(
+                id: cd.id ?? UUID(),
+                subjectId: cd.subject?.id ?? UUID(),
+                title: cd.title ?? "Result",
+                date: cd.date ?? Date(),
+                score: Int(cd.score),
+                maxScore: Int(cd.maxScore),
+                weight: Int(cd.weight),
+                category: ResultCategory(rawValue: cd.category ?? "Exams") ?? .exams,
+                targetLabel: cd.targetLabel ?? "A"
+            )
+        }
+        
+        // Similarly for sessions, notes...
+    }
+    
+    // MARK: - Save Methods
+    
+    func addSubject(_ subject: Subject) {
+        subjects.append(subject)
+        saveSubject(subject)
+    }
+    
+    func deleteSubject(_ subject: Subject) {
+        subjects.removeAll { $0.id == subject.id }
+        
+        // Remove from CoreData
+        let context = coreData.viewContext
+        let cdSubjects = coreData.fetchSubjects()
+        if let cdSubject = cdSubjects.first(where: { $0.id == subject.id }) {
+            context.delete(cdSubject)
+            coreData.saveContext()
+        }
+        
+        // Remove from Firestore
+        firestore.deleteSubject(subject.id)
+    }
+    
+    private func saveSubject(_ subject: Subject) {
+        // Save to Firestore
+        firestore.saveSubject(subject)
+        
+        // Save to CoreData
+        let context = coreData.viewContext
+        let cdSubject = CDSubject(context: context)
+        cdSubject.id = subject.id
+        cdSubject.name = subject.name
+        cdSubject.colorHex = subject.colorHex
+        cdSubject.progress = subject.progress
+        cdSubject.targetScore = Int32(subject.targetScore)
+        cdSubject.icon = subject.icon
+        cdSubject.createdDate = Date()
+        cdSubject.updatedDate = Date()
+        coreData.saveContext()
+    }
+    
+    func addResult(title: String, subjectId: UUID, score: Int, maxScore: Int, weight: Int, category: ResultCategory, targetLabel: String, date: Date = Date()) {
         let result = Result(
             subjectId: subjectId,
             title: title,
@@ -172,13 +166,73 @@ class MockData: ObservableObject {
             targetLabel: targetLabel
         )
         academicResults.append(result)
+        saveResult(result)
         updateSubjectMetrics(for: subjectId)
+    }
+    
+    private func saveResult(_ result: Result) {
+        firestore.saveResult(result)
+        
+        let context = coreData.viewContext
+        let cdResult = CDResult(context: context)
+        cdResult.id = result.id
+        cdResult.title = result.title
+        cdResult.date = result.date
+        cdResult.score = Int32(result.score)
+        cdResult.maxScore = Int32(result.maxScore)
+        cdResult.weight = Int32(result.weight)
+        cdResult.category = result.category.rawValue
+        cdResult.targetLabel = result.targetLabel
+        
+        // Link to subject
+        if let cdSubject = coreData.fetchSubjects().first(where: { $0.id == result.subjectId }) {
+            cdResult.subject = cdSubject
+        }
+        
+        coreData.saveContext()
+    }
+    
+    func addNote(_ note: Note) {
+        notes.append(note)
+        firestore.saveNote(note)
+        // Note: I'd need to add CDNote to CoreData model if I want local persistence for notes
+    }
+    
+    func addStudySession(subjectId: UUID, durationSeconds: Int, summary: String? = nil) {
+        let session = StudySession(
+            subjectId: subjectId,
+            date: Date(),
+            durationSeconds: durationSeconds,
+            isCompleted: true,
+            summary: summary
+        )
+        recentSessions.append(session)
+        saveStudySession(session)
+    }
+    
+    private func saveStudySession(_ session: StudySession) {
+        firestore.saveStudySession(session)
+        
+        let context = coreData.viewContext
+        let cdSession = CDStudySession(context: context)
+        cdSession.id = session.id
+        cdSession.date = session.date
+        cdSession.durationSeconds = Int32(session.durationSeconds)
+        cdSession.isCompleted = session.isCompleted
+        cdSession.summary = session.summary
+        
+        if let cdSubject = coreData.fetchSubjects().first(where: { $0.id == session.subjectId }) {
+            cdSession.subject = cdSubject
+        }
+        
+        coreData.saveContext()
     }
     
     func updateResult(_ updatedResult: Result) {
         guard let index = academicResults.firstIndex(where: { $0.id == updatedResult.id }) else { return }
         let oldSubjectId = academicResults[index].subjectId
         academicResults[index] = updatedResult
+        saveResult(updatedResult)
         updateSubjectMetrics(for: oldSubjectId)
         updateSubjectMetrics(for: updatedResult.subjectId)
     }
@@ -196,9 +250,14 @@ class MockData: ObservableObject {
         let newScore = currentResult?.percentage ?? subjects[index].currentScore
         subjects[index].currentScore = newScore
         subjects[index].progress = Double(min(max(newScore, 0), 100)) / 100.0
+        
+        // Update CoreData
+        if let cdSubject = coreData.fetchSubjects().first(where: { $0.id == subjectId }) {
+            cdSubject.progress = subjects[index].progress
+            coreData.saveContext()
+        }
     }
     
     // Type aliases for AppRouter
     typealias SubjectMock = Subject
-    typealias QuizMock = Quiz
 }

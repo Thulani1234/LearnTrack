@@ -6,8 +6,8 @@ struct SessionSummaryView: View {
     @Environment(\.dismiss) var dismiss
     
     var subject: Subject
-    var duration: Int
-    var quizScore: Int? = nil
+    var totalTime: Int
+    var isCompleted: Bool
     var progressGain: Int? = nil
     
     @State private var isSummarizing = false
@@ -48,7 +48,7 @@ struct SessionSummaryView: View {
                 VStack(spacing: 24) {
                     // Stats
                     HStack(spacing: 16) {
-                        SummaryCard(title: "Duration", value: timeString(duration), icon: "timer", color: .blue)
+                        SummaryCard(title: "Duration", value: timeString(totalTime), icon: "timer", color: .blue)
                         SummaryCard(title: "Efficiency", value: "92%", icon: "bolt.fill", color: .green)
                     }
                     .padding(.horizontal)
@@ -129,14 +129,18 @@ struct SessionSummaryView: View {
                                 router.navigate(to: .addNote)
                             }
                             Divider().padding(.leading, 60)
-                            ActionRow(title: "Take Performance Quiz", icon: "pencil.and.outline", color: .purple) {
-                                dismiss()
-                                router.navigate(to: .quizList)
-                            }
-                            Divider().padding(.leading, 60)
                             ActionRow(title: "Record Voice Summary", icon: "mic.fill", color: .blue) {
                                 dismiss()
                                 router.navigate(to: .voiceNotes)
+                            }
+                            Divider().padding(.leading, 60)
+                            ActionRow(title: "Save to Calendar", icon: "calendar.badge.plus", color: .green) {
+                                CalendarManager.shared.addStudySession(
+                                    title: subject.name,
+                                    startDate: Date().addingTimeInterval(-TimeInterval(totalTime)),
+                                    endDate: Date(),
+                                    notes: summaryText ?? "Study session completed in LearnTrack."
+                                )
                             }
                         }
                         .background(AppColors.cardBackground)
@@ -162,6 +166,9 @@ struct SessionSummaryView: View {
             }
         }
         .background(AppColors.background.ignoresSafeArea())
+        .onAppear {
+            data.addStudySession(subjectId: subject.id, durationSeconds: totalTime)
+        }
     }
     
     private func autoSummarize() {
@@ -247,12 +254,4 @@ struct SummaryCard: View {
     }
 }
 
-struct RoundedCorner: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
 
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
-        return Path(path.cgPath)
-    }
-}

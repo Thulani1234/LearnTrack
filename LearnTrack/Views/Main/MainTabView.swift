@@ -113,6 +113,71 @@ struct MainTabView: View {
         }
         .accentColor(AppColors.primary)
         .environmentObject(router)
+        .overlay(alignment: .center) {
+            if appState.isJoiningRoom {
+                ZStack {
+                    Color.black.opacity(0.6).ignoresSafeArea()
+                    
+                    VStack(spacing: 32) {
+                        // Creative Pulse Animation
+                        ZStack {
+                            Circle()
+                                .stroke(AppColors.primary.opacity(0.3), lineWidth: 4)
+                                .frame(width: 80, height: 80)
+                                .scaleEffect(appState.isJoiningRoom ? 1.5 : 1.0)
+                                .opacity(appState.isJoiningRoom ? 0 : 0.5)
+                                .animation(Animation.easeOut(duration: 1.5).repeatForever(autoreverses: false), value: appState.isJoiningRoom)
+                            
+                            Circle()
+                                .fill(AppColors.primary)
+                                .frame(width: 60, height: 60)
+                                .shadow(color: AppColors.primary.opacity(0.5), radius: 20)
+                            
+                            Image(systemName: "video.fill")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                        }
+                        
+                        VStack(spacing: 8) {
+                            Text("Joining Room")
+                                .font(.system(size: 24, weight: .black, design: .rounded))
+                                .foregroundColor(.white)
+                            
+                            Text(appState.joiningRoomName)
+                                .font(.system(size: 18, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppColors.primary)
+                        }
+                        
+                        HStack(spacing: 12) {
+                            Circle().fill(Color.green).frame(width: 8, height: 8)
+                            Text("Establishing secure connection...")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white.opacity(0.6))
+                        }
+                    }
+                    .padding(48)
+                    .background(
+                        BlurView(style: .systemThinMaterialDark)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 40)
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            )
+                    )
+                    .cornerRadius(40)
+                    .shadow(color: Color.black.opacity(0.3), radius: 30)
+                }
+                .transition(.asymmetric(insertion: .opacity, removal: .scale.combined(with: .opacity)))
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                            let room = appState.joiningRoomName
+                            appState.isJoiningRoom = false
+                            router.navigate(to: .meetingRoom(room))
+                        }
+                    }
+                }
+            }
+        }
         .overlay(alignment: .top) {
             if let alert = appState.currentAlert {
                 InAppAlertView(alert: alert) {
@@ -146,12 +211,6 @@ struct MainTabView: View {
                 .environmentObject(router)
         case .timer(let subject):
             StudyTimerView(subject: subject)
-                .environmentObject(router)
-        case .quizList:
-            QuizListView()
-                .environmentObject(router)
-        case .quiz(let quiz):
-            QuizView(quiz: quiz)
                 .environmentObject(router)
         case .results:
             ResultsView()
@@ -204,6 +263,12 @@ struct MainTabView: View {
         case .resultDetail(let result):
             SubjectResultsDetailView(result: result)
                 .environmentObject(router)
+        case .meetingRoom(let roomName):
+            MeetingRoomView(roomName: roomName)
+                .environmentObject(router)
+        case .fullCalendar:
+            FullCalendarView()
+                .environmentObject(router)
         }
     }
 }
@@ -215,17 +280,25 @@ struct TabBarItem: View {
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
+        Button(action: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                action()
+            }
+        }) {
+            VStack(spacing: 6) {
                 Image(systemName: icon)
                     .font(.system(size: 20, weight: isSelected ? .bold : .medium))
                     .foregroundColor(isSelected ? AppColors.primary : AppColors.textSecondary)
+                    .scaleEffect(isSelected ? 1.2 : 1.0)
+                
                 Text(label)
                     .font(.system(size: 10, weight: isSelected ? .bold : .medium))
                     .foregroundColor(isSelected ? AppColors.primary : AppColors.textSecondary)
             }
             .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

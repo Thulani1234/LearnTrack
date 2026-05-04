@@ -8,24 +8,12 @@ struct EditProfileView: View {
     
     @State private var name = "Sara"
     @State private var email = "sara@example.com"
-    @State private var selectedGrade = "Grade 11"
+    @State private var phoneNumber = "+1 234 567 890"
     @State private var selectedSubjects: Set<String> = ["Maths", "Science", "ICT"]
     
     // Image & File Selection State
     @State private var selectedItem: PhotosPickerItem?
     @State private var profileImage: Image?
-    @State private var showingFilePicker = false
-    @State private var uploadedDocuments: [String] = []
-    
-    let grades = ["Grade 10", "Grade 11", "Grade 12", "University", "Self-learner"]
-    
-    let subjectsByCategory: [String: [String]] = [
-        "Grade 10": ["Maths", "Science", "English", "ICT", "History", "Commerce", "Geography"],
-        "Grade 11": ["Maths", "Science", "English", "ICT", "History", "Commerce", "Literature"],
-        "Grade 12": ["Combined Maths", "Physics", "Chemistry", "Biology", "Economics", "Accounting", "ICT"],
-        "University": ["Computer Science", "Engineering", "Medicine", "Business", "Law", "Arts", "Psychology"],
-        "Self-learner": ["Programming", "Design", "Marketing", "Photography", "Music", "Cooking", "Fitness"]
-    ]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -54,59 +42,90 @@ struct EditProfileView: View {
             
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 32) {
-                    // Full Clickable Avatar Area
-                    Menu {
+                    // Full Clickable Avatar Area (PhotosPicker as primary action)
+                    ZStack(alignment: .topTrailing) {
                         PhotosPicker(selection: $selectedItem, matching: .images) {
-                            Label("Photo Library", systemImage: "photo.on.rectangle")
+                            ZStack {
+                                // Animated Outer Glow
+                                Circle()
+                                    .fill(AppColors.primary.opacity(0.15))
+                                    .frame(width: 140, height: 140)
+                                    .scaleEffect(1.1)
+                                    .blur(radius: 20)
+                                
+                                ZStack(alignment: .bottomTrailing) {
+                                    if let profileImage {
+                                        profileImage
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 120, height: 120)
+                                            .clipShape(Circle())
+                                            .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                                            .shadow(color: Color.black.opacity(0.15), radius: 15)
+                                    } else {
+                                        Circle()
+                                            .fill(LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            .frame(width: 120, height: 120)
+                                            .overlay(
+                                                VStack(spacing: 4) {
+                                                    Text(name.prefix(1).uppercased())
+                                                        .font(.system(size: 48, weight: .black, design: .rounded))
+                                                    Text("TAP TO EDIT")
+                                                        .font(.system(size: 8, weight: .bold))
+                                                        .tracking(1)
+                                                }
+                                                .foregroundColor(.white)
+                                            )
+                                            .shadow(color: AppColors.primary.opacity(0.3), radius: 15)
+                                    }
+                                    
+                                    // Glassmorphic Camera Button
+                                    ZStack {
+                                        BlurView(style: .systemThinMaterial)
+                                            .frame(width: 38, height: 38)
+                                            .clipShape(Circle())
+                                            .overlay(Circle().stroke(Color.white.opacity(0.5), lineWidth: 1))
+                                        
+                                        Circle()
+                                            .fill(AppColors.primary)
+                                            .frame(width: 32, height: 32)
+                                            .overlay(
+                                                Image(systemName: "camera.fill")
+                                                    .font(.system(size: 14))
+                                                    .foregroundColor(.white)
+                                            )
+                                    }
+                                    .offset(x: 4, y: 4)
+                                }
+                            }
                         }
                         
-                        Button(action: { showingFilePicker = true }) {
-                            Label("Browse Files", systemImage: "folder")
-                        }
-                    } label: {
-                        ZStack(alignment: .bottomTrailing) {
-                            if let profileImage {
-                                profileImage
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 110, height: 110)
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(Color.white, lineWidth: 4))
-                                    .shadow(color: Color.black.opacity(0.1), radius: 10)
-                            } else {
-                                Circle()
-                                    .fill(LinearGradient(colors: [AppColors.primary.opacity(0.8), AppColors.secondary.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                    .frame(width: 110, height: 110)
-                                    .overlay(
-                                        VStack(spacing: 4) {
-                                            Text(name.prefix(1).uppercased())
-                                                .font(.system(size: 44, weight: .bold, design: .rounded))
-                                            Text("EDIT")
-                                                .font(.system(size: 10, weight: .bold))
-                                        }
-                                        .foregroundColor(.white)
-                                    )
+                        // Separate Remove Button (Only if photo exists)
+                        if profileImage != nil {
+                            Button(action: {
+                                withAnimation {
+                                    profileImage = nil
+                                    appState.currentAlert = AppAlert(title: "Photo Removed", message: "Your profile picture has been reset.", icon: "person.crop.circle.badge.minus", color: .red, type: .success)
+                                }
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.white)
+                                    .background(Circle().fill(Color.red).shadow(radius: 5))
                             }
-                            
-                            Circle()
-                                .fill(AppColors.primary)
-                                .frame(width: 34, height: 34)
-                                .overlay(
-                                    Image(systemName: "camera.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.white)
-                                )
-                                .overlay(Circle().stroke(Color.white, lineWidth: 3))
-                                .offset(x: 5, y: 5)
+                            .offset(x: 10, y: -10)
                         }
                     }
-                    .padding(.top, 10)
+                    .padding(.top, 20)
                     .onChange(of: selectedItem) { newItem in
                         Task {
                             if let data = try? await newItem?.loadTransferable(type: Data.self) {
                                 if let uiImage = UIImage(data: data) {
                                     await MainActor.run {
-                                        profileImage = Image(uiImage: uiImage)
+                                        withAnimation(.spring()) {
+                                            profileImage = Image(uiImage: uiImage)
+                                            appState.currentAlert = AppAlert(title: "Looking Great! ✨", message: "Your profile photo has been updated successfully.", icon: "sparkles", color: AppColors.primary, type: .success)
+                                        }
                                     }
                                 }
                             }
@@ -122,149 +141,9 @@ struct EditProfileView: View {
                             
                             CustomEditField(title: "Full Name", text: $name)
                             CustomEditField(title: "Email Address", text: $email, keyboardType: .emailAddress)
+                            CustomEditField(title: "Phone Number", text: $phoneNumber, keyboardType: .phonePad)
                         }
                         
-                        // Study Category
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("STUDY CATEGORY")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                            
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 12) {
-                                    ForEach(grades, id: \.self) { grade in
-                                        Button(action: { 
-                                            selectedGrade = grade 
-                                            // Reset subjects when category changes or keep common ones? 
-                                            // User requested "according to study category"
-                                        }) {
-                                            Text(grade)
-                                                .font(.system(size: 14, weight: .medium))
-                                                .foregroundColor(selectedGrade == grade ? .white : AppColors.textPrimary)
-                                                .padding(.horizontal, 20)
-                                                .padding(.vertical, 12)
-                                                .background(selectedGrade == grade ? AppColors.primary : AppColors.cardBackground)
-                                                .cornerRadius(20)
-                                                .shadow(color: selectedGrade == grade ? AppColors.primary.opacity(0.2) : Color.clear, radius: 5, x: 0, y: 3)
-                                        }
-                                    }
-                                }
-                                .padding(.vertical, 5)
-                            }
-                        }
-                        
-                        // Subjects Selection (Checkboxes)
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("SELECT SUBJECTS")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                            
-                            VStack(spacing: 0) {
-                                let availableSubjects = subjectsByCategory[selectedGrade] ?? []
-                                ForEach(availableSubjects, id: \.self) { subject in
-                                    Button(action: {
-                                        if selectedSubjects.contains(subject) {
-                                            selectedSubjects.remove(subject)
-                                        } else {
-                                            selectedSubjects.insert(subject)
-                                        }
-                                    }) {
-                                        HStack {
-                                            ZStack {
-                                                RoundedRectangle(cornerRadius: 6)
-                                                    .stroke(selectedSubjects.contains(subject) ? AppColors.primary : AppColors.textSecondary.opacity(0.3), lineWidth: 2)
-                                                    .frame(width: 22, height: 22)
-                                                
-                                                if selectedSubjects.contains(subject) {
-                                                    RoundedRectangle(cornerRadius: 6)
-                                                        .fill(AppColors.primary)
-                                                        .frame(width: 22, height: 22)
-                                                    Image(systemName: "checkmark")
-                                                        .font(.system(size: 12, weight: .bold))
-                                                        .foregroundColor(.white)
-                                                }
-                                            }
-                                            
-                                            Text(subject)
-                                                .font(AppTypography.body)
-                                                .foregroundColor(AppColors.textPrimary)
-                                                .padding(.leading, 8)
-                                            
-                                            Spacer()
-                                        }
-                                        .padding(.vertical, 16)
-                                        .padding(.horizontal, 16)
-                                    }
-                                    
-                                    if subject != availableSubjects.last {
-                                        Divider().padding(.leading, 50)
-                                    }
-                                }
-                            }
-                            .background(AppColors.cardBackground)
-                            .cornerRadius(24)
-                            .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
-                        }
-                        // MY DOCUMENTS Section
-                        VStack(alignment: .leading, spacing: 16) {
-                            HStack {
-                                Text("MY DOCUMENTS")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                                Spacer()
-                                
-                                Menu {
-                                    PhotosPicker(selection: $selectedItem, matching: .images) {
-                                        Label("Photo Library", systemImage: "photo.on.rectangle")
-                                    }
-                                    
-                                    Button(action: { showingFilePicker = true }) {
-                                        Label("Browse Files", systemImage: "folder")
-                                    }
-                                } label: {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "plus.circle.fill")
-                                        Text("Add Media")
-                                    }
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(AppColors.primary)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(AppColors.primary.opacity(0.1))
-                                    .cornerRadius(10)
-                                }
-                            }
-                            
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 12) {
-                                    ForEach(uploadedDocuments, id: \.self) { doc in
-                                        HStack(spacing: 10) {
-                                            Image(systemName: "doc.fill")
-                                                .foregroundColor(AppColors.primary)
-                                            Text(doc)
-                                                .font(.system(size: 14, weight: .medium))
-                                            Button(action: {
-                                                uploadedDocuments.removeAll(where: { $0 == doc })
-                                            }) {
-                                                Image(systemName: "xmark.circle.fill")
-                                                    .foregroundColor(.red.opacity(0.6))
-                                            }
-                                        }
-                                        .padding()
-                                        .background(AppColors.cardBackground)
-                                        .cornerRadius(16)
-                                        .shadow(color: Color.black.opacity(0.02), radius: 5)
-                                    }
-                                    
-                                    if uploadedDocuments.isEmpty {
-                                        Text("No documents yet.")
-                                            .font(.system(size: 14))
-                                            .foregroundColor(AppColors.textSecondary.opacity(0.5))
-                                            .padding(.vertical, 10)
-                                    }
-                                }
-                            }
-                        }
                     }
                     .padding(.horizontal)
                     
@@ -274,22 +153,6 @@ struct EditProfileView: View {
         }
         .background(AppColors.background.ignoresSafeArea())
         .navigationBarHidden(true)
-        .fileImporter(
-            isPresented: $showingFilePicker,
-            allowedContentTypes: [.item],
-            allowsMultipleSelection: true
-        ) { result in
-            switch result {
-            case .success(let urls):
-                for url in urls {
-                    // If it's an image, we could update profile photo, 
-                    // but for now let's assume this button adds to documents.
-                    uploadedDocuments.append(url.lastPathComponent)
-                }
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
     }
 }
 

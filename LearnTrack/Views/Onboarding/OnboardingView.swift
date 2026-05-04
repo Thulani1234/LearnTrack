@@ -14,7 +14,7 @@ struct OnboardingView: View {
     let steps = [
         ("Welcome to LearnTrack", "Your ultimate study companion. Plan, track, and improve your academic performance.", "book.fill"),
         ("Smart Planning", "Organize your subjects, study sessions, and track your progress effectively.", "calendar"),
-        ("Track Results", "Log your exam and quiz results to visually monitor your performance over time.", "chart.line.uptrend.xyaxis"),
+        ("Track Results", "Log your exam and assessment results to visually monitor your performance over time.", "chart.line.uptrend.xyaxis"),
         ("Stay Consistent", "Get reminders, track your streaks, and build strong learning habits.", "bell.fill")
     ]
     

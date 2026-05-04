@@ -1,34 +1,22 @@
 import SwiftUI
 
-struct Note: Identifiable {
-    let id = UUID()
-    let title: String
-    let content: String
-    let date: String
-    let color: Color
-    let category: String
-}
-
 struct NotesView: View {
     @EnvironmentObject var router: AppRouter
+    @EnvironmentObject var data: MockData
     @State private var searchText = ""
     @State private var selectedCategory = "All"
     
-    let categories = ["All", "Physics", "Chemistry", "History", "Maths"]
-    
-    let notes = [
-        Note(title: "Physics Formulas", content: "F=ma, E=mc^2, v=u+at. Important for the upcoming semester finals...", date: "24 Apr", color: .blue, category: "Physics"),
-        Note(title: "Reaction Mechanisms", content: "Organic chemistry reaction mechanisms. Remember to focus on nucleophilic...", date: "22 Apr", color: .purple, category: "Chemistry"),
-        Note(title: "Industrial Revolution", content: "Industrial revolution impact on social structures in 19th century Europe...", date: "20 Apr", color: .orange, category: "History"),
-        Note(title: "Calculus Practice", content: "Trigonometry identities and calculus practice questions for the quiz...", date: "18 Apr", color: .green, category: "Maths"),
-        Note(title: "Quantum Physics", content: "Introduction to quantum mechanics and wave-particle duality concepts...", date: "15 Apr", color: .blue, category: "Physics")
-    ]
+    var categories: [String] {
+        var cats = ["All"]
+        cats.append(contentsOf: data.subjects.map { $0.name })
+        return cats
+    }
     
     var filteredNotes: [Note] {
         if selectedCategory == "All" {
-            return notes
+            return data.notes
         }
-        return notes.filter { $0.category == selectedCategory }
+        return data.notes.filter { $0.category == selectedCategory }
     }
     
     var body: some View {
@@ -138,7 +126,7 @@ struct NoteCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(note.date)
+                Text(note.dateString)
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(note.color)
                 Spacer()

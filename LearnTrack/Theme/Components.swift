@@ -71,3 +71,29 @@ struct ProgressBar: View {
         .frame(height: 8)
     }
 }
+
+// Common UI Extensions
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
+    }
+}
+
+struct SectionHeader: View {
+    let title: String
+    var body: some View {
+        Text(title)
+            .font(.system(size: 12, weight: .black))
+            .foregroundColor(AppColors.textSecondary.opacity(0.5))
+            .tracking(2)
+    }
+}
