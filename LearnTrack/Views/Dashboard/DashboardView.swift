@@ -10,8 +10,16 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var router: AppRouter
-    let subjects = MockData.shared.subjects
-    let scheduledSessions = MockData.shared.scheduledSessions
+    @EnvironmentObject var data: MockData
+
+    private var userDisplayName: String {
+        let name = appState.currentUser?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return name.isEmpty ? "User" : name
+    }
+
+    private var userInitial: String {
+        String(userDisplayName.prefix(1)).uppercased()
+    }
     
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -25,7 +33,7 @@ struct DashboardView: View {
                         Text("Welcome,")
                             .font(AppTypography.body)
                             .foregroundColor(AppColors.textPrimary)
-                        Text("Sara 👋")
+                        Text("\(userDisplayName) 👋")
                             .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundColor(AppColors.textPrimary)
                     }
@@ -68,7 +76,7 @@ struct DashboardView: View {
                             Circle()
                                 .fill(AppColors.primary)
                                 .frame(width: 44, height: 44)
-                                .overlay(Text("S").foregroundColor(.white).fontWeight(.bold))
+                                .overlay(Text(userInitial).foregroundColor(.white).fontWeight(.bold))
                         }
                     }
                 }
@@ -76,7 +84,7 @@ struct DashboardView: View {
                 .padding(.top, 10)
                 
                 // Daily Study Goal
-                DailyStudyGoalSection()
+                DailyStudyGoalSection(userName: userDisplayName)
                 
                 // Today's Auto Plan
                 VStack(alignment: .leading, spacing: 16) {
@@ -150,7 +158,18 @@ struct DashboardView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             SquareActionCard(title: "Timer", icon: "timer", color: .purple) {
-                                router.navigate(to: .timer(subjects.first!))
+                                if let subject = data.subjects.first {
+                                    router.navigate(to: .timer(subject))
+                                } else {
+                                    appState.currentAlert = AppAlert(
+                                        title: "Add a Subject First",
+                                        message: "Create a subject before starting a focus timer.",
+                                        icon: "books.vertical.fill",
+                                        color: AppColors.primary,
+                                        type: .info
+                                    )
+                                    appState.selectedTab = 3
+                                }
                             }
                             SquareActionCard(title: "Notes", icon: "book.closed.fill", color: .green) {
                                 router.navigate(to: .notes)
@@ -177,6 +196,8 @@ struct DashboardView: View {
 }
 
 struct DailyStudyGoalSection: View {
+    var userName: String
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("DAILY STUDY GOAL")
@@ -208,7 +229,7 @@ struct DailyStudyGoalSection: View {
                 .frame(width: 100, height: 100)
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Almost there, Sara!")
+                    Text("Almost there, \(userName)!")
                         .font(.system(size: 18, weight: .bold))
                     Text("You've completed 4.5 hours of study today. Just 1.5 more to reach your goal.")
                         .font(.system(size: 14))

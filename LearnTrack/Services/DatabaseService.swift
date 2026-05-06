@@ -46,6 +46,11 @@ class DatabaseService: ObservableObject {
         return cdSubjects.map { $0.toSubject() }
     }
     
+    func getSubjects(for userId: UUID) -> [Subject] {
+        let cdSubjects = coreDataManager.fetchSubjects(for: userId)
+        return cdSubjects.map { $0.toSubject() }
+    }
+    
     func getSubject(by id: UUID) -> CDSubject? {
         let request: NSFetchRequest<CDSubject> = CDSubject.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -128,7 +133,7 @@ class DatabaseService: ObservableObject {
     
 
     // MARK: - Result Operations
-    func createResult(from result: Result) -> CDResult? {
+    func createResult(from result: AcademicResult) -> CDResult? {
         guard let subject = getSubject(by: result.subjectId) else { return nil }
         
         let context = coreDataManager.viewContext
@@ -152,7 +157,7 @@ class DatabaseService: ObservableObject {
         return cdResult
     }
     
-    func updateResult(_ cdResult: CDResult, with result: Result) {
+    func updateResult(_ cdResult: CDResult, with result: AcademicResult) {
         let oldSubjectId = cdResult.subject?.id
         
         cdResult.title = result.title
@@ -177,26 +182,26 @@ class DatabaseService: ObservableObject {
         updateSubjectMetrics(for: result.subjectId)
     }
     
-    func getResults() -> [Result] {
+    func getResults() -> [AcademicResult] {
         let cdResults = coreDataManager.fetchResults()
-        return cdResults.map { $0.toResult() }
+        return cdResults.map { $0.toAcademicResult() }
     }
     
-    func getResults(for subjectId: UUID) -> [Result] {
+    func getResults(for subjectId: UUID) -> [AcademicResult] {
         let request: NSFetchRequest<CDResult> = CDResult.fetchRequest()
         request.predicate = NSPredicate(format: "subject.id == %@", subjectId as CVarArg)
         request.sortDescriptors = [NSSortDescriptor(keyPath: \CDResult.date, ascending: false)]
         
         do {
             let cdResults = try coreDataManager.viewContext.fetch(request)
-            return cdResults.map { $0.toResult() }
+            return cdResults.map { $0.toAcademicResult() }
         } catch {
             print("Error fetching results for subject: \(error)")
             return []
         }
     }
     
-    func deleteResult(_ result: Result) {
+    func deleteResult(_ result: AcademicResult) {
         let request: NSFetchRequest<CDResult> = CDResult.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", result.id as CVarArg)
         request.fetchLimit = 1

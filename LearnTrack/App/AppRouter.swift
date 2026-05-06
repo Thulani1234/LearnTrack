@@ -30,7 +30,7 @@ enum Route: Hashable {
     case privacy
     case help
     case contact
-    case resultDetail(Result)
+    case resultDetail(AcademicResult)
     case meetingRoom(String)
     case fullCalendar
 }

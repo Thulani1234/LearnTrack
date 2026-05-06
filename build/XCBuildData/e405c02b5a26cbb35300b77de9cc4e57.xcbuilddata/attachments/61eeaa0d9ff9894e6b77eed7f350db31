@@ -1,0 +1,4 @@
+module GTMSessionFetcherCore {
+umbrella "/Users/cobsccomp242p-028/Library/Developer/Xcode/DerivedData/LearnTrack-adhjmyapeohiekhawkpwgcrealzl/SourcePackages/checkouts/gtm-session-fetcher/Sources/Core/Public"
+export *
+}

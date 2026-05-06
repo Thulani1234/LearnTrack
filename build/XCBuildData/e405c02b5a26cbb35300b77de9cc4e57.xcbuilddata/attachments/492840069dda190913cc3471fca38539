@@ -1,0 +1,59 @@
+{
+  "" : {
+    "diagnostics" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetExtension-primary.dia",
+    "emit-module-dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetExtension-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetExtension-primary-emit-module.dia",
+    "pch" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetExtension-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetExtension-primary.swiftdeps"
+  },
+  "/Users/cobsccomp242p-028/NIBM/LearnTrack/LearnTrackWidget/LearnTrackWidget.swift" : {
+    "const-values" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidget.swiftconstvalues",
+    "dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidget.d",
+    "diagnostics" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidget.dia",
+    "index-unit-output-path" : "/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidget.o",
+    "llvm-bc" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidget.bc",
+    "object" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidget.o",
+    "swift-dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidget.swiftdeps",
+    "swiftmodule" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidget~partial.swiftmodule"
+  },
+  "/Users/cobsccomp242p-028/NIBM/LearnTrack/LearnTrackWidget/LearnTrackWidgetBundle.swift" : {
+    "const-values" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetBundle.swiftconstvalues",
+    "dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetBundle.d",
+    "diagnostics" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetBundle.dia",
+    "index-unit-output-path" : "/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetBundle.o",
+    "llvm-bc" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetBundle.bc",
+    "object" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetBundle.o",
+    "swift-dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetBundle.swiftdeps",
+    "swiftmodule" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetBundle~partial.swiftmodule"
+  },
+  "/Users/cobsccomp242p-028/NIBM/LearnTrack/LearnTrackWidget/LearnTrackWidgetControl.swift" : {
+    "const-values" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetControl.swiftconstvalues",
+    "dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetControl.d",
+    "diagnostics" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetControl.dia",
+    "index-unit-output-path" : "/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetControl.o",
+    "llvm-bc" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetControl.bc",
+    "object" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetControl.o",
+    "swift-dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetControl.swiftdeps",
+    "swiftmodule" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetControl~partial.swiftmodule"
+  },
+  "/Users/cobsccomp242p-028/NIBM/LearnTrack/LearnTrackWidget/LearnTrackWidgetLiveActivity.swift" : {
+    "const-values" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetLiveActivity.swiftconstvalues",
+    "dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetLiveActivity.d",
+    "diagnostics" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetLiveActivity.dia",
+    "index-unit-output-path" : "/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetLiveActivity.o",
+    "llvm-bc" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetLiveActivity.bc",
+    "object" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetLiveActivity.o",
+    "swift-dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetLiveActivity.swiftdeps",
+    "swiftmodule" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/LearnTrackWidgetLiveActivity~partial.swiftmodule"
+  },
+  "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/cobsccomp242p-028/NIBM/LearnTrack/build/LearnTrack.build/Debug-iphoneos/LearnTrackWidgetExtension.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

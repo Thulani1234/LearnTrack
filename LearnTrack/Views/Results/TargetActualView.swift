@@ -47,6 +47,7 @@ struct TargetActualView: View {
             .padding(.top, 20)
         }
         .background(AppColors.background.ignoresSafeArea())
+        .navigationBarHidden(true)
     }
 }
 

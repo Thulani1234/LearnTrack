@@ -10,7 +10,7 @@ import SwiftUI
 struct SubjectResultsDetailView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var data: MockData
-    var result: Result
+    var result: AcademicResult
 
     @State private var title: String
     @State private var score: String
@@ -21,7 +21,7 @@ struct SubjectResultsDetailView: View {
     @State private var date: Date
     @State private var subjectId: UUID
 
-    init(result: Result) {
+    init(result: AcademicResult) {
         self.result = result
         _title = State(initialValue: result.title)
         _score = State(initialValue: String(result.score))
@@ -110,7 +110,7 @@ struct SubjectResultsDetailView: View {
             return
         }
 
-        let updated = Result(
+        let updated = AcademicResult(
             id: result.id,
             subjectId: subjectId,
             title: title.isEmpty ? "Untitled Result" : title,
@@ -128,7 +128,7 @@ struct SubjectResultsDetailView: View {
 
 private struct DetailSummaryCard: View {
     var subject: Subject?
-    var result: Result
+    var result: AcademicResult
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

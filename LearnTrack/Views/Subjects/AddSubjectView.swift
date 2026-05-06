@@ -8,8 +8,6 @@ struct AddSubjectView: View {
     
     @State private var name = ""
     @State private var targetScore = "85"
-    @State private var currentMarks = ""
-    @State private var selectedCategory = "Exam"
     @State private var selectedIcon = "book.fill"
     @State private var selectedColor = AppColors.primary
     
@@ -17,7 +15,6 @@ struct AddSubjectView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var subjectImage: Image?
     
-    let categories = ["Exam", "Class Test", "Assignment"]
     let icons = ["book.fill", "function", "flask.fill", "laptopcomputer", "pencil.tip", "globe.americas.fill", "music.note", "sportscourt.fill"]
     let colors: [Color] = [.blue, .purple, .orange, .pink, .green, .red, .cyan, .indigo]
     
@@ -113,58 +110,21 @@ struct AddSubjectView: View {
                                 .shadow(color: Color.black.opacity(0.02), radius: 10, x: 0, y: 5)
                         }
                         
-                        // Category Selection
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("CATEGORY")
+                            Text("TARGET SCORE (%)")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(AppColors.textSecondary.opacity(0.6))
                             
-                            HStack(spacing: 10) {
-                                ForEach(categories, id: \.self) { cat in
-                                    Button(action: { selectedCategory = cat }) {
-                                        Text(cat)
-                                            .font(.system(size: 14, weight: .bold))
-                                            .foregroundColor(selectedCategory == cat ? .white : AppColors.textSecondary)
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 10)
-                                            .background(selectedCategory == cat ? selectedColor : AppColors.cardBackground)
-                                            .cornerRadius(12)
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Marks & Target
-                        HStack(spacing: 16) {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("MARKS")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                                
-                                TextField("0", text: $currentMarks)
+                            HStack {
+                                TextField("85", text: $targetScore)
                                     .keyboardType(.numberPad)
                                     .font(AppTypography.body)
-                                    .padding()
-                                    .background(AppColors.cardBackground)
-                                    .cornerRadius(16)
+                                Text("%")
+                                    .foregroundColor(AppColors.textSecondary)
                             }
-                            
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("TARGET SCORE (%)")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                                
-                                HStack {
-                                    TextField("85", text: $targetScore)
-                                        .keyboardType(.numberPad)
-                                        .font(AppTypography.body)
-                                    Text("%")
-                                        .foregroundColor(AppColors.textSecondary)
-                                }
-                                .padding()
-                                .background(AppColors.cardBackground)
-                                .cornerRadius(16)
-                            }
+                            .padding()
+                            .background(AppColors.cardBackground)
+                            .cornerRadius(16)
                         }
                         
                         // Color Selection
@@ -221,13 +181,12 @@ struct AddSubjectView: View {
                     .padding(.horizontal)
                     
                     Button(action: {
-                        let marksValue = Int(currentMarks) ?? 0
                         let newSubject = Subject(
                             name: name.isEmpty ? "New Subject" : name,
                             colorHex: selectedColor.toHex() ?? "6366F1",
-                            progress: Double(marksValue) / 100.0,
+                            progress: 0,
                             targetScore: Int(targetScore) ?? 85,
-                            currentScore: marksValue,
+                            currentScore: 0,
                             icon: selectedIcon
                         )
                         data.addSubject(newSubject)
@@ -261,12 +220,5 @@ struct AddSubjectView: View {
 
         .background(AppColors.background.ignoresSafeArea())
         .navigationBarHidden(true)
-        .onChange(of: currentMarks) { newValue in
-            if let marks = Int(newValue) {
-                // Set target to be slightly higher (e.g., +5%) to ensure they aren't the same
-                let target = min(marks + 5, 100)
-                targetScore = "\(target)"
-            }
-        }
     }
 }

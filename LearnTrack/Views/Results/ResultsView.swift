@@ -11,11 +11,12 @@ struct ResultsView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var data: MockData
     @State private var selectedCategory: ResultCategory = .all
+    @State private var resultToDelete: AcademicResult?
 
-    private var results: [Result] { data.academicResults }
+    private var results: [AcademicResult] { data.academicResults }
     private var subjects: [Subject] { data.subjects }
     
-    private var filteredResults: [Result] {
+    private var filteredResults: [AcademicResult] {
         selectedCategory == .all ? results : results.filter { $0.category == selectedCategory }
     }
     
@@ -56,10 +57,37 @@ struct ResultsView: View {
         .background(AppColors.background.ignoresSafeArea())
         .navigationTitle("Results")
         .navigationBarHidden(true)
+        .alert("Delete Result?", isPresented: Binding(
+            get: { resultToDelete != nil },
+            set: { if !$0 { resultToDelete = nil } }
+        )) {
+            Button("Delete", role: .destructive) {
+                if let resultToDelete {
+                    data.deleteResult(resultToDelete)
+                }
+                resultToDelete = nil
+            }
+            Button("Cancel", role: .cancel) {
+                resultToDelete = nil
+            }
+        } message: {
+            Text("This result will be removed from your performance history.")
+        }
     }
     
     private var header: some View {
         HStack {
+            if !router.path.isEmpty {
+                Button(action: { router.navigateBack() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(AppColors.textPrimary)
+                        .font(.headline)
+                        .padding(12)
+                        .background(AppColors.cardBackground)
+                        .clipShape(Circle())
+                }
+            }
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text("My Results")
                     .font(AppTypography.title)
@@ -142,11 +170,42 @@ struct ResultsView: View {
             .padding(.horizontal)
             
             VStack(spacing: 16) {
-                ForEach(filteredResults) { result in
-                    NavigationLink(destination: SubjectResultsDetailView(result: result)
-                                    .environmentObject(data)) {
-                        ResultCard(result: result, subject: subject(for: result))
-                            .padding(.horizontal)
+                if subjects.isEmpty {
+                    ResultsEmptyState(
+                        title: "Create a subject first",
+                        message: "Subjects are the home for your marks. Add a subject, then log exam, test, or assignment results here.",
+                        buttonTitle: "Add Subject",
+                        icon: "books.vertical.fill"
+                    ) {
+                        router.navigate(to: .addSubject)
+                    }
+                    .padding(.horizontal)
+                } else if filteredResults.isEmpty {
+                    ResultsEmptyState(
+                        title: selectedCategory == .all ? "No results yet" : "No \(selectedCategory.rawValue.lowercased()) results yet",
+                        message: "Add your marks here. This is separate from creating subjects.",
+                        buttonTitle: "Add Result",
+                        icon: "doc.text.fill.badge.plus"
+                    ) {
+                        router.navigate(to: .addResult)
+                    }
+                    .padding(.horizontal)
+                } else {
+                    ForEach(filteredResults) { result in
+                        Button(action: {
+                            router.navigate(to: .resultDetail(result))
+                        }) {
+                            ResultCard(result: result, subject: subject(for: result))
+                                .padding(.horizontal)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                resultToDelete = result
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                     }
                 }
             }
@@ -154,8 +213,59 @@ struct ResultsView: View {
         }
     }
     
-    private func subject(for result: Result) -> Subject {
-        subjects.first(where: { $0.id == result.subjectId }) ?? subjects[0]
+    private func subject(for result: AcademicResult) -> Subject {
+        subjects.first(where: { $0.id == result.subjectId }) ?? Subject(
+            name: "Unknown Subject",
+            colorHex: "6366F1",
+            progress: 0,
+            targetScore: result.targetScore,
+            currentScore: result.percentage,
+            icon: "questionmark.circle.fill"
+        )
+    }
+}
+
+private struct ResultsEmptyState: View {
+    var title: String
+    var message: String
+    var buttonTitle: String
+    var icon: String
+    var action: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 32, weight: .semibold))
+                .foregroundColor(AppColors.primary)
+                .frame(width: 72, height: 72)
+                .background(AppColors.primary.opacity(0.12))
+                .clipShape(Circle())
+            
+            VStack(spacing: 6) {
+                Text(title)
+                    .font(AppTypography.headline)
+                    .foregroundColor(AppColors.textPrimary)
+                Text(message)
+                    .font(AppTypography.bodySmall)
+                    .foregroundColor(AppColors.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            
+            Button(action: action) {
+                Text(buttonTitle)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 22)
+                    .padding(.vertical, 12)
+                    .background(AppColors.primary)
+                    .cornerRadius(16)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(24)
+        .background(AppColors.cardBackground)
+        .cornerRadius(24)
+        .shadow(color: Color.black.opacity(0.04), radius: 16, x: 0, y: 8)
     }
 }
 
@@ -179,7 +289,7 @@ private struct SummaryRow: View {
 }
 
 private struct ResultCard: View {
-    var result: Result
+    var result: AcademicResult
     var subject: Subject
     
     private var barProgress: Double {

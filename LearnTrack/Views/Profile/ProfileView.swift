@@ -12,6 +12,8 @@ struct ProfileView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var profileImage: Image?
     
+    private let authService = AuthenticationService.shared
+    
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
@@ -23,16 +25,16 @@ struct ProfileView: View {
                             .frame(width: 120, height: 120)
                             .shadow(color: AppColors.primary.opacity(0.3), radius: 15, x: 0, y: 10)
                         
-                        Text("S")
+                        Text(String((appState.currentUser?.name ?? "User").prefix(1)).uppercased())
                             .font(.system(size: 50, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                     }
                     
                     VStack(spacing: 6) {
-                        Text("Sara 👋")
+                        Text("\(appState.currentUser?.name ?? "User") 👋")
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(AppColors.textPrimary)
-                        Text("Grade 11 Student")
+                        Text("Student")
                             .font(AppTypography.body)
                             .foregroundColor(AppColors.textSecondary)
                     }
@@ -166,6 +168,7 @@ struct ProfileView: View {
                 Button(action: {
                     withAnimation {
                         appState.isLoggedIn = false
+                        appState.currentUser = nil
                     }
                 }) {
                     HStack {

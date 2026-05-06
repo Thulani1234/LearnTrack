@@ -120,6 +120,7 @@ struct PlanASessionView: View {
             .padding(.top)
         }
         .background(AppColors.background.ignoresSafeArea())
+        .navigationBarHidden(true)
     }
 }
 

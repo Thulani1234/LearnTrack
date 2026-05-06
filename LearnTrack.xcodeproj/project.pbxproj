@@ -10,9 +10,15 @@
 		460EAF012F9BA93800331994 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF002F9BA93800331994 /* FirebaseAnalytics */; };
 		460EAF032F9BA93800331994 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF022F9BA93800331994 /* FirebaseAuth */; };
 		460EAF052F9BA93800331994 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF042F9BA93800331994 /* FirebaseFirestore */; };
-		467C66862FA888DB004A0E7A /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467C66852FA888DB004A0E7A /* SwiftUI.framework */; };
+		460EAF072F9BA93800331994 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF062F9BA93800331994 /* FirebaseMessaging */; };
 		467C66952FA888DD004A0E7A /* LearnTrackWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		467C669B2FA8898F004A0E7A /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467C66832FA888DB004A0E7A /* WidgetKit.framework */; };
+		4699944C2FAB5C70008B3CAB /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46AC70002FA9000000AC7001 /* ActivityKit.framework */; };
+		4699944F2FAB5D11008B3CAB /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 469994502FAB5D11008B3CAB /* EventKit.framework */; };
+		46AC70022FA9000000AC7001 /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46AC70002FA9000000AC7001 /* ActivityKit.framework */; };
+		46TEST0062F9B1CF500EB8FA9 /* StudySessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46TEST0022F9B1CF500EB8FA9 /* StudySessionTests.swift */; };
+		46TEST0072F9B1CF500EB8FA9 /* SubjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46TEST0032F9B1CF500EB8FA9 /* SubjectTests.swift */; };
+		46TEST0082F9B1CF500EB8FA9 /* UserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46TEST0042F9B1CF500EB8FA9 /* UserTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -22,6 +28,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 467C66802FA888DB004A0E7A;
 			remoteInfo = LearnTrackWidgetExtension;
+		};
+		46TEST0122F9B1CF500EB8FA9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4604F6A02F9B1CF500EB8FA9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4604F6A72F9B1CF500EB8FA9;
+			remoteInfo = LearnTrack;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -44,6 +57,12 @@
 		467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LearnTrackWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		467C66832FA888DB004A0E7A /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		467C66852FA888DB004A0E7A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		469994502FAB5D11008B3CAB /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
+		46AC70002FA9000000AC7001 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
+		46TEST0012F9B1CF500EB8FA9 /* LearnTrackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearnTrackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		46TEST0022F9B1CF500EB8FA9 /* StudySessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySessionTests.swift; sourceTree = "<group>"; };
+		46TEST0032F9B1CF500EB8FA9 /* SubjectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectTests.swift; sourceTree = "<group>"; };
+		46TEST0042F9B1CF500EB8FA9 /* UserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -79,7 +98,10 @@
 			files = (
 				460EAF012F9BA93800331994 /* FirebaseAnalytics in Frameworks */,
 				460EAF032F9BA93800331994 /* FirebaseAuth in Frameworks */,
+				4699944C2FAB5C70008B3CAB /* ActivityKit.framework in Frameworks */,
 				460EAF052F9BA93800331994 /* FirebaseFirestore in Frameworks */,
+				460EAF072F9BA93800331994 /* FirebaseMessaging in Frameworks */,
+				4699944F2FAB5D11008B3CAB /* EventKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,8 +109,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46AC70022FA9000000AC7001 /* ActivityKit.framework in Frameworks */,
 				467C669B2FA8898F004A0E7A /* WidgetKit.framework in Frameworks */,
-				467C66862FA888DB004A0E7A /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46TEST0092F9B1CF500EB8FA9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +129,7 @@
 			children = (
 				4604F6AA2F9B1CF500EB8FA9 /* LearnTrack */,
 				467C66872FA888DB004A0E7A /* LearnTrackWidget */,
+				46TEST0052F9B1CF500EB8FA9 /* LearnTrackTests */,
 				467C66822FA888DB004A0E7A /* Frameworks */,
 				4604F6A92F9B1CF500EB8FA9 /* Products */,
 			);
@@ -110,6 +140,7 @@
 			children = (
 				4604F6A82F9B1CF500EB8FA9 /* LearnTrack.app */,
 				467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */,
+				46TEST0012F9B1CF500EB8FA9 /* LearnTrackTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,10 +148,22 @@
 		467C66822FA888DB004A0E7A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				46AC70002FA9000000AC7001 /* ActivityKit.framework */,
+				469994502FAB5D11008B3CAB /* EventKit.framework */,
 				467C66832FA888DB004A0E7A /* WidgetKit.framework */,
 				467C66852FA888DB004A0E7A /* SwiftUI.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		46TEST0052F9B1CF500EB8FA9 /* LearnTrackTests */ = {
+			isa = PBXGroup;
+			children = (
+				46TEST0022F9B1CF500EB8FA9 /* StudySessionTests.swift */,
+				46TEST0032F9B1CF500EB8FA9 /* SubjectTests.swift */,
+				46TEST0042F9B1CF500EB8FA9 /* UserTests.swift */,
+			);
+			path = LearnTrackTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -148,6 +191,7 @@
 				460EAF002F9BA93800331994 /* FirebaseAnalytics */,
 				460EAF022F9BA93800331994 /* FirebaseAuth */,
 				460EAF042F9BA93800331994 /* FirebaseFirestore */,
+				460EAF062F9BA93800331994 /* FirebaseMessaging */,
 			);
 			productName = LearnTrack;
 			productReference = 4604F6A82F9B1CF500EB8FA9 /* LearnTrack.app */;
@@ -174,6 +218,25 @@
 			productName = LearnTrackWidgetExtension;
 			productReference = 467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		46TEST0132F9B1CF500EB8FA9 /* LearnTrackTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 46TEST0142F9B1CF500EB8FA9 /* Build configuration list for PBXNativeTarget "LearnTrackTests" */;
+			buildPhases = (
+				46TEST0102F9B1CF500EB8FA9 /* Sources */,
+				46TEST0092F9B1CF500EB8FA9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				46TEST0112F9B1CF500EB8FA9 /* PBXTargetDependency */,
+			);
+			name = LearnTrackTests;
+			packageProductDependencies = (
+			);
+			productName = LearnTrackTests;
+			productReference = 46TEST0012F9B1CF500EB8FA9 /* LearnTrackTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -212,6 +275,7 @@
 			targets = (
 				4604F6A72F9B1CF500EB8FA9 /* LearnTrack */,
 				467C66802FA888DB004A0E7A /* LearnTrackWidgetExtension */,
+				46TEST0132F9B1CF500EB8FA9 /* LearnTrackTests */,
 			);
 		};
 /* End PBXProject section */
@@ -248,6 +312,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		46TEST0102F9B1CF500EB8FA9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46TEST0062F9B1CF500EB8FA9 /* StudySessionTests.swift in Sources */,
+				46TEST0072F9B1CF500EB8FA9 /* SubjectTests.swift in Sources */,
+				46TEST0082F9B1CF500EB8FA9 /* UserTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -255,6 +329,11 @@
 			isa = PBXTargetDependency;
 			target = 467C66802FA888DB004A0E7A /* LearnTrackWidgetExtension */;
 			targetProxy = 467C66932FA888DD004A0E7A /* PBXContainerItemProxy */;
+		};
+		46TEST0112F9B1CF500EB8FA9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4604F6A72F9B1CF500EB8FA9 /* LearnTrack */;
+			targetProxy = 46TEST0122F9B1CF500EB8FA9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -383,10 +462,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LearnTrack/LearnTrack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "LearnTrack needs calendar access to save and show your planned study sessions.";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "LearnTrack needs calendar access to save and show your planned study sessions.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "LearnTrack needs reminders access to create study reminders.";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "LearnTrack needs reminders access to create study reminders.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -414,10 +500,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LearnTrack/LearnTrack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "LearnTrack needs calendar access to save and show your planned study sessions.";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "LearnTrack needs calendar access to save and show your planned study sessions.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "LearnTrack needs reminders access to create study reminders.";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "LearnTrack needs reminders access to create study reminders.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -498,6 +591,46 @@
 			};
 			name = Release;
 		};
+		46TEST0152F9B1CF500EB8FA9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Thulani.LearnTrackTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LearnTrack.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LearnTrack";
+			};
+			name = Debug;
+		};
+		46TEST0162F9B1CF500EB8FA9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Thulani.LearnTrackTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LearnTrack.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LearnTrack";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -524,6 +657,15 @@
 			buildConfigurations = (
 				467C66982FA888DD004A0E7A /* Debug */,
 				467C66992FA888DD004A0E7A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		46TEST0142F9B1CF500EB8FA9 /* Build configuration list for PBXNativeTarget "LearnTrackTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46TEST0152F9B1CF500EB8FA9 /* Debug */,
+				46TEST0162F9B1CF500EB8FA9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -556,6 +698,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 460EAEFF2F9BA93800331994 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		460EAF062F9BA93800331994 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 460EAEFF2F9BA93800331994 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

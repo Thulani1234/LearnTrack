@@ -48,7 +48,7 @@ class DatabaseChecker {
         let results = coreDataManager.fetchResults()
         print("\n📊 RESULTS (\(results.count)):")
         for result in results.prefix(3) {
-            let resultModel = result.toResult()
+            let resultModel = result.toAcademicResult()
             print("  - \(resultModel.title): \(resultModel.score)% (\(resultModel.grade))")
         }
         if results.count > 3 {

@@ -1,5 +1,7 @@
 import Foundation
+import UIKit
 import UserNotifications
+import FirebaseMessaging
 
 class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationManager()
@@ -13,10 +15,34 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
             if granted {
                 print("Notification permission granted.")
+                // Register for remote notifications
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
             } else if let error = error {
                 print("Error requesting notification authorization: \(error.localizedDescription)")
             }
         }
+    }
+    
+    // Send push notification via Firebase (placeholder - implement server-side)
+    func sendPushNotification(to token: String, title: String, body: String) {
+        // This would typically be done server-side
+        // For testing, you can use Firebase Console or implement a cloud function
+        print("Sending push notification to \(token): \(title) - \(body)")
+        
+        // Example payload for FCM
+        let payload: [String: Any] = [
+            "to": token,
+            "notification": [
+                "title": title,
+                "body": body
+            ]
+        ]
+        
+        // In a real app, send this to your server which then sends to FCM
+        // For now, just log it
+        print("FCM Payload: \(payload)")
     }
     
     func sendImmediateNotification(title: String, body: String) {

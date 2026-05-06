@@ -16,7 +16,7 @@ enum ResultCategory: String, CaseIterable, Identifiable, Hashable, Codable {
     var id: String { rawValue }
 }
 
-struct Result: Identifiable, Hashable, Codable {
+struct AcademicResult: Identifiable, Hashable, Codable {
     var id = UUID()
     var subjectId: UUID
     var title: String

@@ -51,9 +51,9 @@ extension CDStudySession {
 
 
 extension CDResult {
-    func toResult() -> Result {
+    func toAcademicResult() -> AcademicResult {
         let categoryEnum = ResultCategory(rawValue: self.category ?? "all") ?? .all
-        return Result(
+        return AcademicResult(
             id: self.id ?? UUID(),
             subjectId: self.subject?.id ?? UUID(),
             title: self.title ?? "",

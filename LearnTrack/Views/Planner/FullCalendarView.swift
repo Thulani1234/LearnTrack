@@ -161,6 +161,7 @@ struct FullCalendarView: View {
         .onAppear {
             viewModel.plannerSessions = data.scheduledSessions
         }
+        .navigationBarHidden(true)
     }
 }
 

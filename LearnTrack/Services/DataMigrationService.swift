@@ -83,6 +83,10 @@ class DataMigrationService {
             createResult(from: result)
         }
         
+        // Seed sample users
+        let userSeeder = UserDataSeeder.shared
+        userSeeder.seedSampleUsers()
+                
         print("Mock data migration completed")
     }
     
@@ -123,7 +127,7 @@ class DataMigrationService {
     }
     
     
-    private func createResult(from result: Result) {
+    private func createResult(from result: AcademicResult) {
         let context = coreDataManager.viewContext
         let cdResult = CDResult(context: context)
         
@@ -143,6 +147,36 @@ class DataMigrationService {
         }
         
         coreDataManager.saveContext()
+    }
+    
+    // MARK: - Voice Data Management
+    func seedVoiceDataOnly() {
+        print("Voice data seeding temporarily disabled")
+        // let voiceSeeder = VoiceDataSeeder.shared
+        // voiceSeeder.seedVoiceData()
+        print("")
+    }
+    
+    func seedVoiceDataForSubject(subjectId: UUID) {
+        print("Voice data seeding temporarily disabled")
+        // let voiceSeeder = VoiceDataSeeder.shared
+        // voiceSeeder.seedVoiceDataForSubject(subjectId: subjectId)
+        print("")
+        // print("Subject voice data seeding completed")
+    }
+    
+    func clearVoiceDataOnly() {
+        print("Voice data clearing temporarily disabled")
+        // let voiceSeeder = VoiceDataSeeder.shared
+        // voiceSeeder.clearVoiceData()
+        // print("Voice data clearing completed")
+    }
+    
+    func regenerateVoiceData() {
+        print("Regenerating voice data...")
+        clearVoiceDataOnly()
+        seedVoiceDataOnly()
+        print("Voice data regeneration completed")
     }
 }
 

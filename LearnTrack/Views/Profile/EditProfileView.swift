@@ -6,14 +6,19 @@ struct EditProfileView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var appState: AppState
     
-    @State private var name = "Sara"
-    @State private var email = "sara@example.com"
-    @State private var phoneNumber = "+1 234 567 890"
+    @State private var name = ""
+    @State private var email = ""
+    @State private var phoneNumber = ""
+    @State private var address = ""
+    @State private var country = ""
     @State private var selectedSubjects: Set<String> = ["Maths", "Science", "ICT"]
+    @State private var didLoadUser = false
     
     // Image & File Selection State
     @State private var selectedItem: PhotosPickerItem?
     @State private var profileImage: Image?
+
+    private let authService = AuthenticationService.shared
     
     var body: some View {
         VStack(spacing: 0) {
@@ -32,7 +37,7 @@ struct EditProfileView: View {
                     .font(AppTypography.headline)
                     .foregroundColor(AppColors.textPrimary)
                 Spacer()
-                Button(action: { router.navigateBack() }) {
+                Button(action: { saveProfile() }) {
                     Text("Save")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(AppColors.primary)
@@ -142,6 +147,84 @@ struct EditProfileView: View {
                             CustomEditField(title: "Full Name", text: $name)
                             CustomEditField(title: "Email Address", text: $email, keyboardType: .emailAddress)
                             CustomEditField(title: "Phone Number", text: $phoneNumber, keyboardType: .phonePad)
+                            CustomEditField(title: "Address", text: $address)
+                            Picker(selection: $country) {
+                                Text("Select Country").tag("")
+                                Text("Afghanistan").tag("Afghanistan")
+                                Text("Albania").tag("Albania")
+                                Text("Algeria").tag("Algeria")
+                                Text("Argentina").tag("Argentina")
+                                Text("Australia").tag("Australia")
+                                Text("Austria").tag("Austria")
+                                Text("Bangladesh").tag("Bangladesh")
+                                Text("Belgium").tag("Belgium")
+                                Text("Brazil").tag("Brazil")
+                                Text("Bulgaria").tag("Bulgaria")
+                                Text("Canada").tag("Canada")
+                                Text("Chile").tag("Chile")
+                                Text("China").tag("China")
+                                Text("Colombia").tag("Colombia")
+                                Text("Croatia").tag("Croatia")
+                                Text("Czech Republic").tag("Czech Republic")
+                                Text("Denmark").tag("Denmark")
+                                Text("Egypt").tag("Egypt")
+                                Text("Finland").tag("Finland")
+                                Text("France").tag("France")
+                                Text("Germany").tag("Germany")
+                                Text("Greece").tag("Greece")
+                                Text("Hungary").tag("Hungary")
+                                Text("Iceland").tag("Iceland")
+                                Text("India").tag("India")
+                                Text("Indonesia").tag("Indonesia")
+                                Text("Ireland").tag("Ireland")
+                                Text("Israel").tag("Israel")
+                                Text("Italy").tag("Italy")
+                                Text("Japan").tag("Japan")
+                                Text("Jordan").tag("Jordan")
+                                Text("Kenya").tag("Kenya")
+                                Text("South Korea").tag("South Korea")
+                                Text("Lebanon").tag("Lebanon")
+                                Text("Malaysia").tag("Malaysia")
+                                Text("Mexico").tag("Mexico")
+                                Text("Morocco").tag("Morocco")
+                                Text("Netherlands").tag("Netherlands")
+                                Text("New Zealand").tag("New Zealand")
+                                Text("Norway").tag("Norway")
+                                Text("Pakistan").tag("Pakistan")
+                                Text("Peru").tag("Peru")
+                                Text("Philippines").tag("Philippines")
+                                Text("Poland").tag("Poland")
+                                Text("Portugal").tag("Portugal")
+                                Text("Romania").tag("Romania")
+                                Text("Russia").tag("Russia")
+                                Text("Saudi Arabia").tag("Saudi Arabia")
+                                Text("Singapore").tag("Singapore")
+                                Text("South Africa").tag("South Africa")
+                                Text("Spain").tag("Spain")
+                                Text("Sweden").tag("Sweden")
+                                Text("Switzerland").tag("Switzerland")
+                                Text("Thailand").tag("Thailand")
+                                Text("Turkey").tag("Turkey")
+                                Text("Ukraine").tag("Ukraine")
+                                Text("United Arab Emirates").tag("United Arab Emirates")
+                                Text("United Kingdom").tag("United Kingdom")
+                                Text("United States").tag("United States")
+                                Text("Vietnam").tag("Vietnam")
+                                Text("Other").tag("Other")
+                            } label: {
+                                HStack {
+                                    Image(systemName: "globe")
+                                        .foregroundColor(AppColors.textSecondary)
+                                    Text(country.isEmpty ? "Country" : country)
+                                        .foregroundColor(country.isEmpty ? AppColors.textSecondary : AppColors.textPrimary)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .foregroundColor(AppColors.textSecondary)
+                                }
+                                .padding()
+                                .background(AppColors.cardBackground)
+                                .cornerRadius(16)
+                            }
                         }
                         
                     }
@@ -153,6 +236,82 @@ struct EditProfileView: View {
         }
         .background(AppColors.background.ignoresSafeArea())
         .navigationBarHidden(true)
+        .onAppear {
+            loadFromCurrentUserIfNeeded()
+        }
+    }
+
+    private func loadFromCurrentUserIfNeeded() {
+        guard !didLoadUser else { return }
+        didLoadUser = true
+
+        guard let user = appState.currentUser else { return }
+        name = user.name
+        email = user.email
+        phoneNumber = user.phoneNumber
+        address = user.address
+        country = user.country
+    }
+
+    private func saveProfile() {
+        guard var user = appState.currentUser else {
+            router.navigateBack()
+            return
+        }
+
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPhone = phoneNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAddress = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedCountry = country.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !trimmedName.isEmpty else {
+            appState.currentAlert = AppAlert(
+                title: "Missing name",
+                message: "Please enter your name.",
+                icon: "person.fill.xmark",
+                color: .red,
+                type: .warning
+            )
+            return
+        }
+
+        let success = authService.updateUserProfile(
+            userId: user.id,
+            name: trimmedName,
+            email: trimmedEmail.isEmpty ? nil : trimmedEmail,
+            phoneNumber: trimmedPhone.isEmpty ? nil : trimmedPhone,
+            address: trimmedAddress.isEmpty ? nil : trimmedAddress,
+            country: trimmedCountry.isEmpty ? nil : trimmedCountry,
+            profileImageURL: nil
+        )
+
+        if success {
+            user.name = trimmedName
+            if !trimmedEmail.isEmpty { user.email = trimmedEmail }
+            if !trimmedPhone.isEmpty { user.phoneNumber = trimmedPhone }
+            if !trimmedAddress.isEmpty { user.address = trimmedAddress }
+            if !trimmedCountry.isEmpty { user.country = trimmedCountry }
+            user.updatedAt = Date()
+            appState.currentUser = user
+
+            appState.currentAlert = AppAlert(
+                title: "Profile updated",
+                message: "Your changes were saved.",
+                icon: "checkmark.circle.fill",
+                color: AppColors.primary,
+                type: .success
+            )
+            router.navigateBack()
+        } else {
+            appState.currentAlert = AppAlert(
+                title: "Save failed",
+                message: "Could not update your profile. Please try again.",
+                icon: "xmark.octagon.fill",
+                color: .red,
+                type: .warning
+            )
+        }
     }
 }
 

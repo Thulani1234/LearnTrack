@@ -30,9 +30,9 @@ struct ScheduledSessionsView: View {
             // Calendar Events Section
             if !calendarEvents.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("Calendar Events", systemImage: "calendar")
+                    Label("Calendar Events", systemImage: "calendar.badge.clock")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.green)
+                        .foregroundColor(AppColors.accent)
                         .padding(.horizontal)
                     
                     ForEach(calendarEvents, id: \.eventIdentifier) { event in
@@ -68,40 +68,78 @@ struct ScheduledSessionsView: View {
 struct CalendarEventCard: View {
     let event: EKEvent
     
+    private var subject: String {
+        event.title.replacingOccurrences(of: "Study Session: ", with: "")
+    }
+    
+    private var accent: Color {
+        switch subject.lowercased() {
+        case let value where value.contains("math"): return AppColors.primary
+        case let value where value.contains("science"): return AppColors.accent
+        case let value where value.contains("english"): return AppColors.warning
+        case let value where value.contains("ict"): return AppColors.secondary
+        default: return AppColors.success
+        }
+    }
+    
+    private var icon: String {
+        switch subject.lowercased() {
+        case let value where value.contains("math"): return "function"
+        case let value where value.contains("science"): return "flask.fill"
+        case let value where value.contains("english"): return "book.closed.fill"
+        case let value where value.contains("ict"): return "laptopcomputer"
+        default: return "calendar.badge.clock"
+        }
+    }
+    
     var body: some View {
         HStack(spacing: 16) {
-            VStack(alignment: .center, spacing: 4) {
+            VStack(spacing: 4) {
                 Text(event.startDate.formatted(.dateTime.hour().minute()))
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(AppColors.textPrimary)
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundColor(accent)
                 
-                Rectangle()
-                    .fill(Color.green.opacity(0.3))
-                    .frame(width: 2, height: 20)
+                Text(event.endDate.formatted(.dateTime.hour().minute()))
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(AppColors.textSecondary)
             }
-            .frame(width: 50)
+            .frame(width: 58)
+            .padding(.vertical, 10)
+            .background(accent.opacity(0.1))
+            .cornerRadius(16)
+            
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 42, height: 42)
+                .background(accent)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(event.title)
+                Text(subject)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(AppColors.textPrimary)
                 
+                Label("Calendar study session", systemImage: "calendar")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(AppColors.textSecondary)
+                
                 if let location = event.location {
                     Label(location, systemImage: "mappin.and.ellipse")
-                        .font(.system(size: 12))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(AppColors.textSecondary)
                 }
             }
             
             Spacer()
             
-            Image(systemName: "calendar")
-                .foregroundColor(.green.opacity(0.5))
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(accent.opacity(0.7))
         }
-        .padding()
+        .padding(14)
         .background(AppColors.cardBackground)
         .cornerRadius(20)
         .shadow(color: Color.black.opacity(0.02), radius: 8, x: 0, y: 4)
     }
 }
-

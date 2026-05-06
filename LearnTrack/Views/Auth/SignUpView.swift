@@ -7,12 +7,18 @@ struct SignUpView: View {
     @State private var name = ""
     @State private var email = ""
     @State private var phoneNumber = ""
+    @State private var address = ""
+    @State private var country = ""
     @State private var password = ""
     @State private var confirmPassword = ""
-    @State private var isLoading = false
     @State private var agreedToTerms = false
+    @State private var isLoading = false
+    @State private var showError = false
+    @State private var errorMessage = ""
     
     @State private var showOTPVerification = false
+    
+    private let authService = AuthenticationService.shared
     
     var body: some View {
         ZStack {
@@ -36,8 +42,86 @@ struct SignUpView: View {
                 // Form Fields
                 VStack(spacing: 16) {
                     CustomTextField(icon: "person.fill", placeholder: "Name", text: $name)
-                    CustomTextField(icon: "envelope.fill", placeholder: "Email Address", text: $email)
+                    CustomTextField(icon: "envelope.fill", placeholder: "Email Address", text: $email, disableAutocapitalization: true)
                     CustomTextField(icon: "phone.fill", placeholder: "Phone Number", text: $phoneNumber)
+                    CustomTextField(icon: "house.fill", placeholder: "Address", text: $address)
+                    Picker(selection: $country) {
+                        Text("Select Country").tag("")
+                        Text("Afghanistan").tag("Afghanistan")
+                        Text("Albania").tag("Albania")
+                        Text("Algeria").tag("Algeria")
+                        Text("Argentina").tag("Argentina")
+                        Text("Australia").tag("Australia")
+                        Text("Austria").tag("Austria")
+                        Text("Bangladesh").tag("Bangladesh")
+                        Text("Belgium").tag("Belgium")
+                        Text("Brazil").tag("Brazil")
+                        Text("Bulgaria").tag("Bulgaria")
+                        Text("Canada").tag("Canada")
+                        Text("Chile").tag("Chile")
+                        Text("China").tag("China")
+                        Text("Colombia").tag("Colombia")
+                        Text("Croatia").tag("Croatia")
+                        Text("Czech Republic").tag("Czech Republic")
+                        Text("Denmark").tag("Denmark")
+                        Text("Egypt").tag("Egypt")
+                        Text("Finland").tag("Finland")
+                        Text("France").tag("France")
+                        Text("Germany").tag("Germany")
+                        Text("Greece").tag("Greece")
+                        Text("Hungary").tag("Hungary")
+                        Text("Iceland").tag("Iceland")
+                        Text("India").tag("India")
+                        Text("Indonesia").tag("Indonesia")
+                        Text("Ireland").tag("Ireland")
+                        Text("Israel").tag("Israel")
+                        Text("Italy").tag("Italy")
+                        Text("Japan").tag("Japan")
+                        Text("Jordan").tag("Jordan")
+                        Text("Kenya").tag("Kenya")
+                        Text("South Korea").tag("South Korea")
+                        Text("Lebanon").tag("Lebanon")
+                        Text("Malaysia").tag("Malaysia")
+                        Text("Mexico").tag("Mexico")
+                        Text("Morocco").tag("Morocco")
+                        Text("Netherlands").tag("Netherlands")
+                        Text("New Zealand").tag("New Zealand")
+                        Text("Norway").tag("Norway")
+                        Text("Pakistan").tag("Pakistan")
+                        Text("Peru").tag("Peru")
+                        Text("Philippines").tag("Philippines")
+                        Text("Poland").tag("Poland")
+                        Text("Portugal").tag("Portugal")
+                        Text("Romania").tag("Romania")
+                        Text("Russia").tag("Russia")
+                        Text("Saudi Arabia").tag("Saudi Arabia")
+                        Text("Singapore").tag("Singapore")
+                        Text("South Africa").tag("South Africa")
+                        Text("Spain").tag("Spain")
+                        Text("Sweden").tag("Sweden")
+                        Text("Switzerland").tag("Switzerland")
+                        Text("Thailand").tag("Thailand")
+                        Text("Turkey").tag("Turkey")
+                        Text("Ukraine").tag("Ukraine")
+                        Text("United Arab Emirates").tag("United Arab Emirates")
+                        Text("United Kingdom").tag("United Kingdom")
+                        Text("United States").tag("United States")
+                        Text("Vietnam").tag("Vietnam")
+                        Text("Other").tag("Other")
+                    } label: {
+                        HStack {
+                            Image(systemName: "globe")
+                                .foregroundColor(AppColors.textSecondary)
+                            Text(country.isEmpty ? "Country" : country)
+                                .foregroundColor(country.isEmpty ? AppColors.textSecondary : AppColors.textPrimary)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .foregroundColor(AppColors.textSecondary)
+                        }
+                        .padding()
+                        .background(AppColors.cardBackground)
+                        .cornerRadius(16)
+                    }
                     CustomTextField(icon: "lock.fill", placeholder: "Password", text: $password, isSecure: true)
                     CustomTextField(icon: "lock.shield.fill", placeholder: "Confirm Password", text: $confirmPassword, isSecure: true)
                 }
@@ -86,7 +170,7 @@ struct SignUpView: View {
                     .cornerRadius(16)
                     .shadow(color: AppColors.primary.opacity(0.3), radius: 10, x: 0, y: 5)
                 }
-                .disabled(isLoading || !agreedToTerms || name.isEmpty || email.isEmpty || phoneNumber.isEmpty || password.isEmpty || password != confirmPassword)
+                .disabled(isLoading || !agreedToTerms || name.isEmpty || email.isEmpty || phoneNumber.isEmpty || address.isEmpty || country.isEmpty || password.isEmpty || password != confirmPassword)
                 .padding(.top, 10)
                 
                 Spacer()
@@ -120,41 +204,80 @@ struct SignUpView: View {
                 }
             }
         }
-        .sheet(isPresented: $showOTPVerification) {
-            OTPVerificationView(userPhone: phoneNumber) {
-                // After successful OTP verification, navigate to main app
-                withAnimation {
-                    appState.isLoggedIn = true
-                }
-                showOTPVerification = false
-                dismiss()
-            }
+        .alert("Error", isPresented: $showError) {
+            Button("OK") { }
+        } message: {
+            Text(errorMessage)
         }
     }
     
     
     private func signUp() {
-        // Validate phone number format
-        guard phoneNumber.count >= 10 else {
+        // Validate form
+        guard !name.isEmpty else {
+            showError = true
+            errorMessage = "Please enter your name"
             return
         }
         
+        guard !email.isEmpty else {
+            showError = true
+            errorMessage = "Please enter your email"
+            return
+        }
+        
+        guard !phoneNumber.isEmpty else {
+            showError = true
+            errorMessage = "Please enter your phone number"
+            return
+        }
+        
+        guard !password.isEmpty else {
+            showError = true
+            errorMessage = "Please enter your password"
+            return
+        }
+        
+        guard password == confirmPassword else {
+            showError = true
+            errorMessage = "Passwords do not match"
+            return
+        }
+        
+        guard agreedToTerms else {
+            showError = true
+            errorMessage = "Please agree to the terms and conditions"
+            return
+        }
         
         isLoading = true
+        showError = false
+        errorMessage = ""
         
+        // Register user
+        let result = authService.registerUser(name: name, email: email, phoneNumber: phoneNumber, password: password, address: address, country: country)
         
-        // Simulate sign up delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             isLoading = false
             
-            // Log user data for demonstration
-            print("User Registered:")
-            print("Name: \(name)")
-            print("Email: \(email)")
-            print("Phone: \(phoneNumber)")
-            
-            // Show OTP verification page
-            showOTPVerification = true
+            if let user = result.user {
+                print("User Registered Successfully:")
+                print("Name: \(user.name)")
+                print("Email: \(user.email)")
+                print("Phone: \(user.phoneNumber)")
+                
+                // Set current user in app state
+                appState.currentUser = user
+                
+                // Navigate to main app directly (no OTP)
+                withAnimation {
+                    appState.isLoggedIn = true
+                }
+                dismiss()
+            } else if let error = result.error {
+                showError = true
+                errorMessage = error.localizedDescription
+            }
         }
     }
 }

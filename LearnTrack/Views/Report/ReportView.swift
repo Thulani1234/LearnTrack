@@ -29,7 +29,18 @@ struct ReportView: View {
                     // Hero Metrics
                     HStack(spacing: 20) {
                         HeroMetricCard(title: "Avg Score", value: "\(calculateAvgScore())%", icon: "star.fill", color: .purple, delay: 0.1)
-                        HeroMetricCard(title: "Study Time", value: "42h", icon: "clock.fill", color: .blue, delay: 0.2)
+                        HeroMetricCard(title: "Results", value: "\(mockData.academicResults.count)", icon: "doc.text.fill", color: .blue, delay: 0.2)
+                    }
+                    .padding(.horizontal)
+                    
+                    ResultsTimelinePanel(
+                        results: latestResults,
+                        subjectName: subjectName(for:),
+                        subjectColor: subjectColor(for:)
+                    ) {
+                        router.navigate(to: .results)
+                    } addAction: {
+                        router.navigate(to: .addResult)
                     }
                     .padding(.horizontal)
                     
@@ -97,8 +108,21 @@ struct ReportView: View {
     }
     
     private func calculateAvgScore() -> Int {
-        let total = mockData.subjects.reduce(0) { $0 + $1.currentScore }
-        return mockData.subjects.isEmpty ? 0 : total / mockData.subjects.count
+        guard !mockData.academicResults.isEmpty else { return 0 }
+        let total = mockData.academicResults.reduce(0) { $0 + $1.percentage }
+        return total / mockData.academicResults.count
+    }
+    
+    private var latestResults: [AcademicResult] {
+        Array(mockData.academicResults.sorted { $0.date > $1.date }.prefix(4))
+    }
+    
+    private func subjectName(for id: UUID) -> String {
+        mockData.subjects.first(where: { $0.id == id })?.name ?? "Unknown Subject"
+    }
+    
+    private func subjectColor(for id: UUID) -> Color {
+        Color(hex: mockData.subjects.first(where: { $0.id == id })?.colorHex ?? "6366F1")
     }
     
     private func getPerformanceData() -> [PerformanceData] {
@@ -126,16 +150,29 @@ struct ReportView: View {
             }
             Spacer()
             
-            Button(action: {
-                // Share functionality or navigate to notifications
-                router.navigate(to: .notifications)
-            }) {
-                Image(systemName: "bell.badge.fill")
-                    .font(.title3)
-                    .foregroundColor(AppColors.primary)
-                    .padding(12)
-                    .background(Circle().fill(.ultraThinMaterial))
-                    .shadow(color: .black.opacity(0.05), radius: 5)
+            HStack(spacing: 10) {
+                Button(action: {
+                    router.navigate(to: .results)
+                }) {
+                    Image(systemName: "list.bullet.rectangle.fill")
+                        .font(.title3)
+                        .foregroundColor(AppColors.primary)
+                        .padding(12)
+                        .background(Circle().fill(.ultraThinMaterial))
+                        .shadow(color: .black.opacity(0.05), radius: 5)
+                }
+                
+                Button(action: {
+                    router.navigate(to: .addResult)
+                }) {
+                    Image(systemName: "plus")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(12)
+                        .background(Circle().fill(AppColors.primary))
+                        .shadow(color: AppColors.primary.opacity(0.25), radius: 10, x: 0, y: 5)
+                }
             }
         }
         .padding(.horizontal)
@@ -212,6 +249,143 @@ struct HeroMetricCard: View {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(delay)) {
                 show = true
             }
+        }
+    }
+}
+
+struct ResultsTimelinePanel: View {
+    let results: [AcademicResult]
+    let subjectName: (UUID) -> String
+    let subjectColor: (UUID) -> Color
+    let viewAllAction: () -> Void
+    let addAction: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Previous Results")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundColor(AppColors.textPrimary)
+                    Text("Your latest marks across subjects")
+                        .font(AppTypography.bodySmall)
+                        .foregroundColor(AppColors.textSecondary)
+                }
+                
+                Spacer()
+                
+                Button(action: addAction) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .black))
+                        .foregroundColor(.white)
+                        .frame(width: 38, height: 38)
+                        .background(AppColors.primary)
+                        .clipShape(Circle())
+                }
+            }
+            
+            if results.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "chart.bar.doc.horizontal")
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundColor(AppColors.primary)
+                        .frame(width: 64, height: 64)
+                        .background(AppColors.primary.opacity(0.12))
+                        .clipShape(Circle())
+                    Text("No results logged yet")
+                        .font(AppTypography.headline)
+                        .foregroundColor(AppColors.textPrimary)
+                    Text("Add exam, class test, or assignment marks from here.")
+                        .font(AppTypography.bodySmall)
+                        .foregroundColor(AppColors.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(results) { result in
+                        ResultTimelineRow(
+                            result: result,
+                            subject: subjectName(result.subjectId),
+                            color: subjectColor(result.subjectId)
+                        )
+                    }
+                }
+                
+                Button(action: viewAllAction) {
+                    HStack {
+                        Text("View all results")
+                            .font(.system(size: 14, weight: .bold))
+                        Spacer()
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 13, weight: .bold))
+                    }
+                    .foregroundColor(AppColors.primary)
+                    .padding(14)
+                    .background(AppColors.primary.opacity(0.09))
+                    .cornerRadius(16)
+                }
+            }
+        }
+        .padding(22)
+        .background(AppColors.cardBackground.opacity(0.92))
+        .cornerRadius(28)
+        .shadow(color: Color.black.opacity(0.04), radius: 18, x: 0, y: 10)
+    }
+}
+
+struct ResultTimelineRow: View {
+    var result: AcademicResult
+    var subject: String
+    var color: Color
+    
+    private var statusColor: Color {
+        result.percentage >= result.targetScore ? AppColors.success : AppColors.warning
+    }
+    
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon(for: subject))
+                .font(.system(size: 17, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 42, height: 42)
+                .background(color)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(result.title)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(AppColors.textPrimary)
+                    .lineLimit(1)
+                Text("\(subject) · \(result.category.rawValue) · \(result.date.formatted(.dateTime.month().day()))")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(AppColors.textSecondary)
+            }
+            
+            Spacer()
+            
+            VStack(alignment: .trailing, spacing: 3) {
+                Text("\(result.percentage)%")
+                    .font(.system(size: 18, weight: .black, design: .rounded))
+                    .foregroundColor(statusColor)
+                Text(result.grade)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(statusColor)
+            }
+        }
+        .padding(14)
+        .background(AppColors.background)
+        .cornerRadius(18)
+    }
+    
+    private func icon(for subject: String) -> String {
+        switch subject.lowercased() {
+        case let value where value.contains("math"): return "function"
+        case let value where value.contains("science"): return "flask.fill"
+        case let value where value.contains("english"): return "book.closed.fill"
+        case let value where value.contains("ict"): return "laptopcomputer"
+        default: return "graduationcap.fill"
         }
     }
 }
@@ -435,5 +609,3 @@ struct PerformanceData: Identifiable {
     var hours: Int
     var color: Color
 }
-
-

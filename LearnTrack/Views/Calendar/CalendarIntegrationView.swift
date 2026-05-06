@@ -26,6 +26,8 @@ struct CalendarIntegrationView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
+                    calendarHero
+                    
                     // Authorization Status
                     authorizationStatusView
                     
@@ -55,13 +57,44 @@ struct CalendarIntegrationView: View {
         }
     }
     
+    private var calendarHero: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(LinearGradient(colors: [AppColors.primary, AppColors.accent], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: 74, height: 74)
+                Image(systemName: "calendar.badge.clock")
+                    .font(.system(size: 30, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Study Calendar")
+                    .font(.system(size: 26, weight: .black, design: .rounded))
+                    .foregroundColor(AppColors.textPrimary)
+                Text("Plan sessions, save reminders, and keep your learning week visible.")
+                    .font(AppTypography.bodySmall)
+                    .foregroundColor(AppColors.textSecondary)
+            }
+            
+            Spacer()
+        }
+        .padding(18)
+        .background(AppColors.cardBackground)
+        .cornerRadius(26)
+        .shadow(color: Color.black.opacity(0.04), radius: 18, x: 0, y: 10)
+    }
+    
     // MARK: - Authorization Status View
     private var authorizationStatusView: some View {
         VStack(spacing: 16) {
-            HStack {
-                Image(systemName: "calendar.badge.clock")
+            HStack(spacing: 14) {
+                Image(systemName: calendarService.authorizationStatus == .fullAccess || calendarService.authorizationStatus == .writeOnly ? "checkmark.seal.fill" : "lock.open.trianglebadge.exclamationmark")
                     .font(.system(size: 24))
-                    .foregroundColor(calendarService.authorizationStatus == .fullAccess || calendarService.authorizationStatus == .writeOnly ? .green : .orange)
+                    .foregroundColor(calendarService.authorizationStatus == .fullAccess || calendarService.authorizationStatus == .writeOnly ? AppColors.success : AppColors.warning)
+                    .frame(width: 48, height: 48)
+                    .background((calendarService.authorizationStatus == .fullAccess || calendarService.authorizationStatus == .writeOnly ? AppColors.success : AppColors.warning).opacity(0.12))
+                    .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Calendar Access")
@@ -79,12 +112,18 @@ struct CalendarIntegrationView: View {
                     Button("Request Access") {
                         requestCalendarAccess()
                     }
-                    .buttonStyle(.borderedProminent)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(AppColors.primary)
+                    .cornerRadius(14)
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .background(AppColors.cardBackground)
+            .cornerRadius(20)
+            .shadow(color: Color.black.opacity(0.03), radius: 12, x: 0, y: 6)
         }
     }
     
@@ -96,20 +135,7 @@ struct CalendarIntegrationView: View {
                 .fontWeight(.semibold)
             
             if todayEvents.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: "calendar.badge.plus")
-                        .font(.system(size: 40))
-                        .foregroundColor(.secondary)
-                    
-                    Text("No study sessions scheduled for today")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
+                EmptyCalendarCard(title: "No study sessions today", icon: "calendar.badge.plus")
             } else {
                 LazyVStack(spacing: 8) {
                     ForEach(todayEvents) { event in
@@ -191,19 +217,20 @@ struct CalendarIntegrationView: View {
                 // Create Button
                 Button(action: createStudySession) {
                     HStack {
-                        Image(systemName: "plus.circle.fill")
+                        Image(systemName: "calendar.badge.plus")
                         Text("Create Study Session")
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.blue)
+                    .background(AppColors.primary)
                     .foregroundColor(.white)
-                    .cornerRadius(12)
+                    .cornerRadius(16)
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .background(AppColors.cardBackground)
+            .cornerRadius(22)
+            .shadow(color: Color.black.opacity(0.03), radius: 12, x: 0, y: 6)
         }
     }
     
@@ -220,13 +247,7 @@ struct CalendarIntegrationView: View {
             )
             
             if upcomingEvents.isEmpty {
-                Text("No upcoming study sessions")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                EmptyCalendarCard(title: "No upcoming sessions", icon: "calendar.badge.plus")
             } else {
                 LazyVStack(spacing: 8) {
                     ForEach(Array(upcomingEvents.prefix(5)), id: \.eventIdentifier) { event in
@@ -316,28 +337,35 @@ struct EventRowView: View {
     let calendarService: CalendarService
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             // Time indicator
-            VStack {
+            VStack(spacing: 3) {
                 Text(event.startDate, style: .time)
-                    .font(.caption)
-                    .fontWeight(.bold)
+                    .font(.system(size: 12, weight: .black, design: .rounded))
+                    .foregroundColor(calendarService.getEventColor(for: event.subject))
                 Text(event.endDate, style: .time)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(AppColors.textSecondary)
             }
-            .frame(width: 60)
+            .frame(width: 64)
+            .padding(.vertical, 10)
+            .background(calendarService.getEventColor(for: event.subject).opacity(0.1))
+            .cornerRadius(14)
             
             // Subject indicator
-            Circle()
-                .fill(calendarService.getEventColor(for: event.subject))
-                .frame(width: 12, height: 12)
+            Image(systemName: icon(for: event.subject))
+                .font(.system(size: 17, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 42, height: 42)
+                .background(calendarService.getEventColor(for: event.subject))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             
             // Event details
             VStack(alignment: .leading, spacing: 4) {
                 Text(event.title)
                     .font(.subheadline)
-                    .fontWeight(.medium)
+                    .fontWeight(.bold)
+                    .foregroundColor(AppColors.textPrimary)
                 
                 if let location = event.location {
                     Text(location)
@@ -347,15 +375,48 @@ struct EventRowView: View {
                 
                 Text(calendarService.formatEventDuration(event.duration))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppColors.textSecondary)
             }
             
             Spacer()
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color(.systemGray6))
-        .cornerRadius(8)
+        .padding(12)
+        .background(AppColors.cardBackground)
+        .cornerRadius(18)
+        .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
+    }
+    
+    private func icon(for subject: String) -> String {
+        switch subject.lowercased() {
+        case let value where value.contains("math"): return "function"
+        case let value where value.contains("science"): return "flask.fill"
+        case let value where value.contains("english"): return "book.closed.fill"
+        case let value where value.contains("ict"): return "laptopcomputer"
+        default: return "calendar.badge.clock"
+        }
+    }
+}
+
+private struct EmptyCalendarCard: View {
+    var title: String
+    var icon: String
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 30, weight: .semibold))
+                .foregroundColor(AppColors.primary)
+                .frame(width: 64, height: 64)
+                .background(AppColors.primary.opacity(0.12))
+                .clipShape(Circle())
+            Text(title)
+                .font(.system(size: 15, weight: .bold))
+                .foregroundColor(AppColors.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(AppColors.cardBackground)
+        .cornerRadius(18)
     }
 }
 

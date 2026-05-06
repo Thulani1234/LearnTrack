@@ -85,22 +85,22 @@ struct MainTabView: View {
             // Custom Tab Bar
             HStack(spacing: 0) {
                 TabBarItem(icon: "house.fill", label: "Home", isSelected: appState.selectedTab == 0) {
-                    appState.selectedTab = 0
+                    selectTab(0)
                 }
                 TabBarItem(icon: "calendar", label: "Plan", isSelected: appState.selectedTab == 1) {
-                    appState.selectedTab = 1
+                    selectTab(1)
                 }
                 TabBarItem(icon: "person.2.fill", label: "Live", isSelected: appState.selectedTab == 2) {
-                    appState.selectedTab = 2
+                    selectTab(2)
                 }
                 TabBarItem(icon: "books.vertical.fill", label: "Subjects", isSelected: appState.selectedTab == 3) {
-                    appState.selectedTab = 3
+                    selectTab(3)
                 }
                 TabBarItem(icon: "chart.bar.fill", label: "Report", isSelected: appState.selectedTab == 4) {
-                    appState.selectedTab = 4
+                    selectTab(4)
                 }
                 TabBarItem(icon: "person.crop.circle.fill", label: "Profile", isSelected: appState.selectedTab == 5) {
-                    appState.selectedTab = 5
+                    selectTab(5)
                 }
             }
             .padding(.top, 12)
@@ -190,6 +190,13 @@ struct MainTabView: View {
             }
         }
     }
+    
+    private func selectTab(_ tab: Int) {
+        if appState.selectedTab != tab {
+            router.navigateToRoot()
+        }
+        appState.selectedTab = tab
+    }
 
     @ViewBuilder
     private func destination(for route: Route) -> some View {
@@ -218,6 +225,7 @@ struct MainTabView: View {
         case .addResult:
             AddResultView()
                 .environmentObject(router)
+                .environmentObject(appState)
         case .targetActual:
             TargetActualView()
                 .environmentObject(router)
@@ -301,4 +309,3 @@ struct TabBarItem: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
-

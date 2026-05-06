@@ -80,6 +80,19 @@ class CoreDataManager {
         }
     }
     
+    func fetchSubjects(for userId: UUID) -> [CDSubject] {
+        let request: NSFetchRequest<CDSubject> = CDSubject.fetchRequest()
+        request.predicate = NSPredicate(format: "user.id == %@", userId as CVarArg)
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \CDSubject.name, ascending: true)]
+        
+        do {
+            return try viewContext.fetch(request)
+        } catch {
+            print("Error fetching subjects for user: \(error)")
+            return []
+        }
+    }
+    
     func fetchStudySessions() -> [CDStudySession] {
         let request: NSFetchRequest<CDStudySession> = CDStudySession.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \CDStudySession.date, ascending: false)]
@@ -88,6 +101,19 @@ class CoreDataManager {
             return try viewContext.fetch(request)
         } catch {
             print("Error fetching study sessions: \(error)")
+            return []
+        }
+    }
+    
+    func fetchStudySessions(for userId: UUID) -> [CDStudySession] {
+        let request: NSFetchRequest<CDStudySession> = CDStudySession.fetchRequest()
+        request.predicate = NSPredicate(format: "subject.user.id == %@", userId as CVarArg)
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \CDStudySession.date, ascending: false)]
+        
+        do {
+            return try viewContext.fetch(request)
+        } catch {
+            print("Error fetching study sessions for user: \(error)")
             return []
         }
     }
@@ -102,6 +128,32 @@ class CoreDataManager {
         } catch {
             print("Error fetching results: \(error)")
             return []
+        }
+    }
+    
+    func fetchResults(for userId: UUID) -> [CDResult] {
+        let request: NSFetchRequest<CDResult> = CDResult.fetchRequest()
+        request.predicate = NSPredicate(format: "subject.user.id == %@", userId as CVarArg)
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \CDResult.date, ascending: false)]
+        
+        do {
+            return try viewContext.fetch(request)
+        } catch {
+            print("Error fetching results for user: \(error)")
+            return []
+        }
+    }
+    
+    func fetchUser(by id: UUID) -> CDUser? {
+        let request: NSFetchRequest<CDUser> = CDUser.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.fetchLimit = 1
+        
+        do {
+            return try viewContext.fetch(request).first
+        } catch {
+            print("Error fetching user by ID: \(error)")
+            return nil
         }
     }
     
@@ -140,4 +192,3 @@ class CoreDataManager {
         saveContext()
     }
 }
-

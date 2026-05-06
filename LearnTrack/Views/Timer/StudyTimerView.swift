@@ -209,7 +209,7 @@ struct StudyTimerView: View {
                                 #if canImport(ActivityKit)
                                 StudyActivityManager.shared.startSession(
                                     subject: currentSubject.name,
-                                    icon: emoji(for: currentSubject.name),
+                                    icon: currentSubject.icon,
                                     colorHex: currentSubject.colorHex,
                                     duration: TimeInterval(sessionDuration)
                                 )

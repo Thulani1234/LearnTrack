@@ -17,6 +17,15 @@ class AppState: ObservableObject {
     @Published var currentAlert: AppAlert? = nil
     @Published var isJoiningRoom: Bool = false
     @Published var joiningRoomName: String = ""
+    @Published var currentUser: User? = nil {
+        didSet {
+            if let currentUser {
+                MockData.shared.configure(for: currentUser)
+            } else {
+                MockData.shared.resetForSignedOutUser()
+            }
+        }
+    }
     
     init() {
         let defaults = UserDefaults.standard

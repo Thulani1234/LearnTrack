@@ -174,6 +174,5 @@ struct LearnTrackWidget: Widget {
 struct LearnTrackWidgets: WidgetBundle {
     var body: some Widget {
         LearnTrackWidget()
-        StudySessionLiveActivity()
     }
 }

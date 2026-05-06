@@ -1,12 +1,6 @@
 import SwiftUI
-
-struct VoiceRecording: Identifiable {
-    let id = UUID()
-    let title: String
-    let duration: String
-    let date: String
-    let waveform: [CGFloat]
-}
+import AVFoundation
+import Combine
 
 struct VoiceNotesView: View {
     @EnvironmentObject var router: AppRouter
@@ -17,7 +11,17 @@ struct VoiceNotesView: View {
     @State private var selectedSubjectId: UUID?
     @State private var timer: Timer? = nil
     
-    @State private var mockRecordings: [VoiceRecording] = []
+    
+    // Recordings now come from data.voiceRecordings
+    
+    @StateObject private var audioManager = AudioManager()
+    
+    // New states for saving
+    @State private var showingSaveSheet = false
+    @State private var newTopic = ""
+    @State private var newSubjectId: UUID?
+    @State private var lastRecordingTime = 0
+    @State private var lastAudioURL: URL?
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -56,6 +60,16 @@ struct VoiceNotesView: View {
                 // Subject Filter
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
+                        Button(action: { selectedSubjectId = nil }) {
+                            Text("All")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(selectedSubjectId == nil ? .white : AppColors.textSecondary)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                                .background(selectedSubjectId == nil ? AppColors.primary : AppColors.cardBackground)
+                                .cornerRadius(15)
+                        }
+                        
                         ForEach(data.subjects) { subject in
                             Button(action: { selectedSubjectId = subject.id }) {
                                 HStack(spacing: 6) {
@@ -77,8 +91,27 @@ struct VoiceNotesView: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
-                        ForEach(mockRecordings) { recording in
-                            RecordingCard(recording: recording)
+                        ForEach(data.voiceRecordings.filter { recording in
+                            let matchesSearch = searchText.isEmpty || 
+                                recording.title.lowercased().contains(searchText.lowercased()) || 
+                                recording.topic.lowercased().contains(searchText.lowercased())
+                            let matchesSubject = selectedSubjectId == nil || recording.subjectId == selectedSubjectId
+                            return matchesSearch && matchesSubject
+                        }) { recording in
+                            RecordingCard(
+                                recording: recording, 
+                                subjectName: data.subjects.first(where: { $0.id == recording.subjectId })?.name ?? "General",
+                                isPlaying: audioManager.playingURL == recording.audioURL && audioManager.isPlaying,
+                                onPlay: {
+                                    if let url = recording.audioURL {
+                                        if audioManager.playingURL == url && audioManager.isPlaying {
+                                            audioManager.stopPlayback()
+                                        } else {
+                                            audioManager.play(url: url)
+                                        }
+                                    }
+                                }
+                            )
                         }
                     }
                     .padding(.horizontal)
@@ -132,40 +165,51 @@ struct VoiceNotesView: View {
         }
         .background(AppColors.background.ignoresSafeArea())
         .navigationBarHidden(true)
-        .onAppear {
-            if mockRecordings.isEmpty {
-                setupMockRecordings()
+        .sheet(isPresented: $showingSaveSheet) {
+            SaveVoiceNoteSheet(topic: $newTopic, selectedSubjectId: $newSubjectId, subjects: data.subjects) {
+                saveRecording()
             }
         }
-    }
-    
-    private func setupMockRecordings() {
-        let subjects = data.subjects
-        if subjects.count >= 3 {
-            mockRecordings = [
-                VoiceRecording(title: "\(subjects[0].name) Lecture Notes", duration: "12:45", date: "Today", waveform: [0.2, 0.5, 0.3, 0.8, 0.4, 0.6, 0.3, 0.5]),
-                VoiceRecording(title: "\(subjects[1].name) Formulas Recap", duration: "05:20", date: "Yesterday", waveform: [0.4, 0.3, 0.6, 0.2, 0.5, 0.8, 0.4, 0.3]),
-                VoiceRecording(title: "\(subjects[2].name) Project Ideas", duration: "02:15", date: "24 Apr", waveform: [0.3, 0.4, 0.5, 0.3, 0.4, 0.2, 0.6, 0.4])
-            ]
-        } else {
-            mockRecordings = subjects.map { subject in
-                VoiceRecording(title: "\(subject.name) Session Note", duration: "08:30", date: "Today", waveform: [0.4, 0.6, 0.2, 0.5, 0.8, 0.3, 0.5, 0.4])
-            }
+        .onAppear {
+            // No longer seeding non-playable recordings
         }
     }
     
     private func toggleRecording() {
         withAnimation(.spring()) {
-            isRecording.toggle()
             if isRecording {
-                startTimer()
-            } else {
                 stopTimer()
-                let subjectName = data.subjects.first(where: { $0.id == selectedSubjectId })?.name ?? "General"
-                mockRecordings.insert(VoiceRecording(title: "\(subjectName) Note \(mockRecordings.count + 1)", duration: timeString(time: recordingTime), date: "Today", waveform: [0.3, 0.6, 0.4, 0.7, 0.2, 0.5, 0.3, 0.4]), at: 0)
+                lastAudioURL = audioManager.stopRecording()
+                lastRecordingTime = recordingTime
+                newSubjectId = selectedSubjectId
+                showingSaveSheet = true
+                isRecording = false
+            } else {
                 recordingTime = 0
+                startTimer()
+                audioManager.startRecording()
+                isRecording = true
             }
         }
+    }
+    
+    private func saveRecording() {
+        let subjectName = data.subjects.first(where: { $0.id == newSubjectId })?.name ?? "General"
+        let recording = VoiceRecording(
+            title: "\(subjectName) Note",
+            topic: newTopic,
+            subjectId: newSubjectId,
+            duration: timeString(time: lastRecordingTime),
+            date: "Today",
+            waveform: (0..<8).map { _ in CGFloat.random(in: 0.2...0.9) },
+            audioURL: lastAudioURL
+        )
+        data.addVoiceRecording(recording)
+        
+        // Reset
+        newTopic = ""
+        lastAudioURL = nil
+        showingSaveSheet = false
     }
     
     private func startTimer() {
@@ -188,6 +232,9 @@ struct VoiceNotesView: View {
 
 struct RecordingCard: View {
     let recording: VoiceRecording
+    let subjectName: String
+    var isPlaying: Bool = false
+    var onPlay: () -> Void
     
     var body: some View {
         HStack(spacing: 16) {
@@ -195,18 +242,27 @@ struct RecordingCard: View {
             HStack(spacing: 3) {
                 ForEach(recording.waveform, id: \.self) { height in
                     RoundedRectangle(cornerRadius: 1)
-                        .fill(AppColors.primary.opacity(0.5))
-                        .frame(width: 2, height: height * 30)
+                        .fill(isPlaying ? AppColors.primary : AppColors.primary.opacity(0.5))
+                        .frame(width: 2, height: height * (isPlaying ? 40 : 30))
+                        .animation(.easeInOut, value: isPlaying)
                 }
             }
             .frame(width: 40)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(recording.title)
+                Text(recording.topic)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(AppColors.textPrimary)
                 
-                HStack {
+                HStack(spacing: 8) {
+                    Text(subjectName)
+                        .font(.system(size: 10, weight: .bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(AppColors.primary.opacity(0.1))
+                        .foregroundColor(AppColors.primary)
+                        .cornerRadius(4)
+                    
                     Text(recording.date)
                     Text("•")
                     Text(recording.duration)
@@ -217,17 +273,177 @@ struct RecordingCard: View {
             
             Spacer()
             
-            Button(action: {}) {
-                Image(systemName: "play.fill")
+            Button(action: onPlay) {
+                Image(systemName: isPlaying ? "stop.fill" : "play.fill")
                     .foregroundColor(.white)
                     .frame(width: 40, height: 40)
-                    .background(AppColors.primary)
+                    .background(isPlaying ? AppColors.error : AppColors.primary)
                     .clipShape(Circle())
             }
+            .disabled(recording.audioURL == nil && !isPlaying)
+            .opacity(recording.audioURL == nil && !isPlaying ? 0.5 : 1.0)
         }
         .padding()
         .background(AppColors.cardBackground)
         .cornerRadius(24)
         .shadow(color: Color.black.opacity(0.02), radius: 10, x: 0, y: 5)
+    }
+}
+
+class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate {
+    @Published var isRecording = false
+    @Published var isPlaying = false
+    @Published var playingURL: URL?
+    
+    private var audioRecorder: AVAudioRecorder?
+    private var audioPlayer: AVAudioPlayer?
+    private var recordingURL: URL?
+    
+    func startRecording() {
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setCategory(.playAndRecord, mode: .default)
+            try session.setActive(true)
+            
+            let fileName = "recording-\(UUID().uuidString).m4a"
+            let path = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+            recordingURL = path
+            
+            let settings = [
+                AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+                AVSampleRateKey: 12000,
+                AVNumberOfChannelsKey: 1,
+                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+            ]
+            
+            audioRecorder = try AVAudioRecorder(url: path, settings: settings)
+            audioRecorder?.prepareToRecord()
+            audioRecorder?.record()
+            isRecording = true
+        } catch {
+            print("Failed to start recording: \(error)")
+        }
+    }
+    
+    func stopRecording() -> URL? {
+        audioRecorder?.stop()
+        isRecording = false
+        return recordingURL
+    }
+    
+    func play(url: URL) {
+        // Stop current if playing
+        if isPlaying {
+            stopPlayback()
+        }
+        
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .default)
+            try session.setActive(true)
+            
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.delegate = self
+            audioPlayer?.play()
+            isPlaying = true
+            playingURL = url
+        } catch {
+            print("Failed to play: \(error)")
+        }
+    }
+    
+    func stopPlayback() {
+        audioPlayer?.stop()
+        isPlaying = false
+        playingURL = nil
+    }
+    
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        DispatchQueue.main.async {
+            self.isPlaying = false
+            self.playingURL = nil
+        }
+    }
+}
+
+struct SaveVoiceNoteSheet: View {
+    @Binding var topic: String
+    @Binding var selectedSubjectId: UUID?
+    let subjects: [Subject]
+    var onSave: () -> Void
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 24) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Note Topic")
+                        .font(.headline)
+                        .foregroundColor(AppColors.textPrimary)
+                    
+                    TextField("What's this recording about?", text: $topic)
+                        .padding()
+                        .background(AppColors.cardBackground)
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(AppColors.primary.opacity(0.2), lineWidth: 1)
+                        )
+                }
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Select Subject")
+                        .font(.headline)
+                        .foregroundColor(AppColors.textPrimary)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(subjects) { subject in
+                                Button(action: { selectedSubjectId = subject.id }) {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: subject.icon)
+                                            .font(.title3)
+                                        Text(subject.name)
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                    }
+                                    .frame(width: 80, height: 80)
+                                    .background(selectedSubjectId == subject.id ? AppColors.primary : AppColors.cardBackground)
+                                    .foregroundColor(selectedSubjectId == subject.id ? .white : AppColors.textSecondary)
+                                    .cornerRadius(16)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(AppColors.primary.opacity(0.1), lineWidth: 1)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                Button(action: onSave) {
+                    Text("Save Voice Note")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(topic.isEmpty ? Color.gray : AppColors.primary)
+                        .cornerRadius(16)
+                        .shadow(color: AppColors.primary.opacity(0.3), radius: 10, x: 0, y: 5)
+                }
+                .disabled(topic.isEmpty)
+            }
+            .padding()
+            .background(AppColors.background.ignoresSafeArea())
+            .navigationTitle("Save Recording")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
     }
 }

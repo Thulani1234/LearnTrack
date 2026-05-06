@@ -12,5 +12,6 @@ import SwiftUI
 struct LearnTrackWidgetBundle: WidgetBundle {
     var body: some Widget {
         LearnTrackWidget()
+        StudySessionLiveActivity()
     }
 }

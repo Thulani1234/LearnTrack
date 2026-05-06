@@ -19,11 +19,13 @@ struct OTPVerificationView: View {
     @State private var timer: Timer?
     @State private var canResend = false
     
-    let userPhone: String
+    let userEmail: String
     let onSuccess: () -> Void
     
-    init(userPhone: String, onSuccess: @escaping () -> Void) {
-        self.userPhone = userPhone
+    private let authService = AuthenticationService.shared
+    
+    init(userEmail: String, onSuccess: @escaping () -> Void) {
+        self.userEmail = userEmail
         self.onSuccess = onSuccess
     }
     
@@ -41,13 +43,13 @@ struct OTPVerificationView: View {
                                 .fill(AppColors.primary.opacity(0.1))
                                 .frame(width: 80, height: 80)
                             
-                            Image(systemName: "phone.badge.plus")
+                            Image(systemName: "envelope.badge.fill")
                                 .font(.system(size: 32, weight: .semibold))
                                 .foregroundColor(AppColors.primary)
                         }
                         
                         VStack(spacing: 12) {
-                            Text("Verify Your Phone")
+                            Text("Verify Your Email")
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .foregroundColor(AppColors.textPrimary)
                             
@@ -56,7 +58,7 @@ struct OTPVerificationView: View {
                                 .foregroundColor(AppColors.textSecondary)
                                 .multilineTextAlignment(.center)
                             
-                            Text(userPhone)
+                            Text(userEmail)
                                 .font(AppTypography.body)
                                 .fontWeight(.semibold)
                                 .foregroundColor(AppColors.primary)
@@ -190,6 +192,9 @@ struct OTPVerificationView: View {
         }
         .onAppear {
             startTimer()
+            // Send OTP when view appears
+            let otp = authService.generateOTPForEmail(email: userEmail)
+            print("OTP sent to \(userEmail): \(otp)")
         }
         .onDisappear {
             timer?.invalidate()
@@ -226,20 +231,28 @@ struct OTPVerificationView: View {
         isLoading = true
         showError = false
         
-        // Simulate OTP verification
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        let otpString = otpCode.joined()
+        
+        // Verify OTP using authentication service
+        let isValid = authService.validateOTP(otp: otpString, phoneNumber: userEmail)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             isLoading = false
             
-            // For demo: accept "123456" as valid OTP
-            let enteredCode = otpCode.joined()
-            if enteredCode == "123456" {
-                onSuccess()
-            } else {
-                showError = true
-                errorMessage = "Invalid verification code. Please try again."
+            if isValid {
+                // Verify user email
+                let emailVerified = self.authService.verifyUserEmail(email: self.userEmail)
                 
-                // Clear OTP fields
-                otpCode = Array(repeating: "", count: 6)
+                if emailVerified {
+                    print("OTP verified successfully for \(self.userEmail)")
+                    self.onSuccess()
+                } else {
+                    self.showError = true
+                    self.errorMessage = "Failed to verify email. Please try again."
+                }
+            } else {
+                self.showError = true
+                self.errorMessage = "Invalid OTP code. Please try again."
             }
         }
     }
@@ -249,8 +262,9 @@ struct OTPVerificationView: View {
         canResend = false
         startTimer()
         
-        // Simulate sending OTP
-        print("OTP resent to: \(userPhone)")
+        // Generate new OTP
+        let newOTP = authService.generateOTPForEmail(email: userEmail)
+        print("New OTP sent to \(userEmail) - \(newOTP)")
     }
     
     private func startTimer() {
@@ -270,6 +284,7 @@ struct OTPVerificationView: View {
 struct OTPDigitField: View {
     @Binding var digit: String
     let isActive: Bool
+    @FocusState private var isFocused: Bool
     
     var body: some View {
         ZStack {
@@ -281,12 +296,32 @@ struct OTPDigitField: View {
                 )
                 .frame(width: 50, height: 60)
             
-            Text(digit)
+            TextField("", text: $digit)
                 .font(.system(size: 24, weight: .bold, design: .rounded))
                 .foregroundColor(AppColors.textPrimary)
-        }
-        .onTapGesture {
-            // Handle tap to focus (simplified for demo)
+                .multilineTextAlignment(.center)
+                .keyboardType(.numberPad)
+                .focused($isFocused)
+                .onChange(of: digit) { newValue in
+                    // Only allow single digit
+                    if newValue.count > 1 {
+                        digit = String(newValue.prefix(1))
+                    }
+                    // Only allow numbers
+                    if !newValue.isEmpty && !newValue.allSatisfy({ $0.isNumber }) {
+                        digit = ""
+                    }
+                }
+                .onAppear {
+                    if isActive {
+                        isFocused = true
+                    }
+                }
+                .onChange(of: isActive) { newValue in
+                    if newValue {
+                        isFocused = true
+                    }
+                }
         }
     }
 }
@@ -294,7 +329,7 @@ struct OTPDigitField: View {
 // MARK: - Preview
 struct OTPVerificationView_Previews: PreviewProvider {
     static var previews: some View {
-        OTPVerificationView(userPhone: "+1234567890") {
+        OTPVerificationView(userEmail: "user@example.com") {
             print("OTP verified successfully")
         }
         .preferredColorScheme(.light)
