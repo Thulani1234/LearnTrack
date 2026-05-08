@@ -79,17 +79,35 @@ struct NotesView: View {
                         HStack(alignment: .top, spacing: 16) {
                             // Column 1
                             VStack(spacing: 16) {
-                                ForEach(Array(filteredNotes.enumerated()), id: \.offset) { index, note in
+                                ForEach(Array(filteredNotes.enumerated()), id: \.element.id) { index, note in
                                     if index % 2 == 0 {
-                                        NoteCard(note: note)
+                                        NoteCard(note: note, isExpanded: index % 3 == 0)
+                                            .contentShape(Rectangle())
+                                            .onTapGesture { router.navigate(to: .noteDetail(note)) }
+                                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                                Button(role: .destructive) {
+                                                    data.deleteNote(note)
+                                                } label: {
+                                                    Label("Delete", systemImage: "trash")
+                                                }
+                                            }
                                     }
                                 }
                             }
                             // Column 2
                             VStack(spacing: 16) {
-                                ForEach(Array(filteredNotes.enumerated()), id: \.offset) { index, note in
+                                ForEach(Array(filteredNotes.enumerated()), id: \.element.id) { index, note in
                                     if index % 2 != 0 {
-                                        NoteCard(note: note)
+                                        NoteCard(note: note, isExpanded: index % 3 == 0)
+                                            .contentShape(Rectangle())
+                                            .onTapGesture { router.navigate(to: .noteDetail(note)) }
+                                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                                Button(role: .destructive) {
+                                                    data.deleteNote(note)
+                                                } label: {
+                                                    Label("Delete", systemImage: "trash")
+                                                }
+                                            }
                                     }
                                 }
                             }
@@ -122,6 +140,7 @@ struct NotesView: View {
 
 struct NoteCard: View {
     let note: Note
+    let isExpanded: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -142,7 +161,7 @@ struct NoteCard: View {
             Text(note.content)
                 .font(.system(size: 13))
                 .foregroundColor(AppColors.textSecondary)
-                .lineLimit(index % 3 == 0 ? 6 : 4) // Varied heights
+                .lineLimit(isExpanded ? 6 : 4)
             
             HStack {
                 Text(note.category)
@@ -164,6 +183,3 @@ struct NoteCard: View {
         .shadow(color: Color.black.opacity(0.02), radius: 10, x: 0, y: 5)
     }
 }
-
-// Fixed for the enumeration index issue
-private var index: Int { return 0 } // Dummy for compilation, in actual ForEach it's handled

@@ -4,6 +4,31 @@ struct StudyHistoryView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var data: MockData
     
+    private var completedSessions: [StudySession] {
+        data.recentSessions
+            .filter { $0.isCompleted }
+            .sorted(by: { $0.date > $1.date })
+    }
+    
+    private var totalFocusMinutes: Int {
+        completedSessions.reduce(0) { $0 + $1.durationSeconds } / 60
+    }
+    
+    private var totalDays: Int {
+        guard let firstDate = completedSessions.last?.date,
+              let lastDate = completedSessions.first?.date else {
+            return 1
+        }
+        let startOfFirst = Calendar.current.startOfDay(for: firstDate)
+        let startOfLast = Calendar.current.startOfDay(for: lastDate)
+        let days = Calendar.current.dateComponents([.day], from: startOfFirst, to: startOfLast).day ?? 0
+        return max(days + 1, 1)
+    }
+    
+    private var averageDailyMinutes: Int {
+        totalFocusMinutes / max(totalDays, 1)
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -27,11 +52,11 @@ struct StudyHistoryView: View {
                 VStack(spacing: 24) {
                     // Overall Stats Card
                     HStack(spacing: 20) {
-                        HistoryStatItem(label: "Total Sessions", value: "\(data.recentSessions.count)", icon: "book.fill", color: .blue)
+                        HistoryStatItem(label: "Total Sessions", value: "\(completedSessions.count)", icon: "book.fill", color: .blue)
                         Divider().frame(height: 40)
-                        HistoryStatItem(label: "Focus Time", value: "12h", icon: "timer", color: .orange)
+                        HistoryStatItem(label: "Focus Time", value: formattedMinutes(totalFocusMinutes), icon: "timer", color: .orange)
                         Divider().frame(height: 40)
-                        HistoryStatItem(label: "Avg. Daily", value: "45m", icon: "chart.bar.fill", color: .green)
+                        HistoryStatItem(label: "Avg. Daily", value: formattedMinutes(averageDailyMinutes), icon: "chart.bar.fill", color: .green)
                     }
                     .padding()
                     .background(AppColors.cardBackground)
@@ -45,8 +70,6 @@ struct StudyHistoryView: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(AppColors.textSecondary.opacity(0.6))
                             .padding(.horizontal)
-                        
-                        let completedSessions = data.recentSessions.filter { $0.isCompleted }.sorted(by: { $0.date > $1.date })
                         
                         if completedSessions.isEmpty {
                             VStack(spacing: 12) {
@@ -73,6 +96,15 @@ struct StudyHistoryView: View {
             }
         }
         .background(AppColors.background.ignoresSafeArea())
+    }
+    
+    private func formattedMinutes(_ minutes: Int) -> String {
+        if minutes >= 60 {
+            let hours = minutes / 60
+            let remaining = minutes % 60
+            return remaining > 0 ? "\(hours)h \(remaining)m" : "\(hours)h"
+        }
+        return "\(minutes)m"
     }
 }
 

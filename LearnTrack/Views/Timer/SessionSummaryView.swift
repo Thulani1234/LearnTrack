@@ -135,12 +135,14 @@ struct SessionSummaryView: View {
                             }
                             Divider().padding(.leading, 60)
                             ActionRow(title: "Save to Calendar", icon: "calendar.badge.plus", color: .green) {
-                                CalendarManager.shared.addStudySession(
-                                    title: subject.name,
-                                    startDate: Date().addingTimeInterval(-TimeInterval(totalTime)),
-                                    endDate: Date(),
-                                    notes: summaryText ?? "Study session completed in LearnTrack."
-                                )
+                                Task {
+                                    await CalendarManager.shared.addStudySession(
+                                        title: subject.name,
+                                        startDate: Date().addingTimeInterval(-TimeInterval(totalTime)),
+                                        endDate: Date(),
+                                        notes: summaryText ?? "Study session completed in LearnTrack."
+                                    )
+                                }
                             }
                         }
                         .background(AppColors.cardBackground)

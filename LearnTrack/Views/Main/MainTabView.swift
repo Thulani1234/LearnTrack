@@ -187,6 +187,14 @@ struct MainTabView: View {
                 }
                 .transition(AnyTransition.move(edge: Edge.top).combined(with: AnyTransition.opacity))
                 .zIndex(100)
+            } else if let pushAlert = appState.pushNotificationAlert {
+                InAppAlertView(alert: pushAlert) {
+                    withAnimation(.spring()) {
+                        appState.pushNotificationAlert = nil
+                    }
+                }
+                .transition(AnyTransition.move(edge: Edge.top).combined(with: AnyTransition.opacity))
+                .zIndex(100)
             }
         }
     }
@@ -238,6 +246,12 @@ struct MainTabView: View {
         case .addNote:
             AddNoteView()
                 .environmentObject(router)
+        case .editNote(let note):
+            AddNoteView(noteToEdit: note)
+                .environmentObject(router)
+        case .noteDetail(let note):
+            NoteDetailView(note: note)
+                .environmentObject(router)
         case .report:
             ReportView()
                 .environmentObject(router)
@@ -274,8 +288,8 @@ struct MainTabView: View {
         case .meetingRoom(let roomName):
             MeetingRoomView(roomName: roomName)
                 .environmentObject(router)
-        case .fullCalendar:
-            FullCalendarView()
+        case .fullCalendar(let selectedDate):
+            FullCalendarView(initialDate: selectedDate)
                 .environmentObject(router)
         }
     }

@@ -15,7 +15,9 @@ class CalendarManager: ObservableObject {
     func checkAuthorization() {
         let status = EKEventStore.authorizationStatus(for: .event)
         switch status {
-        case .authorized:
+        case .authorized,
+             .fullAccess,
+             .writeOnly:
             DispatchQueue.main.async { self.isAuthorized = true }
         case .notDetermined:
             requestAccess()
@@ -25,18 +27,52 @@ class CalendarManager: ObservableObject {
     }
     
     func requestAccess() {
-        eventStore.requestAccess(to: .event) { granted, error in
-            DispatchQueue.main.async {
-                self.isAuthorized = granted
+        if #available(iOS 17.0, *) {
+            eventStore.requestFullAccessToEvents { granted, error in
+                DispatchQueue.main.async {
+                    self.isAuthorized = granted
+                }
+            }
+        } else {
+            eventStore.requestAccess(to: .event) { granted, error in
+                DispatchQueue.main.async {
+                    self.isAuthorized = granted
+                }
             }
         }
     }
-    
-    func addStudySession(title: String, startDate: Date, endDate: Date, notes: String? = nil) {
-        guard isAuthorized else {
-            requestAccess()
-            return
+
+    func requestEventAccess() async -> Bool {
+        if isAuthorized {
+            return true
         }
+        return await withCheckedContinuation { continuation in
+            if #available(iOS 17.0, *) {
+                eventStore.requestFullAccessToEvents { granted, error in
+                    DispatchQueue.main.async {
+                        self.isAuthorized = granted
+                        continuation.resume(returning: granted)
+                    }
+                }
+            } else {
+                eventStore.requestAccess(to: .event) { granted, error in
+                    DispatchQueue.main.async {
+                        self.isAuthorized = granted
+                        continuation.resume(returning: granted)
+                    }
+                }
+            }
+        }
+    }
+
+    func addStudySession(title: String, startDate: Date, endDate: Date, notes: String? = nil) async -> Bool {
+        let authorized: Bool
+        if isAuthorized {
+            authorized = true
+        } else {
+            authorized = await requestEventAccess()
+        }
+        guard authorized else { return false }
         
         let event = EKEvent(eventStore: eventStore)
         event.title = "Study Session: \(title)"
@@ -48,8 +84,10 @@ class CalendarManager: ObservableObject {
         do {
             try eventStore.save(event, span: .thisEvent)
             print("Successfully saved study session to calendar.")
+            return true
         } catch {
             print("Error saving event to calendar: \(error.localizedDescription)")
+            return false
         }
     }
     
@@ -72,6 +110,10 @@ class CalendarManager: ObservableObject {
     
     func fetchEvents(for date: Date) -> [EKEvent] {
         guard isAuthorized else { return [] }
+
+        if #available(iOS 17.0, *) {
+            eventStore.refreshSourcesIfNecessary()
+        }
         
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)

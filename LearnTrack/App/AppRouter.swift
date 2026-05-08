@@ -20,7 +20,9 @@ enum Route: Hashable {
     case voiceNotes
     case notes
     case addNote
-    case report
+    case editNote(Note)
+    case noteDetail(Note)
+    case report#imageLiteral(resourceName: "file-example_PDF_1MB.pdf")
     case profile
     case editProfile
     case settings
@@ -32,7 +34,7 @@ enum Route: Hashable {
     case contact
     case resultDetail(AcademicResult)
     case meetingRoom(String)
-    case fullCalendar
+    case fullCalendar(selectedDate: Date?)
 }
 
 class AppRouter: ObservableObject {

@@ -20,15 +20,27 @@ struct ProfileView: View {
                 // Header / Profile Section
                 VStack(spacing: 20) {
                     ZStack {
-                        Circle()
-                            .fill(LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .frame(width: 120, height: 120)
-                            .shadow(color: AppColors.primary.opacity(0.3), radius: 15, x: 0, y: 10)
-                        
-                        Text(String((appState.currentUser?.name ?? "User").prefix(1)).uppercased())
-                            .font(.system(size: 50, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
+                        if let imagePath = appState.currentUser?.profileImageURL,
+                           let uiImage = UIImage(contentsOfFile: imagePath) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 120, height: 120)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                                .shadow(color: AppColors.primary.opacity(0.3), radius: 15, x: 0, y: 10)
+                        } else {
+                            Circle()
+                                .fill(LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .frame(width: 120, height: 120)
+                                .shadow(color: AppColors.primary.opacity(0.3), radius: 15, x: 0, y: 10)
+                            
+                            Text(String((appState.currentUser?.name ?? "User").prefix(1)).uppercased())
+                                .font(.system(size: 50, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                        }
                     }
+                    .accessibilityElement(children: .ignore)
                     
                     VStack(spacing: 6) {
                         Text("\(appState.currentUser?.name ?? "User") 👋")
@@ -38,6 +50,9 @@ struct ProfileView: View {
                             .font(AppTypography.body)
                             .foregroundColor(AppColors.textSecondary)
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Profile")
+                    .accessibilityValue(appState.currentUser?.name ?? "User")
                 }
                 .padding(.top, 40)
                 
@@ -59,18 +74,30 @@ struct ProfileView: View {
                         ProfileOptionItem(icon: "person.fill", title: "Edit Profile", color: .blue) {
                             router.navigate(to: .editProfile)
                         }
+                        .accessibilityLabel("Edit profile")
+                        .accessibilityHint("Edit your profile information")
+                        .accessibilityAddTraits(.isButton)
                         Divider().padding(.leading, 60)
                         ProfileOptionItem(icon: "bell.fill", title: "Notifications", color: .red) {
                             router.navigate(to: .notifications)
                         }
+                        .accessibilityLabel("Notifications")
+                        .accessibilityHint("Manage your notification settings")
+                        .accessibilityAddTraits(.isButton)
                         Divider().padding(.leading, 60)
                         ProfileOptionItem(icon: "lock.fill", title: "Privacy & Security", color: .green) {
                             router.navigate(to: .privacy)
                         }
+                        .accessibilityLabel("Privacy and security")
+                        .accessibilityHint("Manage your privacy and security settings")
+                        .accessibilityAddTraits(.isButton)
                         Divider().padding(.leading, 60)
                         ProfileOptionItem(icon: "gearshape.fill", title: "Settings", color: .gray) {
                             router.navigate(to: .settings)
                         }
+                        .accessibilityLabel("Settings")
+                        .accessibilityHint("Open app settings")
+                        .accessibilityAddTraits(.isButton)
                     }
                     .background(AppColors.cardBackground)
                     .cornerRadius(24)
@@ -150,7 +177,7 @@ struct ProfileView: View {
                             }
                             
                             // Selected Images from Gallery
-                            if let profileImage {
+                            if let profileImage = profileImage {
                                 profileImage
                                     .resizable()
                                     .scaledToFill()
@@ -214,6 +241,7 @@ struct ProfileView: View {
                 print(error.localizedDescription)
             }
         }
+        
     }
 }
 

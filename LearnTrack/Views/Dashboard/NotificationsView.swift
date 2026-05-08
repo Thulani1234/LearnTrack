@@ -16,17 +16,102 @@ enum NotificationType {
 
 struct NotificationsView: View {
     @EnvironmentObject var router: AppRouter
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var data: MockData
     
-    let notifications = [
-        NotificationItem(title: "High Marks Appreciation", message: "Brilliant! You scored 98% in Science. Your dedication is truly inspiring! 🌟", time: "Just now", icon: "star.fill", color: .yellow, type: .success),
-        NotificationItem(title: "Low Marks Warning", message: "Heads up! Your Maths score (45%) is below your target. Don't worry, let's review together! 📚", time: "30m ago", icon: "exclamationmark.triangle.fill", color: .red, type: .warning),
-        NotificationItem(title: "Daily Motivation", message: "Success is the sum of small efforts repeated daily. Keep pushing, Sara! 💪", time: "2h ago", icon: "quote.bubble.fill", color: .blue, type: .motivation),
-        NotificationItem(title: "Study Reminder", message: "Time to start your Science session. You've got this!", time: "10m ago", icon: "clock.fill", color: .purple, type: .info),
-        NotificationItem(title: "New Achievement", message: "Congratulations! You've reached a 7-day study streak.", time: "2h ago", icon: "flame.fill", color: .orange, type: .success),
-        NotificationItem(title: "New Note Added", message: "You added a new note to Physics formulas.", time: "Yesterday", icon: "doc.text.fill", color: .purple, type: .info),
-        NotificationItem(title: "Goal Reached", message: "You completed all your planned sessions for today.", time: "Yesterday", icon: "target", color: .green, type: .info),
-        NotificationItem(title: "Subject Update", message: "Mathematics syllabus has been updated with new materials.", time: "2 days ago", icon: "books.vertical.fill", color: .pink, type: .info)
-    ]
+    private var notifications: [NotificationItem] {
+        generateNotifications()
+    }
+
+    private func generateNotifications() -> [NotificationItem] {
+        var items: [NotificationItem] = []
+        let firstName = appState.currentUser?.name.split(separator: " ").first.map(String.init) ?? "Learner"
+        let now = Date()
+
+        let upcomingSession = data.scheduledSessions.sorted { $0.date < $1.date }.first
+        let latestResult = data.academicResults.sorted { $0.date > $1.date }.first
+        let latestSession = data.recentSessions.sorted { $0.date > $1.date }.first
+
+        // Appreciation / Achievement notification
+        if let result = latestResult {
+            let scorePct = Double(result.score) / Double(max(result.maxScore, 1))
+            if scorePct >= 0.9 {
+                items.append(NotificationItem(
+                    title: "Well done, \(firstName)!",
+                    message: "Your latest score for \(result.title) is \(result.score)/\(result.maxScore). Keep up this winning streak! 🌟",
+                    time: timeText(for: result.date, from: now),
+                    icon: "star.fill",
+                    color: .yellow,
+                    type: .success
+                ))
+            } else if scorePct < 0.65 {
+                items.append(NotificationItem(
+                    title: "Study warning for \(result.title)",
+                    message: "Your latest result is \(result.score)/\(result.maxScore). Let's focus on this topic with a fresh review plan. 📘",
+                    time: timeText(for: result.date, from: now),
+                    icon: "exclamationmark.triangle.fill",
+                    color: .red,
+                    type: .warning
+                ))
+            }
+        }
+
+        // Motivation notification based on recent session activity
+        if let session = latestSession,
+           let subject = data.subjects.first(where: { $0.id == session.subjectId }) {
+            items.append(NotificationItem(
+                title: "Keep going, \(firstName)!",
+                message: "You studied \(subject.name) for \(session.durationSeconds / 60)m recently. Small daily wins build big progress. 💪",
+                time: timeText(for: session.date, from: now),
+                icon: "quote.bubble.fill",
+                color: .blue,
+                type: .motivation
+            ))
+        }
+
+        // Study reminder for next scheduled session
+        if let upcoming = upcomingSession,
+           let subject = data.subjects.first(where: { $0.id == upcoming.subjectId }) {
+            items.append(NotificationItem(
+                title: "Upcoming study session",
+                message: "You have \(subject.name) scheduled for \(formattedDate(upcoming.date)). Stay focused and start strong! ⏰",
+                time: timeText(for: upcoming.date, from: now),
+                icon: "clock.fill",
+                color: .purple,
+                type: .info
+            ))
+        }
+
+        // Fallback notification if no dynamic activity exists
+        if items.isEmpty {
+            items.append(NotificationItem(
+                title: "Hello, \(firstName)!",
+                message: "Start your learning journey with a new study plan today. Your next achievement is waiting! 🌱",
+                time: "Just now",
+                icon: "sparkles",
+                color: .green,
+                type: .motivation
+            ))
+        }
+
+        return items
+    }
+
+    private func timeText(for date: Date, from now: Date) -> String {
+        let minutes = Int(now.timeIntervalSince(date) / 60)
+        if minutes < 1 { return "Just now" }
+        if minutes < 60 { return "\(minutes)m ago" }
+        let hours = minutes / 60
+        if hours < 24 { return "\(hours)h ago" }
+        return "\(Calendar.current.dateComponents([.day], from: date, to: now).day ?? 1)d ago"
+    }
+
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
     
     var body: some View {
         VStack(spacing: 0) {

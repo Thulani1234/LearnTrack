@@ -161,18 +161,6 @@ struct ReportView: View {
                         .background(Circle().fill(.ultraThinMaterial))
                         .shadow(color: .black.opacity(0.05), radius: 5)
                 }
-                
-                Button(action: {
-                    router.navigate(to: .addResult)
-                }) {
-                    Image(systemName: "plus")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding(12)
-                        .background(Circle().fill(AppColors.primary))
-                        .shadow(color: AppColors.primary.opacity(0.25), radius: 10, x: 0, y: 5)
-                }
             }
         }
         .padding(.horizontal)

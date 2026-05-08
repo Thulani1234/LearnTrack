@@ -7,7 +7,6 @@ struct AddSubjectView: View {
     @EnvironmentObject var appState: AppState
     
     @State private var name = ""
-    @State private var targetScore = "85"
     @State private var selectedIcon = "book.fill"
     @State private var selectedColor = AppColors.primary
     
@@ -110,23 +109,6 @@ struct AddSubjectView: View {
                                 .shadow(color: Color.black.opacity(0.02), radius: 10, x: 0, y: 5)
                         }
                         
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("TARGET SCORE (%)")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                            
-                            HStack {
-                                TextField("85", text: $targetScore)
-                                    .keyboardType(.numberPad)
-                                    .font(AppTypography.body)
-                                Text("%")
-                                    .foregroundColor(AppColors.textSecondary)
-                            }
-                            .padding()
-                            .background(AppColors.cardBackground)
-                            .cornerRadius(16)
-                        }
-                        
                         // Color Selection
                         VStack(alignment: .leading, spacing: 10) {
                             Text("THEME COLOR")
@@ -185,7 +167,7 @@ struct AddSubjectView: View {
                             name: name.isEmpty ? "New Subject" : name,
                             colorHex: selectedColor.toHex() ?? "6366F1",
                             progress: 0,
-                            targetScore: Int(targetScore) ?? 85,
+                            targetScore: 85,
                             currentScore: 0,
                             icon: selectedIcon
                         )

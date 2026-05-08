@@ -14,5 +14,24 @@ struct AppTypography {
     static let body = Font.system(size: 15, weight: .regular, design: .rounded)
     static let bodySmall = Font.system(size: 13, weight: .regular, design: .rounded)
     static let caption = Font.system(size: 11, weight: .medium, design: .rounded)
+    
+    // Dynamic Type versions using iOS text styles
+    static let dynamicTitleLarge = Font.system(.largeTitle, design: .rounded).weight(.bold)
+    static let dynamicTitle = Font.system(.title, design: .rounded).weight(.bold)
+    static let dynamicHeadline = Font.system(.headline, design: .rounded).weight(.semibold)
+    static let dynamicBody = Font.system(.body, design: .rounded)
+    static let dynamicBodySmall = Font.system(.subheadline, design: .rounded)
+    static let dynamicCaption = Font.system(.caption, design: .rounded).weight(.medium)
+}
+
+extension View {
+    @ViewBuilder
+    func applyDynamicType(_ isEnabled: Bool) -> some View {
+        if isEnabled {
+            self.dynamicTypeSize(.accessibility1 ... .accessibility5)
+        } else {
+            self
+        }
+    }
 }
 

@@ -4,6 +4,7 @@ import Combine
 struct StudyTimerView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var data: MockData
+    @AppStorage("pushNotifications") private var pushNotifications = true
     
     var initialSubject: Subject
     @State private var currentSubject: Subject
@@ -15,6 +16,7 @@ struct StudyTimerView: View {
     @State private var showHistory = false
     
     @State private var pulseAmount: CGFloat = 1.0
+    private let completionNotificationId = "study_timer_completion"
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -63,6 +65,9 @@ struct StudyTimerView: View {
                             .background(AppColors.cardBackground)
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Go back")
+                    .accessibilityHint("Return to previous screen")
+                    .accessibilityAddTraits(.isButton)
                     
                     Spacer()
                     
@@ -80,6 +85,9 @@ struct StudyTimerView: View {
                             .background(AppColors.cardBackground)
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Study history")
+                    .accessibilityHint("View your study history")
+                    .accessibilityAddTraits(.isButton)
                 }
                 .padding(.horizontal)
                 .padding(.top, 10)
@@ -121,6 +129,9 @@ struct StudyTimerView: View {
                                             .stroke(currentSubject.id == subj.id ? Color(hex: subj.colorHex) : Color.clear, lineWidth: 2)
                                     )
                                 }
+                                .accessibilityLabel("Select \(subj.name)")
+                                .accessibilityHint(currentSubject.id == subj.id ? "\(subj.name) is currently selected" : "Select \(subj.name) as study subject")
+                                .accessibilityAddTraits(.isButton)
                             }
                         }
                         .padding(.horizontal)
@@ -160,11 +171,14 @@ struct StudyTimerView: View {
                             .font(.system(size: 54, weight: .bold, design: .rounded))
                             .foregroundColor(AppColors.textPrimary)
                             .monospacedDigit()
+                            .accessibilityLabel("Elapsed time")
+                            .accessibilityValue(timeString(time: timeElapsed))
                         
                         Text("ELAPSED")
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(AppColors.textSecondary.opacity(0.6))
                             .padding(.top, 4)
+                            .accessibilityHidden(true)
                     }
                 }
                 
@@ -183,6 +197,10 @@ struct StudyTimerView: View {
                             currentQuote = quotes.randomElement() ?? currentQuote
                         }
                     }
+                    .accessibilityLabel("Motivational quote")
+                    .accessibilityValue(currentQuote)
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint("Tap to get a new quote")
                 
                 // Controls
                 HStack(spacing: 32) {
@@ -199,6 +217,9 @@ struct StudyTimerView: View {
                             .clipShape(Circle())
                             .shadow(color: AppColors.error.opacity(0.3), radius: 10, x: 0, y: 5)
                     }
+                    .accessibilityLabel("Stop timer")
+                    .accessibilityHint("Stop the study session and view summary")
+                    .accessibilityAddTraits(.isButton)
                     
                     // Main Play/Pause
                     Button(action: {
@@ -206,6 +227,18 @@ struct StudyTimerView: View {
                             isActive.toggle()
                             
                             if isActive {
+                                if pushNotifications {
+                                    // Schedule LOCAL notification for timer completion
+                                    // (device-side alert when session ends)
+                                    let remaining = TimeInterval(max(sessionDuration - timeElapsed, 1))
+                                    NotificationManager.shared.scheduleNotification(
+                                        identifier: completionNotificationId,
+                                        title: "Study Session Complete",
+                                        body: "Your focus session for \(currentSubject.name) has finished. Great work!",
+                                        timeInterval: remaining,
+                                        repeats: false
+                                    )
+                                }
                                 #if canImport(ActivityKit)
                                 StudyActivityManager.shared.startSession(
                                     subject: currentSubject.name,
@@ -215,6 +248,7 @@ struct StudyTimerView: View {
                                 )
                                 #endif
                             } else {
+                                NotificationManager.shared.cancelNotification(identifier: completionNotificationId)
                                 #if canImport(ActivityKit)
                                 StudyActivityManager.shared.updateSession(
                                     elapsed: TimeInterval(timeElapsed),
@@ -236,12 +270,16 @@ struct StudyTimerView: View {
                                 .foregroundColor(.white)
                         }
                     }
+                    .accessibilityLabel(isActive ? "Pause timer" : "Start timer")
+                    .accessibilityHint(isActive ? "Pause the study session" : "Start the study session")
+                    .accessibilityAddTraits(.isButton)
                     
                     // Reset or Skip
                     Button(action: {
                         withAnimation {
                             timeElapsed = 0
                             isActive = false
+                            NotificationManager.shared.cancelNotification(identifier: completionNotificationId)
                             #if canImport(ActivityKit)
                             StudyActivityManager.shared.endSession()
                             #endif
@@ -255,6 +293,9 @@ struct StudyTimerView: View {
                             .clipShape(Circle())
                             .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                     }
+                    .accessibilityLabel("Reset timer")
+                            .accessibilityHint("Reset the timer to zero")
+                            .accessibilityAddTraits(.isButton)
                 }
                 .padding(.bottom, 50)
             }
@@ -283,6 +324,7 @@ struct StudyTimerView: View {
             }
         }
         .onDisappear {
+            NotificationManager.shared.cancelNotification(identifier: completionNotificationId)
             #if canImport(ActivityKit)
             StudyActivityManager.shared.endSession()
             #endif

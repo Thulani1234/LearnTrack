@@ -20,6 +20,7 @@ struct SubjectResultsDetailView: View {
     @State private var targetLabel: String
     @State private var date: Date
     @State private var subjectId: UUID
+    @State private var showDeleteAlert = false
 
     init(result: AcademicResult) {
         self.result = result
@@ -51,6 +52,15 @@ struct SubjectResultsDetailView: View {
         .background(AppColors.background.ignoresSafeArea())
         .navigationTitle("Result Details")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Delete Result?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                data.deleteResult(result)
+                router.navigateBack()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This result will be permanently removed from your history.")
+        }
     }
 
     private var header: some View {
@@ -99,10 +109,24 @@ struct SubjectResultsDetailView: View {
     }
 
     private var saveButton: some View {
-        PrimaryButton(title: "Save Changes") {
-            saveChanges()
+        VStack(spacing: 12) {
+            PrimaryButton(title: "Save Changes") {
+                saveChanges()
+            }
+            .frame(maxWidth: .infinity)
+
+            Button(action: {
+                showDeleteAlert = true
+            }) {
+                Text("Delete Result")
+                    .font(AppTypography.body)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(AppColors.error)
+                    .cornerRadius(16)
+            }
         }
-        .frame(maxWidth: .infinity)
     }
 
     private func saveChanges() {

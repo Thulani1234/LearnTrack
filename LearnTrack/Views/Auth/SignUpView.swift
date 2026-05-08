@@ -42,88 +42,109 @@ struct SignUpView: View {
                 // Form Fields
                 VStack(spacing: 16) {
                     CustomTextField(icon: "person.fill", placeholder: "Name", text: $name)
+                        .accessibilityLabel("Full name")
+                        .accessibilityHint("Enter your full name")
                     CustomTextField(icon: "envelope.fill", placeholder: "Email Address", text: $email, disableAutocapitalization: true)
+                        .accessibilityLabel("Email address")
+                        .accessibilityHint("Enter your email address")
                     CustomTextField(icon: "phone.fill", placeholder: "Phone Number", text: $phoneNumber)
+                        .accessibilityLabel("Phone number")
+                        .accessibilityHint("Enter your phone number")
                     CustomTextField(icon: "house.fill", placeholder: "Address", text: $address)
-                    Picker(selection: $country) {
-                        Text("Select Country").tag("")
-                        Text("Afghanistan").tag("Afghanistan")
-                        Text("Albania").tag("Albania")
-                        Text("Algeria").tag("Algeria")
-                        Text("Argentina").tag("Argentina")
-                        Text("Australia").tag("Australia")
-                        Text("Austria").tag("Austria")
-                        Text("Bangladesh").tag("Bangladesh")
-                        Text("Belgium").tag("Belgium")
-                        Text("Brazil").tag("Brazil")
-                        Text("Bulgaria").tag("Bulgaria")
-                        Text("Canada").tag("Canada")
-                        Text("Chile").tag("Chile")
-                        Text("China").tag("China")
-                        Text("Colombia").tag("Colombia")
-                        Text("Croatia").tag("Croatia")
-                        Text("Czech Republic").tag("Czech Republic")
-                        Text("Denmark").tag("Denmark")
-                        Text("Egypt").tag("Egypt")
-                        Text("Finland").tag("Finland")
-                        Text("France").tag("France")
-                        Text("Germany").tag("Germany")
-                        Text("Greece").tag("Greece")
-                        Text("Hungary").tag("Hungary")
-                        Text("Iceland").tag("Iceland")
-                        Text("India").tag("India")
-                        Text("Indonesia").tag("Indonesia")
-                        Text("Ireland").tag("Ireland")
-                        Text("Israel").tag("Israel")
-                        Text("Italy").tag("Italy")
-                        Text("Japan").tag("Japan")
-                        Text("Jordan").tag("Jordan")
-                        Text("Kenya").tag("Kenya")
-                        Text("South Korea").tag("South Korea")
-                        Text("Lebanon").tag("Lebanon")
-                        Text("Malaysia").tag("Malaysia")
-                        Text("Mexico").tag("Mexico")
-                        Text("Morocco").tag("Morocco")
-                        Text("Netherlands").tag("Netherlands")
-                        Text("New Zealand").tag("New Zealand")
-                        Text("Norway").tag("Norway")
-                        Text("Pakistan").tag("Pakistan")
-                        Text("Peru").tag("Peru")
-                        Text("Philippines").tag("Philippines")
-                        Text("Poland").tag("Poland")
-                        Text("Portugal").tag("Portugal")
-                        Text("Romania").tag("Romania")
-                        Text("Russia").tag("Russia")
-                        Text("Saudi Arabia").tag("Saudi Arabia")
-                        Text("Singapore").tag("Singapore")
-                        Text("South Africa").tag("South Africa")
-                        Text("Spain").tag("Spain")
-                        Text("Sweden").tag("Sweden")
-                        Text("Switzerland").tag("Switzerland")
-                        Text("Thailand").tag("Thailand")
-                        Text("Turkey").tag("Turkey")
-                        Text("Ukraine").tag("Ukraine")
-                        Text("United Arab Emirates").tag("United Arab Emirates")
-                        Text("United Kingdom").tag("United Kingdom")
-                        Text("United States").tag("United States")
-                        Text("Vietnam").tag("Vietnam")
-                        Text("Other").tag("Other")
+                        .accessibilityLabel("Address")
+                        .accessibilityHint("Enter your address")
+                    Menu {
+                        Button("Select Country") { country = "" }
+                        Button("Afghanistan")   { country = "Afghanistan" }
+                        Button("Albania")       { country = "Albania" }
+                        Button("Algeria")       { country = "Algeria" }
+                        Button("Argentina")     { country = "Argentina" }
+                        Button("Australia")     { country = "Australia" }
+                        Button("Austria")       { country = "Austria" }
+                        Button("Bangladesh")    { country = "Bangladesh" }
+                        Button("Belgium")       { country = "Belgium" }
+                        Button("Brazil")        { country = "Brazil" }
+                        Button("Bulgaria")      { country = "Bulgaria" }
+                        Button("Canada")        { country = "Canada" }
+                        Button("Chile")         { country = "Chile" }
+                        Button("China")         { country = "China" }
+                        Button("Colombia")      { country = "Colombia" }
+                        Button("Croatia")       { country = "Croatia" }
+                        Button("Czech Republic"){ country = "Czech Republic" }
+                        Button("Denmark")       { country = "Denmark" }
+                        Button("Egypt")         { country = "Egypt" }
+                        Button("Finland")       { country = "Finland" }
+                        Button("France")        { country = "France" }
+                        Button("Germany")       { country = "Germany" }
+                        Button("Greece")        { country = "Greece" }
+                        Button("Hungary")       { country = "Hungary" }
+                        Button("Iceland")       { country = "Iceland" }
+                        Button("India")         { country = "India" }
+                        Button("Indonesia")     { country = "Indonesia" }
+                        Button("Ireland")       { country = "Ireland" }
+                        Button("Israel")        { country = "Israel" }
+                        Button("Italy")         { country = "Italy" }
+                        Button("Japan")         { country = "Japan" }
+                        Button("Jordan")        { country = "Jordan" }
+                        Button("Kenya")         { country = "Kenya" }
+                        Button("South Korea")   { country = "South Korea" }
+                        Button("Lebanon")       { country = "Lebanon" }
+                        Button("Malaysia")      { country = "Malaysia" }
+                        Button("Mexico")        { country = "Mexico" }
+                        Button("Morocco")       { country = "Morocco" }
+                        Button("Netherlands")   { country = "Netherlands" }
+                        Button("New Zealand")   { country = "New Zealand" }
+                        Button("Norway")        { country = "Norway" }
+                        Button("Pakistan")      { country = "Pakistan" }
+                        Button("Peru")          { country = "Peru" }
+                        Button("Philippines")   { country = "Philippines" }
+                        Button("Poland")        { country = "Poland" }
+                        Button("Portugal")      { country = "Portugal" }
+                        Button("Romania")       { country = "Romania" }
+                        Button("Russia")        { country = "Russia" }
+                        Button("Saudi Arabia")  { country = "Saudi Arabia" }
+                        Button("Singapore")     { country = "Singapore" }
+                        Button("South Africa")  { country = "South Africa" }
+                        Button("Spain")         { country = "Spain" }
+                        Button("Sri Lanka")     { country = "Sri Lanka" }
+                        Button("Sweden")        { country = "Sweden" }
+                        Button("Switzerland")   { country = "Switzerland" }
+                        Button("Thailand")      { country = "Thailand" }
+                        Button("Turkey")        { country = "Turkey" }
+                        Button("Ukraine")       { country = "Ukraine" }
+                        Button("United Arab Emirates") { country = "United Arab Emirates" }
+                        Button("United Kingdom"){ country = "United Kingdom" }
+                        Button("United States") { country = "United States" }
+                        Button("Vietnam")       { country = "Vietnam" }
+                        Button("Other")         { country = "Other" }
                     } label: {
-                        HStack {
+                        HStack(spacing: 15) {
                             Image(systemName: "globe")
-                                .foregroundColor(AppColors.textSecondary)
+                                .foregroundColor(AppColors.primary.opacity(0.7))
+                                .frame(width: 20)
                             Text(country.isEmpty ? "Country" : country)
                                 .foregroundColor(country.isEmpty ? AppColors.textSecondary : AppColors.textPrimary)
                             Spacer()
                             Image(systemName: "chevron.down")
+                                .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(AppColors.textSecondary)
                         }
                         .padding()
                         .background(AppColors.cardBackground)
-                        .cornerRadius(16)
+                        .cornerRadius(14)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(AppColors.textSecondary.opacity(0.1), lineWidth: 1)
+                        )
                     }
+                    .accessibilityLabel("Country picker")
+                    .accessibilityHint("Select your country")
                     CustomTextField(icon: "lock.fill", placeholder: "Password", text: $password, isSecure: true)
+                        .accessibilityLabel("Password")
+                        .accessibilityHint("Enter your password")
                     CustomTextField(icon: "lock.shield.fill", placeholder: "Confirm Password", text: $confirmPassword, isSecure: true)
+                        .accessibilityLabel("Confirm password")
+                        .accessibilityHint("Re-enter your password to confirm")
                 }
                 .padding(.top, 10)
                 
@@ -148,6 +169,9 @@ struct SignUpView: View {
                     }
                 }
                 .toggleStyle(CheckboxToggleStyle())
+                .accessibilityLabel("Terms and conditions")
+                .accessibilityHint("Agree to terms and privacy policy")
+                .accessibilityAddTraits(.isButton)
                 .padding(.top, 10)
                 
                 // Sign Up Button
@@ -158,6 +182,7 @@ struct SignUpView: View {
                         if isLoading {
                             ProgressView()
                                 .tint(.white)
+                                .accessibilityLabel("Loading")
                         } else {
                             Text("Create Account")
                                 .fontWeight(.bold)
@@ -171,6 +196,9 @@ struct SignUpView: View {
                     .shadow(color: AppColors.primary.opacity(0.3), radius: 10, x: 0, y: 5)
                 }
                 .disabled(isLoading || !agreedToTerms || name.isEmpty || email.isEmpty || phoneNumber.isEmpty || address.isEmpty || country.isEmpty || password.isEmpty || password != confirmPassword)
+                .accessibilityLabel("Create account button")
+                .accessibilityHint("Tap to create your account")
+                .accessibilityAddTraits(.isButton)
                 .padding(.top, 10)
                 
                 Spacer()
@@ -189,6 +217,9 @@ struct SignUpView: View {
                             .foregroundColor(AppColors.primary)
                     }
                 }
+                .accessibilityLabel("Sign in")
+                .accessibilityHint("Go to sign in screen")
+                .accessibilityAddTraits(.isButton)
                 .padding(.bottom, 20)
                 }
                 .padding(.horizontal, 30)
@@ -202,6 +233,8 @@ struct SignUpView: View {
                         .foregroundColor(AppColors.textPrimary)
                         .fontWeight(.bold)
                 }
+                .accessibilityLabel("Go back")
+                .accessibilityHint("Return to previous screen")
             }
         }
         .alert("Error", isPresented: $showError) {

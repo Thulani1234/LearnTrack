@@ -2,29 +2,33 @@ import SwiftUI
 import PhotosUI
 import UniformTypeIdentifiers
 
-struct AttachedImage: Identifiable {
-    let id = UUID()
-    let image: Image
-}
-
 struct AddNoteView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var data: MockData
     
+let noteToEdit: Note?
     @State private var title = ""
     @State private var content = ""
     @State private var selectedColor = AppColors.primary
-    
+    @State private var selectedSubjectId: UUID?
+    @State private var currentCategory = "General"
+    private let colors: [Color] = [.blue, .purple, .orange, .pink, .green, .red, .cyan, .indigo]
+
     // Image/File Selection State
     @State private var selectedItem: PhotosPickerItem?
-    @State private var attachedImages: [AttachedImage] = []
+    @State private var noteAttachments: [NoteAttachment] = []
     @State private var showingFilePicker = false
-    @State private var attachedFiles: [String] = []
-    
-    @State private var selectedSubjectId: UUID?
-    
-    let colors: [Color] = [.blue, .purple, .orange, .pink, .green, .red, .cyan, .indigo]
+
+    init(noteToEdit: Note? = nil) {
+        self.noteToEdit = noteToEdit
+        _title = State(initialValue: noteToEdit?.title ?? "")
+        _content = State(initialValue: noteToEdit?.content ?? "")
+        _selectedColor = State(initialValue: Color(hex: noteToEdit?.colorHex ?? "6366F1"))
+        _noteAttachments = State(initialValue: noteToEdit?.attachments ?? [])
+        _currentCategory = State(initialValue: noteToEdit?.category ?? "General")
+        _selectedSubjectId = State(initialValue: nil)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -49,6 +53,11 @@ struct AddNoteView: View {
         }
         .background(AppColors.background.ignoresSafeArea())
         .navigationBarHidden(true)
+        .onAppear {
+            if selectedSubjectId == nil {
+                selectedSubjectId = data.subjects.first(where: { $0.name == currentCategory })?.id
+            }
+        }
         .onChange(of: selectedItem) { newItem in
             handleImageSelection(newItem)
         }
@@ -60,7 +69,11 @@ struct AddNoteView: View {
             switch result {
             case .success(let urls):
                 for url in urls {
-                    attachedFiles.append(url.lastPathComponent)
+                    if let savedURL = try? copyFileToDocuments(from: url) {
+                        withAnimation {
+                            noteAttachments.append(NoteAttachment(id: UUID(), name: savedURL.lastPathComponent, path: savedURL.path, type: .document))
+                        }
+                    }
                 }
             case .failure(let error):
                 print(error.localizedDescription)
@@ -80,33 +93,40 @@ struct AddNoteView: View {
                     .clipShape(Circle())
             }
             Spacer()
-            Text("New Note")
+            Text(noteToEdit == nil ? "New Note" : "Edit Note")
                 .font(AppTypography.headline)
                 .foregroundColor(AppColors.textPrimary)
             Spacer()
-            Button(action: { 
-                let newNote = Note(
+            Button(action: {
+                let category = data.subjects.first(where: { $0.id == selectedSubjectId })?.name ?? currentCategory
+                let savedNote = Note(
+                    id: noteToEdit?.id ?? UUID(),
                     title: title.isEmpty ? "Untitled Note" : title,
                     content: content,
                     colorHex: selectedColor.toHex() ?? "6366F1",
-                    category: data.subjects.first(where: { $0.id == selectedSubjectId })?.name ?? "General",
-                    dateCreated: Date(),
-                    attachedFileNames: attachedFiles
+                    category: category,
+                    dateCreated: noteToEdit?.dateCreated ?? Date(),
+                    attachments: noteAttachments
                 )
-                data.addNote(newNote)
+
+                if noteToEdit != nil {
+                    data.updateNote(savedNote)
+                } else {
+                    data.addNote(savedNote)
+                }
                 
                 withAnimation {
                     appState.currentAlert = AppAlert(
-                        title: "Note Saved! 📝",
-                        message: title.isEmpty ? "Your new note has been stored." : "'\(title)' is ready for review.",
+                        title: noteToEdit == nil ? "Note Saved! 📝" : "Note Updated! ✅",
+                        message: title.isEmpty ? "Your note has been stored." : "'\(title)' is ready for review.",
                         icon: "doc.text.fill",
                         color: selectedColor,
                         type: .success
                     )
                 }
-                router.navigateBack() 
+                router.navigate(to: .noteDetail(savedNote))
             }) {
-                Text("Save")
+                Text(noteToEdit == nil ? "Save" : "Update")
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(AppColors.primary)
             }
@@ -223,19 +243,18 @@ struct AddNoteView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     // Attached Files (Documents)
-                    ForEach(attachedFiles, id: \.self) { fileName in
-                        FileAttachmentCard(name: fileName) {
-                            withAnimation {
-                                attachedFiles.removeAll(where: { $0 == fileName })
+                    ForEach(noteAttachments) { attachment in
+                        if attachment.isImage, let uiImage = UIImage(contentsOfFile: attachment.path) {
+                            AttachmentCard(image: Image(uiImage: uiImage)) {
+                                withAnimation {
+                                    noteAttachments.removeAll(where: { $0.id == attachment.id })
+                                }
                             }
-                        }
-                    }
-                    
-                    // Attached Images
-                    ForEach(attachedImages) { item in
-                        AttachmentCard(image: item.image) {
-                            withAnimation {
-                                attachedImages.removeAll(where: { $0.id == item.id })
+                        } else {
+                            FileAttachmentCard(name: attachment.name) {
+                                withAnimation {
+                                    noteAttachments.removeAll(where: { $0.id == attachment.id })
+                                }
                             }
                         }
                     }
@@ -263,16 +282,53 @@ struct AddNoteView: View {
     private func handleImageSelection(_ newItem: PhotosPickerItem?) {
         guard let newItem else { return }
         Task {
-            if let data = try? await newItem.loadTransferable(type: Data.self) {
-                if let uiImage = UIImage(data: data) {
-                    await MainActor.run {
-                        withAnimation {
-                            attachedImages.append(AttachedImage(image: Image(uiImage: uiImage)))
-                        }
+            guard let data = try? await newItem.loadTransferable(type: Data.self) else { return }
+            let imageName = "note-image-\(UUID().uuidString.prefix(8)).jpg"
+            let savedURL = await saveAttachmentData(data, fileName: imageName)
+            await MainActor.run {
+                if let savedURL {
+                    withAnimation {
+                        noteAttachments.append(NoteAttachment(id: UUID(), name: imageName, path: savedURL.path, type: .image))
                     }
                 }
             }
         }
+    }
+    
+    private func saveAttachmentData(_ data: Data, fileName: String) async -> URL? {
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+        guard let documents else { return nil }
+        let destination = documents.appendingPathComponent(fileName)
+        let uniqueDestination = uniqueDocumentURL(for: destination)
+        do {
+            try data.write(to: uniqueDestination, options: .atomic)
+            return uniqueDestination
+        } catch {
+            print("Attachment save failed: \(error)")
+            return nil
+        }
+    }
+    
+    private func uniqueDocumentURL(for url: URL) -> URL {
+        var finalURL = url
+        var counter = 1
+        while FileManager.default.fileExists(atPath: finalURL.path) {
+            let fileName = url.deletingPathExtension().lastPathComponent
+            let fileExtension = url.pathExtension
+            finalURL = url.deletingLastPathComponent().appendingPathComponent("\(fileName)-\(counter).\(fileExtension)")
+            counter += 1
+        }
+        return finalURL
+    }
+    
+    private func copyFileToDocuments(from url: URL) throws -> URL {
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+        guard let documents else { throw NSError(domain: "NoteAttachment", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unable to access documents folder"])
+        }
+        let destination = documents.appendingPathComponent(url.lastPathComponent)
+        let uniqueDestination = uniqueDocumentURL(for: destination)
+        try FileManager.default.copyItem(at: url, to: uniqueDestination)
+        return uniqueDestination
     }
 }
 

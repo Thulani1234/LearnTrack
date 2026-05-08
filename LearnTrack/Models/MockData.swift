@@ -88,8 +88,8 @@ class MockData: ObservableObject {
         }
         
         notes = [
-            Note(title: "Physics Formulas", content: "F=ma, E=mc^2, v=u+at. Important for the upcoming semester finals...", colorHex: "3B82F6", category: "Physics", dateCreated: Date(), attachedFileNames: []),
-            Note(title: "Reaction Mechanisms", content: "Organic chemistry reaction mechanisms. Remember to focus on nucleophilic...", colorHex: "A855F7", category: "Chemistry", dateCreated: Date(), attachedFileNames: [])
+            Note(title: "Physics Formulas", content: "F=ma, E=mc^2, v=u+at. Important for the upcoming semester finals...", colorHex: "3B82F6", category: "Physics", dateCreated: Date(), attachments: []),
+            Note(title: "Reaction Mechanisms", content: "Organic chemistry reaction mechanisms. Remember to focus on nucleophilic...", colorHex: "A855F7", category: "Chemistry", dateCreated: Date(), attachments: [])
         ]
         
         for note in notes {
@@ -236,6 +236,20 @@ class MockData: ObservableObject {
         // Note: I'd need to add CDNote to CoreData model if I want local persistence for notes
     }
     
+    func updateNote(_ updatedNote: Note) {
+        if let index = notes.firstIndex(where: { $0.id == updatedNote.id }) {
+            notes[index] = updatedNote
+        } else {
+            notes.append(updatedNote)
+        }
+        firestore.saveNote(updatedNote)
+    }
+    
+    func deleteNote(_ note: Note) {
+        notes.removeAll { $0.id == note.id }
+        firestore.deleteDocument(collection: "notes", documentId: note.id.uuidString)
+    }
+    
     func addStudySession(subjectId: UUID, durationSeconds: Int, summary: String? = nil) {
         let session = StudySession(
             subjectId: subjectId,
@@ -248,12 +262,40 @@ class MockData: ObservableObject {
         saveStudySession(session)
     }
     
+    func addScheduledSession(_ session: StudySession) {
+        scheduledSessions.insert(session, at: 0)
+        if let currentUserId {
+            // Keep user-specific scheduled sessions up to date
+            // It's OK to use in-memory persistence for now
+            // Add Firestore/coredata sync later if needed
+        }
+    }
+    
     func addVoiceRecording(_ recording: VoiceRecording) {
         voiceRecordings.insert(recording, at: 0)
         if let currentUserId {
             voiceRecordingsByUser[currentUserId] = voiceRecordings
         }
         firestore.saveVoiceRecording(recording)
+    }
+    
+    func deleteVoiceRecording(_ recording: VoiceRecording) {
+        voiceRecordings.removeAll { $0.id == recording.id }
+        if let currentUserId {
+            voiceRecordingsByUser[currentUserId] = voiceRecordings
+        }
+        if let url = recording.audioURL {
+            deleteLocalFile(url: url)
+        }
+        firestore.deleteDocument(collection: "voiceRecordings", documentId: recording.id.uuidString)
+    }
+    
+    private func deleteLocalFile(url: URL) {
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            print("Failed to delete local audio file: \(error.localizedDescription)")
+        }
     }
     
     private func saveStudySession(_ session: StudySession) {

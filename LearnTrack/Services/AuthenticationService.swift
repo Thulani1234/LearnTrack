@@ -155,7 +155,8 @@ class AuthenticationService {
         phoneNumber: String? = nil,
         address: String? = nil,
         country: String? = nil,
-        profileImageURL: String? = nil
+        profileImageURL: String? = nil,
+        clearProfileImage: Bool = false
     ) -> Bool {
         guard let cdUser = fetchUserById(userId) else {
             return false
@@ -181,7 +182,9 @@ class AuthenticationService {
             cdUser.country = country
         }
         
-        if let profileImageURL = profileImageURL {
+        if clearProfileImage {
+            cdUser.profileImageURL = nil
+        } else if let profileImageURL = profileImageURL {
             cdUser.profileImageURL = profileImageURL
         }
         
@@ -213,6 +216,48 @@ class AuthenticationService {
         return true
     }
     
+    // MARK: - Change Password
+    func changePassword(email: String, currentPassword: String, newPassword: String) -> Bool {
+        guard let cdUser = fetchUserByEmail(email) else {
+            return false
+        }
+
+        // Verify current password
+        guard cdUser.password == currentPassword else {
+            return false
+        }
+
+        // Update password in Core Data
+        cdUser.password = newPassword
+        cdUser.updatedAt = Date()
+        coreDataManager.saveContext()
+
+        // Sync updated user to Firestore
+        let updatedUser = User(
+            id: cdUser.id ?? UUID(),
+            name: cdUser.name ?? "",
+            email: cdUser.email ?? "",
+            phoneNumber: cdUser.phoneNumber ?? "",
+            password: newPassword,
+            address: cdUser.address ?? "",
+            country: cdUser.country ?? "",
+            isEmailVerified: cdUser.isEmailVerified,
+            isPhoneVerified: cdUser.isPhoneVerified,
+            profileImageURL: cdUser.profileImageURL,
+            createdAt: cdUser.createdAt ?? Date(),
+            updatedAt: cdUser.updatedAt ?? Date()
+        )
+        firestore.saveUser(updatedUser) { error in
+            if let error = error {
+                print("❌ Error syncing password change to Firestore: \(error.localizedDescription)")
+            } else {
+                print("✅ Password changed and synced to Firestore for \(updatedUser.email)")
+            }
+        }
+
+        return true
+    }
+
     func deleteUser(userId: UUID) -> Bool {
         guard let cdUser = fetchUserById(userId) else {
             return false

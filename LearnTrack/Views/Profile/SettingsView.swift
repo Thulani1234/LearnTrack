@@ -2,12 +2,11 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var router: AppRouter
+    @EnvironmentObject var appState: AppState
     @AppStorage("useFaceID") private var useFaceID = true
     @AppStorage("pushNotifications") private var pushNotifications = true
-    @State private var selectedTheme = "System"
     @State private var reminderFrequency = "Daily"
     
-    let themes = ["Light", "Dark", "System"]
     let frequencies = ["Daily", "Weekly", "Only Exams"]
     
     var body: some View {
@@ -43,6 +42,16 @@ struct SettingsView: View {
                     }
                     .padding(.horizontal)
                     
+                    // Accessibility Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("ACCESSIBILITY")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                        
+                        ToggleItem(icon: "textformat.size", title: "Dynamic Type", isOn: $appState.isDynamicTypeEnabled, color: .blue)
+                    }
+                    .padding(.horizontal)
+                    
                     // Notifications Section
                     VStack(alignment: .leading, spacing: 16) {
                         Text("NOTIFICATIONS")
@@ -65,7 +74,7 @@ struct SettingsView: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(AppColors.textSecondary.opacity(0.6))
                         
-                        PickerItem(icon: "paintbrush.fill", title: "App Theme", selection: $selectedTheme, options: themes, color: .purple)
+                        ToggleItem(icon: "moon.fill", title: "Dark Mode", isOn: $appState.isDarkModeEnabled, color: .purple)
                     }
                     .padding(.horizontal)
                     

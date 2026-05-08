@@ -7,11 +7,17 @@ struct CalendarDate: Identifiable {
 }
 
 class FullCalendarViewModel: ObservableObject {
-    @Published var selectedMonth = Date()
-    @Published var selectedDate = Date()
+    @Published var selectedMonth: Date
+    @Published var selectedDate: Date
     @Published var plannerSessions: [StudySession] = []
     
     private let calendar = Calendar.current
+    
+    init(selectedDate: Date? = nil) {
+        let initialDate = selectedDate ?? Date()
+        self.selectedMonth = initialDate
+        self.selectedDate = initialDate
+    }
     
     var monthTitle: String {
         selectedMonth.formatted(.dateTime.month(.wide).year())
@@ -70,7 +76,11 @@ class FullCalendarViewModel: ObservableObject {
 struct FullCalendarView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var data: MockData
-    @StateObject private var viewModel = FullCalendarViewModel()
+    @StateObject private var viewModel: FullCalendarViewModel
+    
+    init(initialDate: Date? = nil) {
+        _viewModel = StateObject(wrappedValue: FullCalendarViewModel(selectedDate: initialDate))
+    }
     
     private let daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
     

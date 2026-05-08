@@ -52,7 +52,11 @@ struct LoginView: View {
                 // Input Fields
                 VStack(spacing: 20) {
                     CustomTextField(icon: "envelope.fill", placeholder: "Email Address", text: $email, disableAutocapitalization: true)
+                        .accessibilityLabel("Email address")
+                        .accessibilityHint("Enter your email address")
                     CustomTextField(icon: "lock.fill", placeholder: "Password", text: $password, isSecure: true)
+                        .accessibilityLabel("Password")
+                        .accessibilityHint("Enter your password")
                     
                     Button(action: {
                         showResetPassword = true
@@ -62,6 +66,8 @@ struct LoginView: View {
                             .foregroundColor(AppColors.primary)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
+                    .accessibilityLabel("Reset password")
+                    .accessibilityHint("Tap to reset your password")
                 }
                 .padding(.top, 20)
                 
@@ -73,6 +79,7 @@ struct LoginView: View {
                         if isLoading {
                             ProgressView()
                                 .tint(.white)
+                                .accessibilityLabel("Loading")
                         } else {
                             Text("Sign In")
                                 .fontWeight(.bold)
@@ -87,6 +94,9 @@ struct LoginView: View {
                     .shadow(color: AppColors.primary.opacity(0.3), radius: 10, x: 0, y: 5)
                 }
                 .disabled(isLoading || email.isEmpty || password.isEmpty)
+                .accessibilityLabel("Sign in button")
+                .accessibilityHint("Tap to sign in to your account")
+                .accessibilityAddTraits(.isButton)
                 
                 // Divider
                 HStack {
@@ -116,6 +126,9 @@ struct LoginView: View {
                                 .foregroundColor(.white)
                         }
                     }
+                    .accessibilityLabel("Sign in with Apple")
+                    .accessibilityHint("Use your Apple ID to sign in")
+                    .accessibilityAddTraits(.isButton)
                     
                     // Google Sign-In (placeholder - requires Google Sign-In SDK)
                     Button(action: {
@@ -133,15 +146,10 @@ struct LoginView: View {
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                                 .foregroundColor(.black)
                         }
-                        .frame(width: 56, height: 56)
-                        .background(Color.white)
-                        .foregroundColor(.black)
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                        )
                     }
+                    .accessibilityLabel("Sign in with Google")
+                    .accessibilityHint("Use your Google account to sign in")
+                    .accessibilityAddTraits(.isButton)
                 }
                 
                 Spacer()
@@ -159,6 +167,9 @@ struct LoginView: View {
                             .fontWeight(.bold)
                             .foregroundColor(AppColors.primary)
                     }
+                    .accessibilityLabel("Sign up")
+                    .accessibilityHint("Create a new account")
+                    .accessibilityAddTraits(.isButton)
                 }
                 .padding(.bottom, 20)
             }
@@ -218,7 +229,15 @@ struct LoginView: View {
         }
     }
     
-    private func handleAppleSignIn(result: Swift.Result<ASAuthorization, Error>) {
+    private func startAppleSignIn() {
+        let coordinator = AppleSignInCoordinator()
+        coordinator.completion = { result in
+            self.handleAppleSignIn(result: result)
+        }
+        coordinator.startSignIn()
+    }
+    
+    private func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
         switch result {
         case .success(let authorization):
             if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
@@ -249,7 +268,7 @@ struct LoginView: View {
                         name: name,
                         email: userEmail,
                         phoneNumber: "",
-                        password: userIdentifier // Use Apple ID as password
+                        password: userIdentifier
                     )
                     
                     if let user = registerResult.user {
@@ -266,64 +285,44 @@ struct LoginView: View {
             errorMessage = "Apple Sign-In failed: \(error.localizedDescription)"
         }
     }
-
-    private func startAppleSignIn() {
-        let request = ASAuthorizationAppleIDProvider().createRequest()
-        request.requestedScopes = [.fullName, .email]
-
-        let controller = ASAuthorizationController(authorizationRequests: [request])
-        let coordinator = AppleSignInCoordinator { result in
-            handleAppleSignIn(result: result)
-        }
-        controller.delegate = coordinator
-        controller.presentationContextProvider = coordinator
-        coordinator.retainForLifetime(of: controller)
-        controller.performRequests()
-    }
-
-    private final class AppleSignInCoordinator: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
-        private let completion: (Swift.Result<ASAuthorization, Error>) -> Void
-        private var retainedController: ASAuthorizationController?
-
-        init(completion: @escaping (Swift.Result<ASAuthorization, Error>) -> Void) {
-            self.completion = completion
-        }
-
-        func retainForLifetime(of controller: ASAuthorizationController) {
-            retainedController = controller
-        }
-
-        func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-            completion(.success(authorization))
-            retainedController = nil
-        }
-
-        func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-            completion(.failure(error))
-            retainedController = nil
-        }
-
-        func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-            let scenes = UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-            let window = scenes
-                .flatMap { $0.windows }
-                .first(where: { $0.isKeyWindow })
-            return window ?? ASPresentationAnchor()
-        }
-    }
     
     private func handleGoogleSignIn() {
         // TODO: Implement Google Sign-In SDK integration
-        // This requires:
-        // 1. Add Google Sign-In SDK via SPM
-        // 2. Configure Google Cloud Console
-        // 3. Add GoogleService-Info.plist
-        // 4. Implement GIDSignIn configuration
-        
         print("Google Sign-In clicked - SDK integration required")
         showError = true
         errorMessage = "Google Sign-In requires SDK integration. Please configure Google Sign-In SDK."
+    }
+}
+
+// MARK: - Apple Sign-In Coordinator
+class AppleSignInCoordinator: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    var completion: ((Result<ASAuthorization, Error>) -> Void)?
+    
+    func startSignIn() {
+        let request = ASAuthorizationAppleIDProvider().createRequest()
+        request.requestedScopes = [.fullName, .email]
+        
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = self
+        authorizationController.presentationContextProvider = self
+        authorizationController.performRequests()
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        completion?(.success(authorization))
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        completion?(.failure(error))
+    }
+    
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        let scenes = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+        let window = scenes
+            .flatMap { $0.windows }
+            .first(where: { $0.isKeyWindow })
+        return window ?? ASPresentationAnchor()
     }
 }
 
@@ -334,18 +333,39 @@ struct CustomTextField: View {
     var isSecure: Bool = false
     var disableAutocapitalization: Bool = false
     
+    @State private var isSecured: Bool = true
+    
     var body: some View {
         HStack(spacing: 15) {
             Image(systemName: icon)
                 .foregroundColor(AppColors.primary.opacity(0.7))
                 .frame(width: 20)
+                .accessibilityHidden(true)
             
             if isSecure {
-                SecureField(placeholder, text: $text)
-                    .autocapitalization(.none)
+                Group {
+                    if isSecured {
+                        SecureField(placeholder, text: $text)
+                    } else {
+                        TextField(placeholder, text: $text)
+                    }
+                }
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
             } else {
                 TextField(placeholder, text: $text)
                     .autocapitalization(disableAutocapitalization ? .none : .sentences)
+            }
+            
+            if isSecure {
+                Button(action: {
+                    isSecured.toggle()
+                }) {
+                    Image(systemName: isSecured ? "eye.slash.fill" : "eye.fill")
+                        .foregroundColor(AppColors.textSecondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(isSecured ? "Show password" : "Hide password")
             }
         }
         .padding()
@@ -355,6 +375,8 @@ struct CustomTextField: View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(AppColors.textSecondary.opacity(0.1), lineWidth: 1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(placeholder)
     }
 }
 

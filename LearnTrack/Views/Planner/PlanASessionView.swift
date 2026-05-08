@@ -10,12 +10,15 @@ import SwiftUI
 
 struct PlanASessionView: View {
     @EnvironmentObject var router: AppRouter
+    @EnvironmentObject var data: MockData
     @State private var selectedSubjectIndex = 0
     @State private var duration = 30
     @State private var sessionDate = Date()
     @State private var scheduledSession: StudySession? = nil
     
-    let subjects = MockData.shared.subjects
+    private var subjects: [Subject] {
+        data.subjects
+    }
     
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -93,21 +96,30 @@ struct PlanASessionView: View {
                 }
                 .padding(.horizontal)
                 
-                PrimaryButton(title: "Schedule Session") {
-                    scheduledSession = StudySession(
-                        subjectId: subjects[selectedSubjectIndex].id,
-                        date: sessionDate,
-                        durationSeconds: duration * 60,
-                        isCompleted: false,
-                        summary: nil
-                    )
-                    NotificationManager.shared.scheduleReminder(
-                        title: "Study Time: \\(subjects[selectedSubjectIndex].name)",
-                        body: "Your planned session is starting soon.",
-                        date: sessionDate
-                    )
+                if subjects.isEmpty {
+                    Text("Add a subject first to schedule a study session.")
+                        .font(AppTypography.body)
+                        .foregroundColor(AppColors.textSecondary)
+                        .padding(.horizontal)
+                } else {
+                    PrimaryButton(title: "Schedule Session") {
+                        let session = StudySession(
+                            subjectId: subjects[selectedSubjectIndex].id,
+                            date: sessionDate,
+                            durationSeconds: duration * 60,
+                            isCompleted: false,
+                            summary: nil
+                        )
+                        data.addScheduledSession(session)
+                        scheduledSession = session
+                        NotificationManager.shared.scheduleReminder(
+                            title: "Study Time: \(subjects[selectedSubjectIndex].name)",
+                            body: "Your planned session is starting soon.",
+                            date: sessionDate
+                        )
+                    }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
                 
                 if let scheduled = scheduledSession,
                    let subject = subjects.first(where: { $0.id == scheduled.subjectId }) {

@@ -158,19 +158,21 @@ struct PlanGeneratedView: View {
                         
                         // Action Buttons
                         VStack(spacing: 12) {
-                            Button(action: { 
+                            Button(action: {
                                 UINotificationFeedbackGenerator().notificationOccurred(.success)
-                                // EventKit integration
-                                CalendarManager.shared.addStudySession(
-                                    title: "AI Study Journey",
-                                    startDate: Date(),
-                                    endDate: Date().addingTimeInterval(3600),
-                                    notes: "Generated plan for \(data.subjects.count) subjects."
-                                )
-                                withAnimation { isSaved = true }
-                                // Navigate after a delay
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                    router.navigate(to: .fullCalendar)
+                                Task {
+                                    let saved = await CalendarManager.shared.addStudySession(
+                                        title: "AI Study Journey",
+                                        startDate: Date(),
+                                        endDate: Date().addingTimeInterval(3600),
+                                        notes: "Generated plan for \(data.subjects.count) subjects."
+                                    )
+                                    if saved {
+                                        withAnimation { isSaved = true }
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                        router.navigate(to: .fullCalendar(selectedDate: nil))
+                                    }
                                 }
                             }) {
                                 HStack {

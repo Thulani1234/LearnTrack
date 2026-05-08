@@ -11,7 +11,6 @@ struct AddResultView: View {
     @State private var maxScore = "100"
     @State private var weight = "20"
     @State private var selectedCategory: ResultCategory = .exams
-    @State private var selectedTarget = "A"
     @State private var date = Date()
     
     private var scoreValue: Int? { Int(score) }
@@ -21,16 +20,21 @@ struct AddResultView: View {
         return Int((Double(scoreValue) / Double(maxScoreValue)) * 100)
     }
     private var targetPercentage: Int {
-        switch selectedTarget {
-        case "A+": return 95
-        case "A": return 90
-        case "B+": return 85
-        case "B": return 80
-        default: return 70
-        }
+        Int((Double(targetMarks) / Double(maxScoreValue)) * 100)
     }
     private var targetMarks: Int {
-        Int(ceil((Double(targetPercentage) / 100.0) * Double(maxScoreValue)))
+        guard let scoreValue = scoreValue else { return maxScoreValue }
+        return min(maxScoreValue, scoreValue + 10)
+    }
+    private var targetLabel: String {
+        switch targetPercentage {
+        case 95...100: return "A+"
+        case 90..<95: return "A"
+        case 80..<90: return "B+"
+        case 70..<80: return "B"
+        case 60..<70: return "C"
+        default: return "D"
+        }
     }
     
     var body: some View {
@@ -60,7 +64,7 @@ struct AddResultView: View {
                     ResultPreviewCard(
                         subjectName: selectedSubjectName,
                         percentage: currentPercentage,
-                        targetLabel: selectedTarget,
+                        targetLabel: targetLabel,
                         targetPercentage: targetPercentage,
                         targetMarks: targetMarks,
                         maxMarks: maxScoreValue
@@ -154,23 +158,22 @@ struct AddResultView: View {
                         }
                         
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("TARGET")
+                            Text("TARGET MARKS")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(AppColors.textSecondary.opacity(0.6))
                             
-                            HStack(spacing: 10) {
-                                ForEach(["A+", "A", "B+", "B", "C"], id: \.self) { target in
-                                    Button(action: { selectedTarget = target }) {
-                                        Text(target)
-                                            .font(.system(size: 14, weight: .bold))
-                                            .foregroundColor(selectedTarget == target ? .white : AppColors.textSecondary)
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 10)
-                                            .background(selectedTarget == target ? AppColors.primary : AppColors.cardBackground)
-                                            .cornerRadius(12)
-                                    }
-                                }
+                            HStack {
+                                Text("\(targetMarks)")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(AppColors.textPrimary)
+                                Spacer()
+                                Text("of \(maxScoreValue)")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(AppColors.textSecondary)
                             }
+                            .padding()
+                            .background(AppColors.cardBackground)
+                            .cornerRadius(16)
                         }
                     }
                     .padding(.horizontal)
@@ -203,7 +206,7 @@ struct AddResultView: View {
     }
     
     private var selectedSubjectName: String {
-        guard let selectedSubjectId,
+        guard let selectedSubjectId = self.selectedSubjectId,
               let subject = data.subjects.first(where: { $0.id == selectedSubjectId }) else {
             return data.subjects.isEmpty ? "No subjects yet" : "Select Subject"
         }
@@ -223,12 +226,12 @@ struct AddResultView: View {
             return
         }
         
-        guard let selectedSubjectId,
+        guard let selectedSubjectId = self.selectedSubjectId,
               let scoreValue = Int(score),
               let maxValue = Int(maxScore),
               maxValue > 0,
               let weightValue = Int(weight),
-              let subjectId = data.subjects.first(where: { $0.id == selectedSubjectId })?.id else {
+              let selectedSubject = data.subjects.first(where: { $0.id == selectedSubjectId }) else {
             appState.currentAlert = AppAlert(
                 title: "Check Result Details",
                 message: "Add a subject, score, max score, and weight before saving.",
@@ -238,6 +241,7 @@ struct AddResultView: View {
             )
             return
         }
+        let subjectId = selectedSubject.id
         
         data.addResult(
             title: title.isEmpty ? "Untitled Result" : title,
@@ -246,7 +250,7 @@ struct AddResultView: View {
             maxScore: maxValue,
             weight: min(max(weightValue, 1), 100),
             category: selectedCategory,
-            targetLabel: selectedTarget,
+            targetLabel: targetLabel,
             date: date
         )
         

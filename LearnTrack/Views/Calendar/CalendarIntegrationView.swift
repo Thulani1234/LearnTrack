@@ -9,6 +9,7 @@ import SwiftUI
 import EventKit
 
 struct CalendarIntegrationView: View {
+    @EnvironmentObject var router: AppRouter
     @StateObject private var calendarService = CalendarService()
     @State private var selectedSubject = "Math"
     @State private var studyDate = Date()
@@ -139,7 +140,12 @@ struct CalendarIntegrationView: View {
             } else {
                 LazyVStack(spacing: 8) {
                     ForEach(todayEvents) { event in
-                        EventRowView(event: event, calendarService: calendarService)
+                        Button(action: {
+                            router.navigate(to: .fullCalendar(selectedDate: event.startDate))
+                        }) {
+                            EventRowView(event: event, calendarService: calendarService)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
             }
@@ -251,7 +257,12 @@ struct CalendarIntegrationView: View {
             } else {
                 LazyVStack(spacing: 8) {
                     ForEach(Array(upcomingEvents.prefix(5)), id: \.eventIdentifier) { event in
-                        EventRowView(event: CalendarEvent(event: event), calendarService: calendarService)
+                        Button(action: {
+                            router.navigate(to: .fullCalendar(selectedDate: event.startDate))
+                        }) {
+                            EventRowView(event: CalendarEvent(event: event), calendarService: calendarService)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
             }
@@ -424,5 +435,6 @@ private struct EmptyCalendarCard: View {
 struct CalendarIntegrationView_Previews: PreviewProvider {
     static var previews: some View {
         CalendarIntegrationView()
+            .environmentObject(AppRouter())
     }
 }

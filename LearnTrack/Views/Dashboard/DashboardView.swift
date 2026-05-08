@@ -21,6 +21,45 @@ struct DashboardView: View {
         String(userDisplayName.prefix(1)).uppercased()
     }
     
+    private var todayStudySeconds: Int {
+        let calendar = Calendar.current
+        return data.recentSessions
+            .filter { $0.isCompleted && calendar.isDateInToday($0.date) }
+            .reduce(0) { $0 + $1.durationSeconds }
+    }
+    
+    private var dailyGoalSeconds: Int {
+        5 * 60 * 60 // default 5-hour daily study goal
+    }
+    
+    private var dailyProgress: Double {
+        guard dailyGoalSeconds > 0 else { return 0 }
+        return min(1, Double(todayStudySeconds) / Double(dailyGoalSeconds))
+    }
+    
+    private var dailyProgressText: String {
+        let hours = todayStudySeconds / 3600
+        let minutes = (todayStudySeconds % 3600) / 60
+        if todayStudySeconds == 0 {
+            return "Start studying to track your daily progress."
+        }
+        if hours > 0 {
+            return "You've completed \(hours)h \(minutes)m of study today."
+        }
+        return "You've completed \(minutes)m of study today."
+    }
+    
+    private var autoPlanItems: [Subject] {
+        if data.subjects.isEmpty {
+            return []
+        }
+        return Array(data.subjects.sorted { $0.progress < $1.progress }.prefix(3))
+    }
+    
+    private var hasDashboardData: Bool {
+        !data.subjects.isEmpty || !data.recentSessions.isEmpty || !data.academicResults.isEmpty
+    }
+    
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 28) {
@@ -84,7 +123,14 @@ struct DashboardView: View {
                 .padding(.top, 10)
                 
                 // Daily Study Goal
-                DailyStudyGoalSection(userName: userDisplayName)
+                DailyStudyGoalSection(
+                    userName: userDisplayName,
+                    progress: dailyProgress,
+                    progressLabel: dailyProgressText,
+                    completedSeconds: todayStudySeconds,
+                    goalSeconds: dailyGoalSeconds,
+                    hasData: hasDashboardData
+                )
                 
                 // Today's Auto Plan
                 VStack(alignment: .leading, spacing: 16) {
@@ -103,17 +149,39 @@ struct DashboardView: View {
                     }
                     .padding(.horizontal)
                     
-                    VStack(spacing: 0) {
-                        AutoPlanItem(icon: "microscope", title: "Science — 60 min", status: "Urgent", isCompleted: false)
-                        Divider().padding(.leading, 60)
-                        AutoPlanItem(icon: "plus", title: "Maths — 45 min", status: "Soon", isCompleted: false)
-                        Divider().padding(.leading, 60)
-                        AutoPlanItem(icon: "laptopcomputer", title: "ICT — 30 min", status: "Planned", isCompleted: true)
+                    if autoPlanItems.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("No auto plan available yet")
+                                .font(AppTypography.headline)
+                                .foregroundColor(AppColors.textPrimary)
+                            Text("Add a subject and some study time to generate a personalized plan for today.")
+                                .font(AppTypography.bodySmall)
+                                .foregroundColor(AppColors.textSecondary)
+                        }
+                        .padding(24)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(AppColors.cardBackground)
+                        .cornerRadius(24)
+                        .padding(.horizontal)
+                    } else {
+                        VStack(spacing: 0) {
+                            ForEach(Array(autoPlanItems.enumerated()), id: \ .element.id) { index, subject in
+                                AutoPlanItem(
+                                    icon: subject.icon,
+                                    title: "\(subject.name) — \((index + 1) * 30) min",
+                                    status: index == 0 ? "Urgent" : (index == 1 ? "Soon" : "Planned"),
+                                    isCompleted: false
+                                )
+                                if index < autoPlanItems.count - 1 {
+                                    Divider().padding(.leading, 60)
+                                }
+                            }
+                        }
+                        .background(AppColors.cardBackground)
+                        .cornerRadius(24)
+                        .padding(.horizontal)
+                        .shadow(color: Color.black.opacity(0.04), radius: 15, x: 0, y: 5)
                     }
-                    .background(AppColors.cardBackground)
-                    .cornerRadius(24)
-                    .padding(.horizontal)
-                    .shadow(color: Color.black.opacity(0.04), radius: 15, x: 0, y: 5)
                 }
                 
                 // Live Session Card
@@ -125,19 +193,25 @@ struct DashboardView: View {
                         .background(Color.green.opacity(0.2))
                         .clipShape(Circle())
                     
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Live Session Active")
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(appState.joiningRoomName.isEmpty ? "Live Study Rooms" : "Live Session Active")
                             .font(AppTypography.headline)
                             .foregroundColor(.white)
-                        Text("3 students studying Science now")
+                        Text(appState.joiningRoomName.isEmpty ? "Start or join a live focus room from the Live tab." : "3 students studying Science now")
                             .font(AppTypography.caption)
                             .foregroundColor(.white.opacity(0.8))
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     Spacer()
-                    Button("Join") {
-                        withAnimation {
-                            appState.joiningRoomName = "Science Study Group"
-                            appState.isJoiningRoom = true
+                    Button(appState.joiningRoomName.isEmpty ? "Open Live" : "Join") {
+                        if appState.joiningRoomName.isEmpty {
+                            withAnimation {
+                                appState.selectedTab = 2
+                            }
+                        } else {
+                            withAnimation {
+                                appState.isJoiningRoom = true
+                            }
                         }
                     }
                     .font(AppTypography.bodySmall)
@@ -192,11 +266,42 @@ struct DashboardView: View {
         }
         .background(AppColors.background.ignoresSafeArea())
         .navigationBarHidden(true)
+        .onAppear {
+            
+            // Check for pending notifications when navigating to home page
+            if let title = UserDefaults.standard.string(forKey: "pendingNotificationTitle"),
+               let body = UserDefaults.standard.string(forKey: "pendingNotificationBody"),
+               let type = UserDefaults.standard.string(forKey: "pendingNotificationType") {
+                
+                print("✅ Dashboard: Found pending notification: \(title)")
+                
+                // Display immediately
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    appState.setPushNotificationAlert(
+                        title: title,
+                        message: body,
+                        notificationType: type
+                    )
+                    
+                    // Clear pending notification after displaying
+                    UserDefaults.standard.removeObject(forKey: "pendingNotificationTitle")
+                    UserDefaults.standard.removeObject(forKey: "pendingNotificationBody")
+                    UserDefaults.standard.removeObject(forKey: "pendingNotificationType")
+                    UserDefaults.standard.removeObject(forKey: "pendingNotificationDate")
+                }
+            }
+        }
     }
 }
 
 struct DailyStudyGoalSection: View {
+    @EnvironmentObject var router: AppRouter
     var userName: String
+    var progress: Double
+    var progressLabel: String
+    var completedSeconds: Int
+    var goalSeconds: Int
+    var hasData: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -204,44 +309,73 @@ struct DailyStudyGoalSection: View {
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(AppColors.textSecondary.opacity(0.6))
                 .padding(.horizontal)
-            
-            HStack(spacing: 20) {
-                ZStack {
-                    Circle()
-                        .stroke(AppColors.primary.opacity(0.1), lineWidth: 12)
-                    Circle()
-                        .trim(from: 0, to: 0.65)
-                        .stroke(
-                            LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .top, endPoint: .bottom),
-                            style: StrokeStyle(lineWidth: 12, lineCap: .round)
-                        )
-                        .rotationEffect(.degrees(-90))
+
+            if hasData {
+                HStack(spacing: 20) {
+                    ZStack {
+                        Circle()
+                            .stroke(AppColors.primary.opacity(0.1), lineWidth: 12)
+                        Circle()
+                            .trim(from: 0, to: CGFloat(progress))
+                            .stroke(
+                                LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .top, endPoint: .bottom),
+                                style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                            )
+                            .rotationEffect(.degrees(-90))
+                        
+                        VStack(spacing: 0) {
+                            Text("\(Int(progress * 100))%")
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .foregroundColor(AppColors.textPrimary)
+                            Text("done")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(AppColors.textSecondary)
+                        }
+                    }
+                    .frame(width: 100, height: 100)
                     
-                    VStack(spacing: 0) {
-                        Text("65%")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
-                            .foregroundColor(AppColors.textPrimary)
-                        Text("done")
-                            .font(.system(size: 10, weight: .medium))
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Almost there, \(userName)!")
+                            .font(.system(size: 18, weight: .bold))
+                        Text(progressLabel)
+                            .font(.system(size: 14))
                             .foregroundColor(AppColors.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                .frame(width: 100, height: 100)
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Almost there, \(userName)!")
+                .padding(24)
+                .background(AppColors.cardBackground)
+                .cornerRadius(32)
+                .padding(.horizontal)
+                .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
+            } else {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Welcome to your dashboard")
                         .font(.system(size: 18, weight: .bold))
-                    Text("You've completed 4.5 hours of study today. Just 1.5 more to reach your goal.")
+                        .foregroundColor(AppColors.textPrimary)
+                    Text("Add your first subject, log a study session, or enter a result to see your progress summary here.")
                         .font(.system(size: 14))
                         .foregroundColor(AppColors.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
+                    
+                    Button(action: {
+                        router.navigate(to: .addSubject)
+                    }) {
+                        Text("Add your first subject")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.vertical, 14)
+                            .frame(maxWidth: .infinity)
+                            .background(AppColors.primary)
+                            .cornerRadius(16)
+                    }
                 }
+                .padding(24)
+                .background(AppColors.cardBackground)
+                .cornerRadius(32)
+                .padding(.horizontal)
+                .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
             }
-            .padding(24)
-            .background(AppColors.cardBackground)
-            .cornerRadius(32)
-            .padding(.horizontal)
-            .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
         }
     }
 }
