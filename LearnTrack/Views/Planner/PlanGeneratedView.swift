@@ -6,6 +6,9 @@ struct PlanGeneratedView: View {
     @EnvironmentObject var data: MockData
     @State private var animateItems = false
     @State private var isSaved = false
+    @State private var isSavingToCalendar = false
+    @State private var hasSeededPlan = false
+    @State private var generatedPlanSessions: [StudySession] = []
     
     // Dynamic sessions based on user's real subjects
     private var generatedSessions: [PlanSessionItem] {
@@ -26,12 +29,31 @@ struct PlanGeneratedView: View {
         }
     }
     
+    private var weeklyHours: Int {
+        max(1, generatedPlanSessions.reduce(0) { $0 + $1.durationSeconds } / 3600)
+    }
+    
+    private var weekFocus: String {
+        data.subjects.first?.name ?? "Chemistry"
+    }
+    
+    private var scheduleByDay: [(String, [StudySession])] {
+        let grouped = Dictionary(grouping: generatedPlanSessions) { session in
+            let weekday = Calendar.current.component(.weekday, from: session.date)
+            return Calendar.current.weekdaySymbols[weekday - 1]
+        }
+        let orderedDays = Calendar.current.weekdaySymbols
+        return orderedDays.map { day in
+            (day, grouped[day] ?? [])
+        }
+    }
+    
     var body: some View {
         ZStack {
             AppColors.background.ignoresSafeArea()
             
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 32) {
+                VStack(spacing: 28) {
                     // Celebratory Header
                     ZStack {
                         LinearGradient(
@@ -71,9 +93,9 @@ struct PlanGeneratedView: View {
                             .padding(.bottom, 20)
                             
                             HStack(spacing: 12) {
-                                PlanStatPill(title: "Days", value: "18", icon: "calendar")
-                                PlanStatPill(title: "Sessions", value: "\(generatedSessions.count * 18)", icon: "book.fill")
-                                PlanStatPill(title: "Subjects", value: "\(data.subjects.count)", icon: "graduationcap.fill")
+                                PlanStatPill(icon: "clock.fill", value: "\(weeklyHours)h", label: "Weekly hours")
+                                PlanStatPill(icon: "chart.line.uptrend.xyaxis", value: "15–25%", label: "Improvement")
+                                PlanStatPill(icon: "graduationcap.fill", value: weekFocus, label: "Week focus")
                             }
                             .padding(.horizontal)
                             .padding(.bottom, 40)
@@ -103,98 +125,121 @@ struct PlanGeneratedView: View {
                         .cornerRadius(24)
                         .padding(.horizontal)
                         
-                        // Weekly Overview Section
+                        // Weekly Schedule Section
                         VStack(alignment: .leading, spacing: 20) {
-                            SectionHeader(title: "WEEKLY OVERVIEW")
+                            SectionHeader(title: "WEEKLY SCHEDULE")
                                 .padding(.horizontal)
                             
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 12) {
-                                    ForEach(0..<7) { i in
-                                        let date = Calendar.current.date(byAdding: .day, value: i, to: Date())!
-                                        WeeklyDayPill(date: date, sessions: generatedSessions.count)
+                            VStack(spacing: 18) {
+                                ForEach(scheduleByDay.filter { !$0.1.isEmpty }, id: \.0) { weekday, sessions in
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        Text(weekday.uppercased())
+                                            .font(.system(size: 12, weight: .black))
+                                            .foregroundColor(AppColors.primary)
+                                        ForEach(sessions) { session in
+                                    HStack {
+                                        RoundedRectangle(cornerRadius: 24)
+                                            .fill(subjectAccentColor(for: session.subjectId).opacity(0.14))
+                                            .frame(width: 6)
+
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 6) {
+                                                Text(data.subject(for: session.subjectId)?.name ?? "Study")
+                                                    .font(.system(size: 16, weight: .bold))
+                                                    .foregroundColor(AppColors.textPrimary)
+                                                Text("\(session.date.formatted(.dateTime.hour().minute())) · \(session.durationSeconds / 60) min")
+                                                    .font(.system(size: 12, weight: .medium))
+                                                    .foregroundColor(AppColors.textSecondary)
+                                            }
+                                            Spacer()
+                                            Text(session.isCompleted ? "Review" : "Study")
+                                                .font(.system(size: 12, weight: .semibold))
+                                                .foregroundColor(session.isCompleted ? AppColors.warning : .white)
+                                                .padding(.vertical, 10)
+                                                .padding(.horizontal, 18)
+                                                .background(session.isCompleted ? AppColors.cardBackground : AppColors.primary)
+                                                .cornerRadius(20)
+                                        }
+                                        .padding(.vertical, 14)
+                                        .padding(.horizontal, 16)
                                     }
+                                    .background(AppColors.cardBackground)
+                                    .cornerRadius(24)
+                                    .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
                                 }
-                                .padding(.horizontal)
+                                    }
+                                    .padding(.horizontal)
+                                }
                             }
                         }
                         
-                        // Timeline Section
                         VStack(alignment: .leading, spacing: 20) {
-                            SectionHeader(title: "THE ROAD AHEAD")
+                            SectionHeader(title: "SMART TIPS")
                                 .padding(.horizontal)
-                            
-                            VStack(spacing: 16) {
-                                let today = Date()
-                                let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
-                                let dayAfter = Calendar.current.date(byAdding: .day, value: 2, to: today)!
-                                
-                                DayPlanCard(
-                                    day: "Today",
-                                    date: today.formatted(.dateTime.weekday().day()),
-                                    status: "Focus",
-                                    sessions: generatedSessions,
-                                    summary: "\(generatedSessions.count) sessions · Optimized"
-                                )
-                                
-                                DayPlanCard(
-                                    day: "Tomorrow",
-                                    date: tomorrow.formatted(.dateTime.weekday().day()),
-                                    status: "Light",
-                                    sessions: Array(generatedSessions.reversed().prefix(2)),
-                                    summary: "2 sessions · 1h 15m"
-                                )
-                                
-                                DayPlanCard(
-                                    day: dayAfter.formatted(.dateTime.weekday()),
-                                    date: dayAfter.formatted(.dateTime.day()),
-                                    status: "Planned",
-                                    sessions: Array(generatedSessions.prefix(1)),
-                                    summary: "1 session · Review"
-                                )
+                            VStack(spacing: 12) {
+                                TipItem(text: "Start each session by reviewing yesterday's notes")
+                                TipItem(text: "Use active recall instead of re-reading")
+                                TipItem(text: "Track progress weekly to stay motivated")
                             }
                             .padding(.horizontal)
                         }
                         
+                        
                         // Action Buttons
                         VStack(spacing: 12) {
                             Button(action: {
-                                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                                guard !isSaved && !isSavingToCalendar else { return }
+                                isSavingToCalendar = true
                                 Task {
-                                    let saved = await CalendarManager.shared.addStudySession(
-                                        title: "AI Study Journey",
-                                        startDate: Date(),
-                                        endDate: Date().addingTimeInterval(3600),
-                                        notes: "Generated plan for \(data.subjects.count) subjects."
-                                    )
-                                    if saved {
-                                        withAnimation { isSaved = true }
+                                    if !hasSeededPlan { seedStudyPlanner() }
+                                    var savedCount = 0
+                                    for session in generatedPlanSessions {
+                                        let subjectName = data.subject(for: session.subjectId)?.name ?? "Study"
+                                        let added = await CalendarManager.shared.addStudySession(
+                                            title: subjectName,
+                                            startDate: session.date,
+                                            endDate: session.date.addingTimeInterval(TimeInterval(session.durationSeconds)),
+                                            notes: session.summary
+                                        )
+                                        if added { savedCount += 1 }
                                     }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                        router.navigate(to: .fullCalendar(selectedDate: nil))
+                                    await MainActor.run {
+                                        if savedCount > 0 {
+                                            withAnimation { isSaved = true }
+                                            UINotificationFeedbackGenerator().notificationOccurred(.success)
+                                        }
+                                        isSavingToCalendar = false
+                                    }
+                                    if savedCount > 0 {
+                                        await MainActor.run {
+                                            router.navigate(to: .fullCalendar(selectedDate: nil))
+                                        }
                                     }
                                 }
                             }) {
-                                HStack {
-                                    if isSaved {
-                                        Image(systemName: "checkmark.circle.fill")
-                                        Text("Saved to Calendar")
-                                    } else {
-                                        Image(systemName: "calendar.badge.plus")
-                                        Text("Save All to Calendar")
-                                    }
+                                HStack(spacing: 10) {
+                                    Image(systemName: isSaved ? "checkmark.seal.fill" : "calendar.badge.plus")
+                                    Text(isSaved ? "Saved to Calendar" : (isSavingToCalendar ? "Saving..." : "Save to Calendar"))
                                 }
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 18)
-                                .background(isSaved ? Color.green : AppColors.primary)
+                                .background {
+                                    if isSaved {
+                                        Color.green
+                                    } else {
+                                        LinearGradient(colors: [AppColors.secondary, AppColors.primary], startPoint: .leading, endPoint: .trailing)
+                                    }
+                                }
                                 .cornerRadius(20)
-                                .shadow(color: (isSaved ? Color.green : AppColors.primary).opacity(0.3), radius: 10, x: 0, y: 5)
+                                .shadow(color: (isSaved ? Color.green : AppColors.primary).opacity(0.25), radius: 10, x: 0, y: 5)
                             }
+                            .disabled(isSaved || isSavingToCalendar)
+                            .opacity(isSaved || isSavingToCalendar ? 0.75 : 1.0)
                             
-                            Button(action: { router.navigate(to: .planner) }) {
-                                Text("Dismiss")
+                            Button(action: { router.navigate(to: .planSetup) }) {
+                                Text("New Planner")
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(AppColors.textPrimary)
                                     .frame(maxWidth: .infinity)
@@ -203,6 +248,7 @@ struct PlanGeneratedView: View {
                                     .cornerRadius(20)
                             }
                         }
+
                         .padding(.horizontal)
                         .padding(.bottom, 40)
                     }
@@ -213,10 +259,33 @@ struct PlanGeneratedView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
+            if !hasSeededPlan {
+                seedStudyPlanner()
+            }
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 animateItems = true
             }
         }
+    }
+    
+    private func seedStudyPlanner() {
+        guard !hasSeededPlan else { return }
+        guard !data.subjects.isEmpty else { return }
+        let startOfDay = Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date()
+        generatedPlanSessions = data.subjects.enumerated().map { index, subject in
+            let sessionDate = Calendar.current.date(byAdding: .hour, value: index * 2, to: startOfDay) ?? startOfDay
+            return StudySession(
+                subjectId: subject.id,
+                date: sessionDate,
+                durationSeconds: 45 * 60,
+                isCompleted: false,
+                summary: "AI-generated study session for \(subject.name)."
+            )
+        }
+        generatedPlanSessions.forEach { session in
+            data.addScheduledSession(session)
+        }
+        hasSeededPlan = true
     }
     
     private func emoji(for subject: String) -> String {
@@ -229,28 +298,78 @@ struct PlanGeneratedView: View {
         if name.contains("chem") { return "flask.fill" }
         return "book.fill"
     }
+    
+    private func subjectAccentColor(for subjectId: UUID) -> Color {
+        let subjectName = data.subject(for: subjectId)?.name.lowercased() ?? ""
+        if subjectName.contains("math") { return AppColors.primary }
+        if subjectName.contains("science") { return AppColors.secondary }
+        if subjectName.contains("english") { return AppColors.accent }
+        if subjectName.contains("music") { return AppColors.success }
+        if subjectName.contains("physics") { return AppColors.warning }
+        if subjectName.contains("chemistry") { return Color(hex: "8B5CF6") }
+        return AppColors.primary
+    }
 }
 
 struct PlanStatPill: View {
-    let title: String
-    let value: String
     let icon: String
+    let value: String
+    let label: String
     
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 12))
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.2))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: icon)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                Spacer()
+            }
             Text(value)
-                .font(.system(size: 14, weight: .bold))
-            Text(title)
-                .font(.system(size: 12, weight: .medium))
-                .opacity(0.8)
+                .font(.system(size: 20, weight: .black))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            Text(label)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white.opacity(0.85))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .foregroundColor(.white)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(Color.white.opacity(0.2))
-        .clipShape(Capsule())
+        .padding(18)
+        .background(
+            LinearGradient(
+                colors: [AppColors.primary.opacity(0.95), AppColors.secondary.opacity(0.85)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .cornerRadius(28)
+        .shadow(color: AppColors.primary.opacity(0.25), radius: 20, x: 0, y: 12)
+    }
+}
+
+struct TipItem: View {
+    let text: String
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Circle()
+                .fill(AppColors.primary)
+                .frame(width: 8, height: 8)
+                .offset(y: 6)
+            Text(text)
+                .font(.system(size: 14))
+                .foregroundColor(AppColors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+        }
+        .padding(18)
+        .background(AppColors.cardBackground)
+        .cornerRadius(22)
     }
 }
 

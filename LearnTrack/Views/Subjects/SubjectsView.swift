@@ -101,6 +101,7 @@ struct SubjectsView: View {
 
 struct SubjectGridCard: View {
     @EnvironmentObject var data: MockData
+    @EnvironmentObject var router: AppRouter
     var subject: Subject
     @State private var showDeleteAlert = false
     
@@ -117,13 +118,24 @@ struct SubjectGridCard: View {
                 }
                 Spacer()
                 
-                Button(action: { showDeleteAlert = true }) {
-                    Image(systemName: "trash")
-                        .font(.system(size: 14))
-                        .foregroundColor(.red.opacity(0.6))
-                        .padding(8)
-                        .background(Color.red.opacity(0.05))
-                        .clipShape(Circle())
+                HStack(spacing: 8) {
+                    Button(action: { router.navigate(to: .editSubject(subject)) }) {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 14))
+                            .foregroundColor(AppColors.primary)
+                            .padding(8)
+                            .background(AppColors.primary.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    
+                    Button(action: { showDeleteAlert = true }) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 14))
+                            .foregroundColor(.red.opacity(0.6))
+                            .padding(8)
+                            .background(Color.red.opacity(0.05))
+                            .clipShape(Circle())
+                    }
                 }
             }
             

@@ -251,6 +251,9 @@ struct DashboardView: View {
                             SquareActionCard(title: "Voice", icon: "mic.fill", color: .orange) {
                                 router.navigate(to: .voiceNotes)
                             }
+                            SquareActionCard(title: "Calendar", icon: "calendar", color: .blue) {
+                                router.navigate(to: .fullCalendar(selectedDate: Date()))
+                            }
                             SquareActionCard(title: "Report", icon: "chart.bar.fill", color: .yellow) {
                                 withAnimation {
                                     appState.selectedTab = 4 // Navigate to Report tab
@@ -448,11 +451,16 @@ struct SquareActionCard: View {
 
 struct SessionCard: View {
     var session: StudySession
+    @EnvironmentObject var data: MockData
+    
+    private var subjectName: String {
+        data.subject(for: session.subjectId)?.name ?? "Study"
+    }
     
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Subject Session") // In real app, fetch subject name by ID
+                Text("\(subjectName) Session")
                     .font(AppTypography.body)
                     .fontWeight(.semibold)
                     .foregroundColor(AppColors.textPrimary)

@@ -110,6 +110,9 @@ struct VoiceNotesView: View {
                                             audioManager.play(url: url)
                                         }
                                     }
+                                },
+                                onDelete: {
+                                    data.deleteVoiceRecording(recording)
                                 }
                             )
                         }
@@ -235,6 +238,7 @@ struct RecordingCard: View {
     let subjectName: String
     var isPlaying: Bool = false
     var onPlay: () -> Void
+    var onDelete: () -> Void
     
     var body: some View {
         HStack(spacing: 16) {
@@ -273,15 +277,25 @@ struct RecordingCard: View {
             
             Spacer()
             
-            Button(action: onPlay) {
-                Image(systemName: isPlaying ? "stop.fill" : "play.fill")
-                    .foregroundColor(.white)
-                    .frame(width: 40, height: 40)
-                    .background(isPlaying ? AppColors.error : AppColors.primary)
-                    .clipShape(Circle())
+            HStack(spacing: 12) {
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red.opacity(0.8))
+                        .frame(width: 40, height: 40)
+                        .background(Color.red.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                
+                Button(action: onPlay) {
+                    Image(systemName: isPlaying ? "stop.fill" : "play.fill")
+                        .foregroundColor(.white)
+                        .frame(width: 40, height: 40)
+                        .background(isPlaying ? AppColors.error : AppColors.primary)
+                        .clipShape(Circle())
+                }
+                .disabled(recording.audioURL == nil && !isPlaying)
+                .opacity(recording.audioURL == nil && !isPlaying ? 0.5 : 1.0)
             }
-            .disabled(recording.audioURL == nil && !isPlaying)
-            .opacity(recording.audioURL == nil && !isPlaying ? 0.5 : 1.0)
         }
         .padding()
         .background(AppColors.cardBackground)

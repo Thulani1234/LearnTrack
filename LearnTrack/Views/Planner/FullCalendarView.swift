@@ -74,6 +74,7 @@ class FullCalendarViewModel: ObservableObject {
 }
 
 struct FullCalendarView: View {
+    @EnvironmentObject var appState: AppState
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var data: MockData
     @StateObject private var viewModel: FullCalendarViewModel

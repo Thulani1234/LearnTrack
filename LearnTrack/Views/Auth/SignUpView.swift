@@ -20,6 +20,25 @@ struct SignUpView: View {
     
     private let authService = AuthenticationService.shared
     
+    private var phoneDigits: String {
+        phoneNumber.filter { $0.isNumber }
+    }
+    
+    private var isPhoneValid: Bool {
+        phoneDigits.count == 10 && phoneDigits.count == phoneNumber.count
+    }
+    
+    private var phoneValidationMessage: String? {
+        guard !phoneNumber.isEmpty else { return nil }
+        if phoneDigits.count != phoneNumber.count {
+            return "Phone number must contain only digits"
+        }
+        if phoneDigits.count != 10 {
+            return "Phone number must be exactly 10 digits"
+        }
+        return nil
+    }
+    
     var body: some View {
         ZStack {
             AppColors.background.ignoresSafeArea()
@@ -50,6 +69,13 @@ struct SignUpView: View {
                     CustomTextField(icon: "phone.fill", placeholder: "Phone Number", text: $phoneNumber)
                         .accessibilityLabel("Phone number")
                         .accessibilityHint("Enter your phone number")
+                    if let phoneValidationMessage {
+                        Text(phoneValidationMessage)
+                            .font(AppTypography.caption)
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 6)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                     CustomTextField(icon: "house.fill", placeholder: "Address", text: $address)
                         .accessibilityLabel("Address")
                         .accessibilityHint("Enter your address")
@@ -195,7 +221,16 @@ struct SignUpView: View {
                     .cornerRadius(16)
                     .shadow(color: AppColors.primary.opacity(0.3), radius: 10, x: 0, y: 5)
                 }
-                .disabled(isLoading || !agreedToTerms || name.isEmpty || email.isEmpty || phoneNumber.isEmpty || address.isEmpty || country.isEmpty || password.isEmpty || password != confirmPassword)
+                .disabled(isLoading
+                          || !agreedToTerms
+                          || name.isEmpty
+                          || email.isEmpty
+                          || phoneNumber.filter({ $0.isNumber }).count != 10
+                          || phoneNumber.count != 10
+                          || address.isEmpty
+                          || country.isEmpty
+                          || password.isEmpty
+                          || password != confirmPassword)
                 .accessibilityLabel("Create account button")
                 .accessibilityHint("Tap to create your account")
                 .accessibilityAddTraits(.isButton)
@@ -242,6 +277,9 @@ struct SignUpView: View {
         } message: {
             Text(errorMessage)
         }
+        .navigationDestination(isPresented: $appState.showLoginAfterSignup) {
+            LoginView()
+        }
     }
     
     
@@ -262,6 +300,13 @@ struct SignUpView: View {
         guard !phoneNumber.isEmpty else {
             showError = true
             errorMessage = "Please enter your phone number"
+            return
+        }
+        
+        let digitsOnlyPhone = phoneNumber.filter { $0.isNumber }
+        guard digitsOnlyPhone.count == 10 && digitsOnlyPhone.count == phoneNumber.count else {
+            showError = true
+            errorMessage = "Phone number must be exactly 10 digits"
             return
         }
         
@@ -299,14 +344,8 @@ struct SignUpView: View {
                 print("Email: \(user.email)")
                 print("Phone: \(user.phoneNumber)")
                 
-                // Set current user in app state
-                appState.currentUser = user
-                
-                // Navigate to main app directly (no OTP)
-                withAnimation {
-                    appState.isLoggedIn = true
-                }
-                dismiss()
+                // Navigate to login - flag will trigger onChange in WelcomeView
+                appState.showLoginAfterSignup = true
             } else if let error = result.error {
                 showError = true
                 errorMessage = error.localizedDescription

@@ -19,9 +19,35 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     
     private var appState: AppState?
     private var isInitialized = false
+    private var receivedNotifications: [ReceivedNotification] = []
     
     private override init() {
         super.init()
+    }
+    
+    // MARK: - Notification Recording
+    func getReceivedNotifications() -> [ReceivedNotification] {
+        return receivedNotifications
+    }
+    
+    func clearReceivedNotifications() {
+        receivedNotifications.removeAll()
+    }
+    
+    private func recordNotification(title: String, body: String, type: String, receivedAt: Date = Date()) {
+        let notification = ReceivedNotification(
+            id: UUID().uuidString,
+            title: title,
+            body: body,
+            type: type,
+            receivedAt: receivedAt
+        )
+        receivedNotifications.insert(notification, at: 0) // Newest first
+        
+        // Keep only last 50 notifications
+        if receivedNotifications.count > 50 {
+            receivedNotifications = Array(receivedNotifications.prefix(50))
+        }
     }
     
     func initialize() {
@@ -172,6 +198,15 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     
     // Allow notifications to show while app is in foreground
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        let userInfo = notification.request.content.userInfo
+        let title = notification.request.content.title
+        let body = notification.request.content.body
+        let notificationType = userInfo["notificationType"] as? String ?? "general"
+        
+        // Record notification received while app is active
+        recordNotification(title: title, body: body, type: notificationType)
+        print("📲 Push notification received while app is active: \(title)")
+        
         completionHandler([.banner, .list, .sound])
     }
     
@@ -187,6 +222,9 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         let title = userInfo["title"] as? String ?? ""
         let body = userInfo["body"] as? String ?? ""
         let notificationType = userInfo["notificationType"] as? String ?? "general"
+        
+        // Record the interaction
+        recordNotification(title: title, body: body, type: "tapped_\(notificationType)")
         
         // Handle different actions
         switch actionIdentifier {
@@ -318,5 +356,26 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             body: "Time to study \(subject)",
             category: "REMINDER_CATEGORY"
         )
+    }
+}
+
+// MARK: - Received Notification Model
+struct ReceivedNotification: Identifiable, Codable, Hashable {
+    let id: String
+    let title: String
+    let body: String
+    let type: String
+    let receivedAt: Date
+    
+    var formattedTime: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mm a"
+        return formatter.string(from: receivedAt)
+    }
+    
+    var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, yyyy"
+        return formatter.string(from: receivedAt)
     }
 }

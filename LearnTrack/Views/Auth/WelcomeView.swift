@@ -108,6 +108,12 @@ struct WelcomeView: View {
             .navigationDestination(isPresented: $showSignUp) {
                 SignUpView()
             }
+            .onChange(of: appState.showLoginAfterSignup) { newValue in
+                if newValue {
+                    showLogin = true
+                    appState.showLoginAfterSignup = false
+                }
+            }
         }
     }
 }

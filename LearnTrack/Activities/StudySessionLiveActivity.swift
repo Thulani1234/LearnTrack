@@ -17,8 +17,8 @@ struct StudySessionAttributes: ActivityAttributes {
     let totalDuration: TimeInterval
 }
 
-final class StudyActivityManager {
-    static let shared = StudyActivityManager()
+final class LiveActivityManager {
+    static let shared = LiveActivityManager()
     
     private var currentActivity: Activity<StudySessionAttributes>?
     private var currentIcon = "timer"

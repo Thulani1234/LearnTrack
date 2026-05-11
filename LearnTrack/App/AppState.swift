@@ -30,6 +30,7 @@ class AppState: ObservableObject {
     @Published var isDarkModeEnabled: Bool = false
     @Published var isDynamicTypeEnabled: Bool = false
     @Published var pendingNotification: (title: String, body: String, type: String)? = nil
+    @Published var showLoginAfterSignup: Bool = false
     
     init() {
         let defaults = UserDefaults.standard

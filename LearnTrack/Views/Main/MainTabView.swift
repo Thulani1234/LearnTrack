@@ -224,6 +224,9 @@ struct MainTabView: View {
         case .addSubject:
             AddSubjectView()
                 .environmentObject(router)
+        case .editSubject(let subject):
+            AddSubjectView(subjectToEdit: subject)
+                .environmentObject(router)
         case .timer(let subject):
             StudyTimerView(subject: subject)
                 .environmentObject(router)
@@ -272,6 +275,9 @@ struct MainTabView: View {
                 .environmentObject(router)
         case .planGenerated:
             PlanGeneratedView()
+                .environmentObject(router)
+        case .viewPlanner:
+            ViewPlannerView()
                 .environmentObject(router)
         case .privacy:
             PrivacySecurityView()

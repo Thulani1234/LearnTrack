@@ -1,5 +1,8 @@
 import SwiftUI
 import Combine
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
 
 struct StudyTimerView: View {
     @EnvironmentObject var router: AppRouter
@@ -240,7 +243,7 @@ struct StudyTimerView: View {
                                     )
                                 }
                                 #if canImport(ActivityKit)
-                                StudyActivityManager.shared.startSession(
+                                LiveActivityManager.shared.startSession(
                                     subject: currentSubject.name,
                                     icon: currentSubject.icon,
                                     colorHex: currentSubject.colorHex,
@@ -250,7 +253,7 @@ struct StudyTimerView: View {
                             } else {
                                 NotificationManager.shared.cancelNotification(identifier: completionNotificationId)
                                 #if canImport(ActivityKit)
-                                StudyActivityManager.shared.updateSession(
+                                LiveActivityManager.shared.updateSession(
                                     elapsed: TimeInterval(timeElapsed),
                                     progress: Double(timeElapsed) / Double(sessionDuration),
                                     isPaused: true
@@ -281,7 +284,7 @@ struct StudyTimerView: View {
                             isActive = false
                             NotificationManager.shared.cancelNotification(identifier: completionNotificationId)
                             #if canImport(ActivityKit)
-                            StudyActivityManager.shared.endSession()
+                            LiveActivityManager.shared.endSession()
                             #endif
                         }
                     }) {
@@ -309,7 +312,7 @@ struct StudyTimerView: View {
                 
                 // Update Live Activity every second
                 #if canImport(ActivityKit)
-                StudyActivityManager.shared.updateSession(
+                LiveActivityManager.shared.updateSession(
                     elapsed: TimeInterval(timeElapsed),
                     progress: Double(timeElapsed) / Double(sessionDuration),
                     isPaused: false
@@ -319,14 +322,14 @@ struct StudyTimerView: View {
                 isActive = false
                 showSummary = true
                 #if canImport(ActivityKit)
-                StudyActivityManager.shared.endSession()
+                LiveActivityManager.shared.endSession()
                 #endif
             }
         }
         .onDisappear {
             NotificationManager.shared.cancelNotification(identifier: completionNotificationId)
             #if canImport(ActivityKit)
-            StudyActivityManager.shared.endSession()
+            LiveActivityManager.shared.endSession()
             #endif
         }
         .sheet(isPresented: $showSummary) {

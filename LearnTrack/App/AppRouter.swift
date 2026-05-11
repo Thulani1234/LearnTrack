@@ -13,6 +13,7 @@ enum Route: Hashable {
     case planSession
     case subjects
     case addSubject
+    case editSubject(MockData.SubjectMock)
     case addResult
     case timer(MockData.SubjectMock)
     case results
@@ -22,13 +23,14 @@ enum Route: Hashable {
     case addNote
     case editNote(Note)
     case noteDetail(Note)
-    case report#imageLiteral(resourceName: "file-example_PDF_1MB.pdf")
+    case report
     case profile
     case editProfile
     case settings
     case notifications
     case planSetup
     case planGenerated
+    case viewPlanner
     case privacy
     case help
     case contact

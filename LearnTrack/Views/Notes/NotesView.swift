@@ -139,6 +139,8 @@ struct NotesView: View {
 }
 
 struct NoteCard: View {
+    @EnvironmentObject var router: AppRouter
+    @EnvironmentObject var data: MockData
     let note: Note
     let isExpanded: Bool
     
@@ -172,8 +174,18 @@ struct NoteCard: View {
                     .background(note.color.opacity(0.1))
                     .cornerRadius(6)
                 Spacer()
-                Image(systemName: "ellipsis")
-                    .foregroundColor(AppColors.textSecondary.opacity(0.4))
+                Menu {
+                    Button(action: { router.navigate(to: .editNote(note)) }) {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    Button(role: .destructive, action: { data.deleteNote(note) }) {
+                        Label("Delete", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(AppColors.textSecondary.opacity(0.4))
+                        .frame(width: 24, height: 24)
+                }
             }
             .padding(.top, 4)
         }

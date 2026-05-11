@@ -6,9 +6,22 @@ struct AddSubjectView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var appState: AppState
     
-    @State private var name = ""
-    @State private var selectedIcon = "book.fill"
-    @State private var selectedColor = AppColors.primary
+    let subjectToEdit: Subject?
+    
+    @State private var name: String
+    @State private var selectedIcon: String
+    @State private var selectedColor: Color
+    
+    init(subjectToEdit: Subject? = nil) {
+        self.subjectToEdit = subjectToEdit
+        _name = State(initialValue: subjectToEdit?.name ?? "")
+        _selectedIcon = State(initialValue: subjectToEdit?.icon ?? "book.fill")
+        if let hex = subjectToEdit?.colorHex {
+            _selectedColor = State(initialValue: Color(hex: hex))
+        } else {
+            _selectedColor = State(initialValue: AppColors.primary)
+        }
+    }
     
     // Image State
     @State private var selectedItem: PhotosPickerItem?
@@ -30,7 +43,7 @@ struct AddSubjectView: View {
                         .clipShape(Circle())
                 }
                 Spacer()
-                Text("New Subject")
+                Text(subjectToEdit == nil ? "New Subject" : "Edit Subject")
                     .font(AppTypography.headline)
                     .foregroundColor(AppColors.textPrimary)
                 Spacer()
@@ -164,14 +177,20 @@ struct AddSubjectView: View {
                     
                     Button(action: {
                         let newSubject = Subject(
+                            id: subjectToEdit?.id ?? UUID(),
                             name: name.isEmpty ? "New Subject" : name,
                             colorHex: selectedColor.toHex() ?? "6366F1",
-                            progress: 0,
-                            targetScore: 85,
-                            currentScore: 0,
+                            progress: subjectToEdit?.progress ?? 0,
+                            targetScore: subjectToEdit?.targetScore ?? 85,
+                            currentScore: subjectToEdit?.currentScore ?? 0,
                             icon: selectedIcon
                         )
-                        data.addSubject(newSubject)
+                        
+                        if subjectToEdit != nil {
+                            data.updateSubject(newSubject)
+                        } else {
+                            data.addSubject(newSubject)
+                        }
                         
                         withAnimation {
                             appState.currentAlert = AppAlert(
@@ -185,7 +204,7 @@ struct AddSubjectView: View {
                         
                         router.navigateBack()
                     }) {
-                        Text("Create Subject")
+                        Text(subjectToEdit == nil ? "Create Subject" : "Update Subject")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)

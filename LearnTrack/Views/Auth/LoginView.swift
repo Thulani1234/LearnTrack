@@ -218,7 +218,10 @@ struct LoginView: View {
                 // Set current user in app state
                 appState.currentUser = user
                 
-                // Navigate to main app
+                // Reset signup flag and force lock so the Face ID screen appears after login
+                appState.showLoginAfterSignup = false
+                appState.lock()
+                
                 withAnimation {
                     appState.isLoggedIn = true
                 }
@@ -259,6 +262,7 @@ struct LoginView: View {
                 
                 if let user = loginResult.user {
                     appState.currentUser = user
+                    appState.showLoginAfterSignup = false
                     withAnimation {
                         appState.isLoggedIn = true
                     }
@@ -273,6 +277,7 @@ struct LoginView: View {
                     
                     if let user = registerResult.user {
                         appState.currentUser = user
+                        appState.showLoginAfterSignup = false
                         withAnimation {
                             appState.isLoggedIn = true
                         }

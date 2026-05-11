@@ -95,6 +95,67 @@ class MockData: ObservableObject {
         for note in notes {
             addNote(note)
         }
+        
+        voiceRecordings = [
+            VoiceRecording(
+                title: "Exam Revision Recap",
+                topic: "Math formulas",
+                subjectId: subjects[0].id,
+                duration: "04:12",
+                date: Date().formatted(.dateTime.month().day()),
+                waveform: [0.2, 0.4, 0.8, 0.6, 0.3],
+                audioURL: nil
+            ),
+            VoiceRecording(
+                title: "Lab summary",
+                topic: "Biology experiments",
+                subjectId: subjects[1].id,
+                duration: "03:28",
+                date: Date().addingTimeInterval(-86400).formatted(.dateTime.month().day()),
+                waveform: [0.1, 0.5, 0.6, 0.4, 0.2],
+                audioURL: nil
+            )
+        ]
+        if let currentUserId {
+            voiceRecordingsByUser[currentUserId] = voiceRecordings
+        }
+        
+        let today = Calendar.current.startOfDay(for: Date())
+        let plannerSessions = [
+            StudySession(
+                subjectId: subjects[0].id,
+                date: Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: today) ?? today,
+                durationSeconds: 45 * 60,
+                isCompleted: false,
+                summary: "Math focus session to start your week."
+            ),
+            StudySession(
+                subjectId: subjects[1].id,
+                date: Calendar.current.date(bySettingHour: 11, minute: 30, second: 0, of: today) ?? today.addingTimeInterval(5400),
+                durationSeconds: 40 * 60,
+                isCompleted: false,
+                summary: "Science review with active recall."
+            ),
+            StudySession(
+                subjectId: subjects[2].id,
+                date: Calendar.current.date(byAdding: .day, value: 1, to: today)?.addingTimeInterval(14 * 3600) ?? today.addingTimeInterval(14 * 3600),
+                durationSeconds: 35 * 60,
+                isCompleted: false,
+                summary: "English reading and writing practice."
+            ),
+            StudySession(
+                subjectId: subjects[3].id,
+                date: Calendar.current.date(byAdding: .day, value: 1, to: today)?.addingTimeInterval(16 * 3600) ?? today.addingTimeInterval(16 * 3600),
+                durationSeconds: 50 * 60,
+                isCompleted: false,
+                summary: "ICT project planning and review."
+            )
+        ]
+        
+        scheduledSessions = plannerSessions
+        for session in scheduledSessions {
+            addScheduledSession(session)
+        }
     }
     
     private func mapCoreDataToState() {
@@ -132,7 +193,18 @@ class MockData: ObservableObject {
         }
         
         let cdSessions = coreData.fetchStudySessions(for: currentUserId)
-        self.recentSessions = cdSessions.map { cd in
+        self.recentSessions = cdSessions.filter { $0.isCompleted }.map { cd in
+            StudySession(
+                id: cd.id ?? UUID(),
+                subjectId: cd.subject?.id ?? UUID(),
+                date: cd.date ?? Date(),
+                durationSeconds: Int(cd.durationSeconds),
+                isCompleted: cd.isCompleted,
+                summary: cd.summary,
+                voiceNotePath: cd.voiceNotePath
+            )
+        }
+        self.scheduledSessions = cdSessions.filter { !$0.isCompleted }.map { cd in
             StudySession(
                 id: cd.id ?? UUID(),
                 subjectId: cd.subject?.id ?? UUID(),
@@ -150,6 +222,15 @@ class MockData: ObservableObject {
     func addSubject(_ subject: Subject) {
         subjects.append(subject)
         saveSubject(subject)
+    }
+    
+    func updateSubject(_ updatedSubject: Subject) {
+        if let index = subjects.firstIndex(where: { $0.id == updatedSubject.id }) {
+            subjects[index] = updatedSubject
+        } else {
+            subjects.append(updatedSubject)
+        }
+        saveSubject(updatedSubject)
     }
     
     func deleteSubject(_ subject: Subject) {
@@ -264,13 +345,12 @@ class MockData: ObservableObject {
     
     func addScheduledSession(_ session: StudySession) {
         scheduledSessions.insert(session, at: 0)
+        firestore.saveStudySession(session)
         if let currentUserId {
-            // Keep user-specific scheduled sessions up to date
-            // It's OK to use in-memory persistence for now
-            // Add Firestore/coredata sync later if needed
+            // In future, bind a userId to the StudySession model and persist user-specific schedule metadata.
         }
     }
-    
+
     func addVoiceRecording(_ recording: VoiceRecording) {
         voiceRecordings.insert(recording, at: 0)
         if let currentUserId {
