@@ -37,8 +37,8 @@ struct NotificationsView: View {
             let scorePct = Double(result.score) / Double(max(result.maxScore, 1))
             if scorePct >= 0.9 {
                 items.append(NotificationItem(
-                    title: "Well done, \(firstName)!",
-                    message: "Your latest score for \(result.title) is \(result.score)/\(result.maxScore). Keep up this winning streak! 🌟",
+                    title: "Performance Achievement",
+                    message: "The assessment result for \(result.title) is \(result.score)/\(result.maxScore). Performance is currently above the required threshold.",
                     time: timeText(for: result.date, from: now),
                     icon: "star.fill",
                     color: .yellow,
@@ -46,8 +46,8 @@ struct NotificationsView: View {
                 ))
             } else if scorePct < 0.65 {
                 items.append(NotificationItem(
-                    title: "Study warning for \(result.title)",
-                    message: "Your latest result is \(result.score)/\(result.maxScore). Let's focus on this topic with a fresh review plan. 📘",
+                    title: "Subject Performance Review",
+                    message: "The assessment result for \(result.title) is \(result.score)/\(result.maxScore). A focused review of this subject is recommended.",
                     time: timeText(for: result.date, from: now),
                     icon: "exclamationmark.triangle.fill",
                     color: .red,
@@ -60,8 +60,8 @@ struct NotificationsView: View {
         if let session = latestSession,
            let subject = data.subjects.first(where: { $0.id == session.subjectId }) {
             items.append(NotificationItem(
-                title: "Keep going, \(firstName)!",
-                message: "You studied \(subject.name) for \(session.durationSeconds / 60)m recently. Small daily wins build big progress. 💪",
+                title: "Study Activity Record",
+                message: "Activity logged for \(subject.name): \(session.durationSeconds / 60) minutes. Consistent engagement supports academic development.",
                 time: timeText(for: session.date, from: now),
                 icon: "quote.bubble.fill",
                 color: .blue,
@@ -73,8 +73,8 @@ struct NotificationsView: View {
         if let upcoming = upcomingSession,
            let subject = data.subjects.first(where: { $0.id == upcoming.subjectId }) {
             items.append(NotificationItem(
-                title: "Upcoming study session",
-                message: "You have \(subject.name) scheduled for \(formattedDate(upcoming.date)). Stay focused and start strong! ⏰",
+                title: "Scheduled Study Session",
+                message: "Study session for \(subject.name) is scheduled for \(formattedDate(upcoming.date)). Please ensure all materials are prepared.",
                 time: timeText(for: upcoming.date, from: now),
                 icon: "clock.fill",
                 color: .purple,
@@ -85,8 +85,8 @@ struct NotificationsView: View {
         // Fallback notification if no dynamic activity exists
         if items.isEmpty {
             items.append(NotificationItem(
-                title: "Hello, \(firstName)!",
-                message: "Start your learning journey with a new study plan today. Your next achievement is waiting! 🌱",
+                title: "System Update",
+                message: "Initialize your academic objectives by creating a new study plan. Continuous monitoring is recommended.",
                 time: "Just now",
                 icon: "sparkles",
                 color: .green,
@@ -141,7 +141,7 @@ struct NotificationsView: View {
                     
                     Button(action: {
                         NotificationManager.shared.sendImmediateNotification(
-                            title: "LearnTrack Live Alert ⚡️",
+                            title: "LearnTrack Live Alert",
                             body: "This is a push notification! It shows even while you are using the app."
                         )
                     }) {

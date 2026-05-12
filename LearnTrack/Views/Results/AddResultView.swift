@@ -83,8 +83,10 @@ struct AddResultView: View {
                             
                             Menu {
                                 ForEach(data.subjects) { subject in
-                                    Button(subject.name) {
+                                    Button(action: {
                                         selectedSubjectId = subject.id
+                                    }) {
+                                        Label(subject.name, systemImage: subject.icon)
                                     }
                                 }
                                 
@@ -94,7 +96,11 @@ struct AddResultView: View {
                                     }
                                 }
                             } label: {
-                                HStack {
+                                HStack(spacing: 12) {
+                                    if let selectedIcon = selectedSubjectIcon {
+                                        Image(systemName: selectedIcon)
+                                            .foregroundColor(AppColors.primary)
+                                    }
                                     Text(selectedSubjectName)
                                         .foregroundColor(AppColors.textPrimary)
                                     Spacer()
@@ -203,6 +209,14 @@ struct AddResultView: View {
                 selectedSubjectId = data.subjects.first?.id
             }
         }
+    }
+    
+    private var selectedSubjectIcon: String? {
+        guard let selectedSubjectId = self.selectedSubjectId,
+              let subject = data.subjects.first(where: { $0.id == selectedSubjectId }) else {
+            return nil
+        }
+        return subject.icon
     }
     
     private var selectedSubjectName: String {

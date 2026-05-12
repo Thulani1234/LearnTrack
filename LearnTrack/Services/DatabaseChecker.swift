@@ -26,7 +26,7 @@ class DatabaseChecker {
         
         // Subjects
         let subjects = coreDataManager.fetchSubjects()
-        print("\n📚 SUBJECTS (\(subjects.count)):")
+        print("\n SUBJECTS (\(subjects.count)):")
         for subject in subjects {
             let subjectModel = subject.toSubject()
             print("  - \(subjectModel.name) (Progress: \(subjectModel.progress * 100)%)")
@@ -34,10 +34,10 @@ class DatabaseChecker {
         
         // Study Sessions
         let studySessions = coreDataManager.fetchStudySessions()
-        print("\n📖 STUDY SESSIONS (\(studySessions.count)):")
+        print("\n STUDY SESSIONS (\(studySessions.count)):")
         for session in studySessions.prefix(5) {
             let sessionModel = session.toStudySession()
-            print("  - \(sessionModel.date): \(sessionModel.durationSeconds/60) minutes \(sessionModel.isCompleted ? "✅" : "⏳")")
+            print("  - \(sessionModel.date): \(sessionModel.durationSeconds/60) minutes \(sessionModel.isCompleted ? "" : "⏳")")
         }
         if studySessions.count > 5 {
             print("  ... and \(studySessions.count - 5) more")
@@ -46,7 +46,7 @@ class DatabaseChecker {
 
         // Results
         let results = coreDataManager.fetchResults()
-        print("\n📊 RESULTS (\(results.count)):")
+        print("\n RESULTS (\(results.count)):")
         for result in results.prefix(3) {
             let resultModel = result.toAcademicResult()
             print("  - \(resultModel.title): \(resultModel.score)% (\(resultModel.grade))")
@@ -62,7 +62,7 @@ class DatabaseChecker {
         var results: [String] = []
         
         // Test Create
-        results.append("🔧 Testing CREATE operations...")
+        results.append(" Testing CREATE operations...")
         let testSubject = Subject(name: "Test Subject", colorHex: "#FF0000", progress: 0.5, targetScore: 90, currentScore: 85, icon: "test")
         
         let context = coreDataManager.viewContext
@@ -78,42 +78,42 @@ class DatabaseChecker {
         
         do {
             try context.save()
-            results.append("✅ Subject created successfully")
+            results.append(" Subject created successfully")
         } catch {
-            results.append("❌ Failed to create subject: \(error)")
+            results.append(" Failed to create subject: \(error)")
         }
         
         // Test Read
-        results.append("🔧 Testing READ operations...")
+        results.append(" Testing READ operations...")
         let subjects = coreDataManager.fetchSubjects()
         if subjects.count > 0 {
-            results.append("✅ Read \(subjects.count) subjects successfully")
+            results.append(" Read \(subjects.count) subjects successfully")
         } else {
-            results.append("❌ No subjects found")
+            results.append(" No subjects found")
         }
         
         // Test Update
-        results.append("🔧 Testing UPDATE operations...")
+        results.append(" Testing UPDATE operations...")
         if let firstSubject = subjects.first {
             firstSubject.name = "Updated Test Subject"
             firstSubject.updatedDate = Date()
             do {
                 try context.save()
-                results.append("✅ Subject updated successfully")
+                results.append(" Subject updated successfully")
             } catch {
-                results.append("❌ Failed to update subject: \(error)")
+                results.append(" Failed to update subject: \(error)")
             }
         }
         
         // Test Delete
-        results.append("🔧 Testing DELETE operations...")
+        results.append(" Testing DELETE operations...")
         if let firstSubject = subjects.first, firstSubject.name == "Updated Test Subject" {
             context.delete(firstSubject)
             do {
                 try context.save()
-                results.append("✅ Subject deleted successfully")
+                results.append(" Subject deleted successfully")
             } catch {
-                results.append("❌ Failed to delete subject: \(error)")
+                results.append(" Failed to delete subject: \(error)")
             }
         }
         
@@ -125,7 +125,7 @@ class DatabaseChecker {
         let studySessions = coreDataManager.fetchStudySessions()
         let results = coreDataManager.fetchResults()
         
-        var stats = "📊 DATABASE STATISTICS\n"
+        var stats = " DATABASE STATISTICS\n"
         stats += "===================\n"
         stats += "Subjects: \(subjects.count)\n"
         stats += "Study Sessions: \(studySessions.count)\n"

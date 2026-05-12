@@ -117,7 +117,7 @@ let noteToEdit: Note?
                 
                 withAnimation {
                     appState.currentAlert = AppAlert(
-                        title: noteToEdit == nil ? "Note Saved! 📝" : "Note Updated! ✅",
+                        title: noteToEdit == nil ? "Note Saved! " : "Note Updated! ",
                         message: title.isEmpty ? "Your note has been stored." : "'\(title)' is ready for review.",
                         icon: "doc.text.fill",
                         color: selectedColor,

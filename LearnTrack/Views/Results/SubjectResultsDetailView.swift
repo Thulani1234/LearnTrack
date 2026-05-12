@@ -38,8 +38,6 @@ struct SubjectResultsDetailView: View {
         data.subject(for: subjectId)
     }
 
-    private let targetOptions = ["A+", "A", "B+", "C", "D"]
-
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 24) {
@@ -93,11 +91,6 @@ struct SubjectResultsDetailView: View {
                 Picker("Category", selection: $category) {
                     ForEach(ResultCategory.allCases.filter { $0 != .all }) { category in
                         Text(category.rawValue).tag(category)
-                    }
-                }
-                Picker("Target label", selection: $targetLabel) {
-                    ForEach(targetOptions, id: \.self) { label in
-                        Text(label).tag(label)
                     }
                 }
                 DatePicker("Date", selection: $date, displayedComponents: .date)

@@ -34,6 +34,7 @@ struct PlanASessionView: View {
                     }
                     Text("Plan a Session")
                         .font(AppTypography.title)
+                        .fontWeight(.bold)
                         .foregroundColor(AppColors.textPrimary)
                     Text("Schedule a subject, set the time, and save the session to your planner.")
                         .font(AppTypography.body)

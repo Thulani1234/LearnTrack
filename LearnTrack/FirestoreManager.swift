@@ -46,7 +46,7 @@ class FirestoreManager {
             let dict = try encodeToFirestoreData(data)
             db.collection(collection).document(documentId).setData(dict, completion: completion)
         } catch {
-            print("❌ Firestore encoding error: \(error.localizedDescription)")
+            print(" Firestore encoding error: \(error.localizedDescription)")
             completion(error)
         }
     }
@@ -72,9 +72,9 @@ class FirestoreManager {
     func saveUser(_ user: User, completion: @escaping (Error?) -> Void = { _ in }) {
         saveDocument(collection: "users", documentId: user.id.uuidString, data: user) { error in
             if let error = error {
-                print("❌ Firestore write failed: users/\(user.id.uuidString) — \(error)")
+                print(" Firestore write failed: users/\(user.id.uuidString) — \(error)")
             } else {
-                print("✅ Firestore write success: users/\(user.id.uuidString)")
+                print(" Firestore write success: users/\(user.id.uuidString)")
             }
             completion(error)
         }
@@ -83,9 +83,9 @@ class FirestoreManager {
     func saveSubject(_ subject: Subject) {
         saveDocument(collection: "subjects", documentId: subject.id.uuidString, data: subject) { error in
             if let error = error {
-                print("❌ Error saving subject: \(error.localizedDescription)")
+                print(" Error saving subject: \(error.localizedDescription)")
             } else {
-                print("✅ Subject '\(subject.name)' saved to Firestore")
+                print(" Subject '\(subject.name)' saved to Firestore")
             }
         }
     }
@@ -107,9 +107,9 @@ class FirestoreManager {
         ]
         db.collection("fcmTokens").document(userId).setData(data) { error in
             if let error = error {
-                print("❌ Error saving FCM token: \(error.localizedDescription)")
+                print(" Error saving FCM token: \(error.localizedDescription)")
             } else {
-                print("✅ FCM token saved for user \(userId)")
+                print(" FCM token saved for user \(userId)")
             }
         }
     }
@@ -123,9 +123,9 @@ class FirestoreManager {
         let dto = VoiceRecordingDTO(from: recording)
         saveDocument(collection: "voiceRecordings", documentId: dto.id, data: dto) { error in
             if let error = error {
-                print("❌ Firestore write failed: voiceRecordings/\(dto.id) — \(error)")
+                print(" Firestore write failed: voiceRecordings/\(dto.id) — \(error)")
             } else {
-                print("✅ Firestore write success: voiceRecordings/\(dto.id)")
+                print(" Firestore write success: voiceRecordings/\(dto.id)")
             }
             completion(error)
         }
@@ -157,9 +157,9 @@ class FirestoreManager {
     func deleteDocument(collection: String, documentId: String) {
         db.collection(collection).document(documentId).delete { error in
             if let error = error {
-                print("❌ Firestore deletion error: \(error.localizedDescription)")
+                print(" Firestore deletion error: \(error.localizedDescription)")
             } else {
-                print("🗑️ Document \(documentId) deleted from \(collection)")
+                print(" Document \(documentId) deleted from \(collection)")
             }
         }
     }

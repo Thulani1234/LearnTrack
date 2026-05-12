@@ -255,12 +255,13 @@ struct RecordingCard: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(recording.topic)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(AppTypography.topicTitle)
                     .foregroundColor(AppColors.textPrimary)
                 
                 HStack(spacing: 8) {
                     Text(subjectName)
-                        .font(.system(size: 10, weight: .bold))
+                        .font(AppTypography.caption)
+                        .fontWeight(.semibold)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(AppColors.primary.opacity(0.1))
@@ -271,7 +272,7 @@ struct RecordingCard: View {
                     Text("•")
                     Text(recording.duration)
                 }
-                .font(.system(size: 12))
+                .font(AppTypography.topicCaption)
                 .foregroundColor(AppColors.textSecondary)
             }
             

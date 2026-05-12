@@ -188,11 +188,11 @@ struct CreativeHistoryCard: View {
     
     private func emoji(for subjectName: String) -> String {
         switch subjectName.lowercased() {
-        case "english": return "📚"
-        case "science": return "🔬"
-        case "ict": return "💻"
-        case "maths", "math": return "➕"
-        default: return "📖"
+        case "english": return ""
+        case "science": return ""
+        case "ict": return ""
+        case "maths", "math": return ""
+        default: return ""
         }
     }
 }

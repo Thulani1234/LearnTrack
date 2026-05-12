@@ -33,9 +33,9 @@ class AuthenticationService {
         if success {
             firestore.saveUser(user) { error in
                 if let error = error {
-                    print("❌ Error saving user to Firestore: \(error.localizedDescription)")
+                    print(" Error saving user to Firestore: \(error.localizedDescription)")
                 } else {
-                    print("✅ User '\(user.name)' saved to Firestore")
+                    print(" User '\(user.name)' saved to Firestore")
                 }
             }
             return (user, nil)
@@ -72,9 +72,9 @@ class AuthenticationService {
 
         firestore.saveUser(user) { error in
             if let error = error {
-                print("❌ Error syncing user to Firestore on login: \(error.localizedDescription)")
+                print(" Error syncing user to Firestore on login: \(error.localizedDescription)")
             } else {
-                print("✅ User '\(user.name)' synced to Firestore on login")
+                print(" User '\(user.name)' synced to Firestore on login")
             }
         }
         
@@ -92,9 +92,9 @@ class AuthenticationService {
         // Send OTP via SMS
         SMSService.shared.sendOTP(otp: otp, to: phoneNumber) { success, error in
             if success {
-                print("✅ OTP sent successfully to \(phoneNumber)")
+                print(" OTP sent successfully to \(phoneNumber)")
             } else {
-                print("❌ Failed to send OTP: \(error ?? "Unknown error")")
+                print(" Failed to send OTP: \(error ?? "Unknown error")")
             }
         }
         
@@ -108,9 +108,9 @@ class AuthenticationService {
         // Send OTP via Email
         SMSService.shared.sendOTPToEmail(otp: otp, to: email) { success, error in
             if success {
-                print("✅ OTP sent successfully to \(email)")
+                print(" OTP sent successfully to \(email)")
             } else {
-                print("❌ Failed to send OTP: \(error ?? "Unknown error")")
+                print(" Failed to send OTP: \(error ?? "Unknown error")")
             }
         }
         
@@ -207,9 +207,9 @@ class AuthenticationService {
         )
         firestore.saveUser(updatedUser) { error in
             if let error = error {
-                print("❌ Error syncing updated user to Firestore: \(error.localizedDescription)")
+                print(" Error syncing updated user to Firestore: \(error.localizedDescription)")
             } else {
-                print("✅ Updated user '\(updatedUser.name)' synced to Firestore")
+                print(" Updated user '\(updatedUser.name)' synced to Firestore")
             }
         }
         
@@ -249,9 +249,9 @@ class AuthenticationService {
         )
         firestore.saveUser(updatedUser) { error in
             if let error = error {
-                print("❌ Error syncing password change to Firestore: \(error.localizedDescription)")
+                print(" Error syncing password change to Firestore: \(error.localizedDescription)")
             } else {
-                print("✅ Password changed and synced to Firestore for \(updatedUser.email)")
+                print(" Password changed and synced to Firestore for \(updatedUser.email)")
             }
         }
 
@@ -299,10 +299,10 @@ class AuthenticationService {
         
         do {
             try context.save()
-            print("✅ User saved to Core Data: \(user.name) (\(user.email))")
+            print(" User saved to Core Data: \(user.name) (\(user.email))")
             return true
         } catch {
-            print("❌ Failed to save user to Core Data: \(error)")
+            print(" Failed to save user to Core Data: \(error)")
             context.rollback()
             return false
         }

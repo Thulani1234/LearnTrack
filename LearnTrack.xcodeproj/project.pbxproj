@@ -11,6 +11,7 @@
 		460EAF032F9BA93800331994 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF022F9BA93800331994 /* FirebaseAuth */; };
 		460EAF052F9BA93800331994 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF042F9BA93800331994 /* FirebaseFirestore */; };
 		460EAF072F9BA93800331994 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 460EAF062F9BA93800331994 /* FirebaseMessaging */; };
+		461944352FB2FC1500F27150 /* ThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461944342FB2FC1500F27150 /* ThemeTests.swift */; };
 		467C66952FA888DD004A0E7A /* LearnTrackWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		467C669B2FA8898F004A0E7A /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467C66832FA888DB004A0E7A /* WidgetKit.framework */; };
 		4699944C2FAB5C70008B3CAB /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46AC70002FA9000000AC7001 /* ActivityKit.framework */; };
@@ -54,6 +55,7 @@
 
 /* Begin PBXFileReference section */
 		4604F6A82F9B1CF500EB8FA9 /* LearnTrack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LearnTrack.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		461944342FB2FC1500F27150 /* ThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTests.swift; sourceTree = "<group>"; };
 		467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LearnTrackWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		467C66832FA888DB004A0E7A /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		467C66852FA888DB004A0E7A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -159,6 +161,7 @@
 		46TEST0052F9B1CF500EB8FA9 /* LearnTrackTests */ = {
 			isa = PBXGroup;
 			children = (
+				461944342FB2FC1500F27150 /* ThemeTests.swift */,
 				46TEST0022F9B1CF500EB8FA9 /* StudySessionTests.swift */,
 				46TEST0032F9B1CF500EB8FA9 /* SubjectTests.swift */,
 				46TEST0042F9B1CF500EB8FA9 /* UserTests.swift */,
@@ -317,6 +320,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				46TEST0062F9B1CF500EB8FA9 /* StudySessionTests.swift in Sources */,
+				461944352FB2FC1500F27150 /* ThemeTests.swift in Sources */,
 				46TEST0072F9B1CF500EB8FA9 /* SubjectTests.swift in Sources */,
 				46TEST0082F9B1CF500EB8FA9 /* UserTests.swift in Sources */,
 			);

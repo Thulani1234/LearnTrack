@@ -114,14 +114,14 @@ struct VoiceDataTestView: View {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             DataMigrationService.shared.seedVoiceDataOnly()
-            seedMessage = "✅ Voice data seeded successfully! 15 sample recordings created across all subjects."
+            seedMessage = " Voice data seeded successfully! 15 sample recordings created across all subjects."
             isSeeding = false
         }
     }
     
     private func clearVoiceData() {
         DataMigrationService.shared.clearVoiceDataOnly()
-        seedMessage = "🗑️ Voice data cleared successfully!"
+        seedMessage = " Voice data cleared successfully!"
         showingAlert = true
     }
     
@@ -131,7 +131,7 @@ struct VoiceDataTestView: View {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             DataMigrationService.shared.regenerateVoiceData()
-            seedMessage = "🔄 Voice data regenerated successfully! Fresh sample recordings created."
+            seedMessage = " Voice data regenerated successfully! Fresh sample recordings created."
             isSeeding = false
         }
     }

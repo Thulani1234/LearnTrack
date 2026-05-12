@@ -72,7 +72,7 @@ struct AddSubjectView: View {
                                     VStack(spacing: 8) {
                                         Image(systemName: selectedIcon)
                                             .font(.system(size: 40))
-                                        Text("Tap to Browse")
+                                        Text("Import Media")
                                             .font(.system(size: 10, weight: .bold))
                                             .opacity(0.5)
                                     }
@@ -194,8 +194,8 @@ struct AddSubjectView: View {
                         
                         withAnimation {
                             appState.currentAlert = AppAlert(
-                                title: "Subject Added! ✨",
-                                message: "\(newSubject.name) has been added to your curriculum.",
+                                title: "Subject Registered",
+                                message: "The subject \(newSubject.name) has been successfully added to the curriculum record.",
                                 icon: newSubject.icon,
                                 color: selectedColor,
                                 type: .success

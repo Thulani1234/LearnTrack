@@ -190,7 +190,7 @@ struct ViewPlannerView: View {
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(AppColors.textPrimary)
 
-                        Text("Your AI-optimized study plan is designed to maximize your learning efficiency. Stick to the schedule and track your progress regularly.")
+                        Text("Your personalized study plan is designed to maximize your learning efficiency. Stick to the schedule and track your progress regularly.")
                             .font(.system(size: 14))
                             .foregroundColor(AppColors.textSecondary)
                             .multilineTextAlignment(.center)

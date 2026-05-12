@@ -26,9 +26,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // Fetch current FCM token and save it if we already know the current user
         Messaging.messaging().token { token, error in
             if let error = error {
-                print("❌ Error retrieving FCM token: \(error.localizedDescription)")
+                print(" Error retrieving FCM token: \(error.localizedDescription)")
             } else if let token = token {
-                print("🔑 Current Firebase registration token: \(token)")
+                print(" Current Firebase registration token: \(token)")
                 if let userId = UserDefaults.standard.string(forKey: "currentUserId") {
                     FirestoreManager.shared.saveFCMToken(userId: userId, token: token)
                 }
@@ -53,7 +53,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     
     // Handle incoming push notifications
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        print("📲 Received server push notification: \(userInfo)")
+        print(" Received server push notification: \(userInfo)")
         
         // Extract notification data from FCM payload
         if let aps = userInfo["aps"] as? [String: Any] {
@@ -85,9 +85,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
                 
                 UNUserNotificationCenter.current().add(request) { error in
                     if let error = error {
-                        print("❌ Error displaying push notification: \(error.localizedDescription)")
+                        print(" Error displaying push notification: \(error.localizedDescription)")
                     } else {
-                        print("✅ Push notification displayed to user")
+                        print(" Push notification displayed to user")
                     }
                 }
             }
@@ -98,7 +98,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     
     // Firebase Messaging delegate
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("🔑 Firebase registration token: \(String(describing: fcmToken))")
+        print(" Firebase registration token: \(String(describing: fcmToken))")
         
         let dataDict: [String: String] = ["token": fcmToken ?? ""]
         NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
@@ -115,7 +115,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        print("🔔 User tapped push notification: \(response.notification.request.identifier)")
+        print(" User tapped push notification: \(response.notification.request.identifier)")
         
         let notification = response.notification
         let userInfo = notification.request.content.userInfo
@@ -168,7 +168,7 @@ struct LearnTrackApp: App {
                        let body = UserDefaults.standard.string(forKey: "pendingNotificationBody"),
                        let type = UserDefaults.standard.string(forKey: "pendingNotificationType") {
                         
-                        print("✅ Found pending notification: \(title)")
+                        print(" Found pending notification: \(title)")
                         
                         // Display immediately
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

@@ -106,7 +106,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         // IMPORTANT: This should be called from your backend server, not from the app
         // Use Firebase Admin SDK or FCM REST API
         
-        print("📲 [BACKEND] Sending push notification to token: \(token)")
+        print(" [BACKEND] Sending push notification to token: \(token)")
         
         // Expected FCM payload structure:
         let fcmPayload: [String: Any] = [
@@ -122,8 +122,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             ]
         ]
         
-        print("📋 FCM Payload: \(fcmPayload)")
-        print("⚠️ Note: Send this payload from your backend server using Firebase Admin SDK or FCM REST API")
+        print(" FCM Payload: \(fcmPayload)")
+        print(" Note: Send this payload from your backend server using Firebase Admin SDK or FCM REST API")
         print("   Backend endpoint: https://fcm.googleapis.com/fcm/send")
         print("   Authorization header: Key=YOUR_SERVER_API_KEY")
     }
@@ -205,7 +205,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         
         // Record notification received while app is active
         recordNotification(title: title, body: body, type: notificationType)
-        print("📲 Push notification received while app is active: \(title)")
+        print(" Push notification received while app is active: \(title)")
         
         completionHandler([.banner, .list, .sound])
     }
@@ -215,8 +215,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         let userInfo = response.notification.request.content.userInfo
         let actionIdentifier = response.actionIdentifier
         
-        print("📲 Notification tapped: \(actionIdentifier)")
-        print("📋 Notification data: \(userInfo)")
+        print(" Notification tapped: \(actionIdentifier)")
+        print(" Notification data: \(userInfo)")
         
         // Extract notification data
         let title = userInfo["title"] as? String ?? ""
@@ -261,12 +261,12 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         // Schedule reminder for 1 hour later
         let reminderDate = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date()
         scheduleReminder(title: title, body: body, date: reminderDate)
-        print("📅 Reminder scheduled for later: \(reminderDate)")
+        print(" Reminder scheduled for later: \(reminderDate)")
     }
     
     private func handleShareAction(title: String, body: String) {
         // Handle sharing (placeholder)
-        print("📤 Share action triggered for: \(title)")
+        print(" Share action triggered for: \(title)")
         // You can implement sharing functionality here
     }
     
@@ -334,8 +334,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         let timeString = hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
         
         sendImmediateNotification(
-            title: "Study Session Complete!",
-            body: "You studied \(sessionTitle) for \(timeString)",
+            title: "Study Session Concluded",
+            body: "Study activity for \(sessionTitle) recorded for a duration of \(timeString).",
             category: "TIMER_CATEGORY"
         )
     }
@@ -343,8 +343,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     // Convenience method to send achievement notification
     func sendAchievementNotification(achievementTitle: String) {
         sendImmediateNotification(
-            title: "🎉 Achievement Unlocked!",
-            body: "Congratulations! You earned: \(achievementTitle)",
+            title: "Requirement Fulfilled",
+            body: "Academic milestone achieved: \(achievementTitle). Record updated.",
             category: "ACHIEVEMENT_CATEGORY"
         )
     }

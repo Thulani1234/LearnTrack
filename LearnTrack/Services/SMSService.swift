@@ -56,9 +56,9 @@ class SMSService {
     
     // MARK: - Development SMS (Simulated)
     private func sendDevelopmentOTP(otp: String, to phoneNumber: String, completion: @escaping (Bool, String?) -> Void) {
-        print("📱 [DEV SMS] Sending OTP to \(phoneNumber)")
-        print("📱 [DEV SMS] OTP Code: \(otp)")
-        print("📱 [DEV SMS] Message: Your LearnTrack verification code is \(otp). Valid for 5 minutes.")
+        print(" [DEV SMS] Sending OTP to \(phoneNumber)")
+        print(" [DEV SMS] OTP Code: \(otp)")
+        print(" [DEV SMS] Message: Your LearnTrack verification code is \(otp). Valid for 5 minutes.")
         
         // Simulate network delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -68,10 +68,10 @@ class SMSService {
     
     // MARK: - Development Email (Simulated)
     private func sendDevelopmentEmailOTP(otp: String, to email: String, completion: @escaping (Bool, String?) -> Void) {
-        print("📧 [DEV EMAIL] Sending OTP to \(email)")
-        print("📧 [DEV EMAIL] OTP Code: \(otp)")
-        print("📧 [DEV EMAIL] Subject: LearnTrack Verification Code")
-        print("📧 [DEV EMAIL] Message: Your LearnTrack verification code is \(otp). Valid for 5 minutes.")
+        print(" [DEV EMAIL] Sending OTP to \(email)")
+        print(" [DEV EMAIL] OTP Code: \(otp)")
+        print(" [DEV EMAIL] Subject: LearnTrack Verification Code")
+        print(" [DEV EMAIL] Message: Your LearnTrack verification code is \(otp). Valid for 5 minutes.")
         
         // Simulate network delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -83,7 +83,7 @@ class SMSService {
     private func sendTwilioOTP(otp: String, to phoneNumber: String, completion: @escaping (Bool, String?) -> Void) {
         // TODO: Implement Twilio API integration
         // Requires: Twilio Account SID, Auth Token, and Phone Number
-        print("📱 [TWILIO] Sending OTP to \(phoneNumber)")
+        print(" [TWILIO] Sending OTP to \(phoneNumber)")
         
         // Example implementation:
         // let accountSID = "YOUR_TWILIO_ACCOUNT_SID"
@@ -100,7 +100,7 @@ class SMSService {
     // MARK: - Firebase SMS Integration
     private func sendFirebaseOTP(otp: String, to phoneNumber: String, completion: @escaping (Bool, String?) -> Void) {
         // TODO: Implement Firebase Phone Auth integration
-        print("📱 [FIREBASE] Sending OTP to \(phoneNumber)")
+        print(" [FIREBASE] Sending OTP to \(phoneNumber)")
         
         // Example implementation:
         // PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { verificationID, error in
@@ -120,7 +120,7 @@ class SMSService {
     // MARK: - Custom SMS Provider
     private func sendCustomOTP(otp: String, to phoneNumber: String, completion: @escaping (Bool, String?) -> Void) {
         // TODO: Implement custom SMS provider integration
-        print("📱 [CUSTOM] Sending OTP to \(phoneNumber)")
+        print(" [CUSTOM] Sending OTP to \(phoneNumber)")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             completion(false, "Custom SMS provider not configured")
@@ -130,7 +130,7 @@ class SMSService {
     // MARK: - Twilio Email Integration
     private func sendTwilioEmailOTP(otp: String, to email: String, completion: @escaping (Bool, String?) -> Void) {
         // TODO: Implement Twilio SendGrid API integration
-        print("📧 [TWILIO] Sending OTP to \(email)")
+        print(" [TWILIO] Sending OTP to \(email)")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             completion(false, "Twilio email integration not configured")
@@ -140,7 +140,7 @@ class SMSService {
     // MARK: - Firebase Email Integration
     private func sendFirebaseEmailOTP(otp: String, to email: String, completion: @escaping (Bool, String?) -> Void) {
         // TODO: Implement Firebase Email Auth integration
-        print("📧 [FIREBASE] Sending OTP to \(email)")
+        print(" [FIREBASE] Sending OTP to \(email)")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             completion(false, "Firebase email integration not configured")
@@ -150,7 +150,7 @@ class SMSService {
     // MARK: - Custom Email Provider
     private func sendCustomEmailOTP(otp: String, to email: String, completion: @escaping (Bool, String?) -> Void) {
         // TODO: Implement custom email provider integration
-        print("📧 [CUSTOM] Sending OTP to \(email)")
+        print(" [CUSTOM] Sending OTP to \(email)")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             completion(false, "Custom email provider not configured")
@@ -168,10 +168,10 @@ class SMSService {
             
             // Note: This needs to be presented from a view controller
             // The caller should handle the presentation
-            print("📱 [NATIVE SMS] Ready to send SMS to \(phoneNumber)")
-            print("📱 [NATIVE SMS] Message: \(messageBody)")
+            print(" [NATIVE SMS] Ready to send SMS to \(phoneNumber)")
+            print(" [NATIVE SMS] Message: \(messageBody)")
         } else {
-            print("📱 [NATIVE SMS] Device cannot send SMS")
+            print(" [NATIVE SMS] Device cannot send SMS")
         }
     }
 }

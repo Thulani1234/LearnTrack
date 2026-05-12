@@ -53,8 +53,8 @@ struct EditProfileView: View {
                                             .frame(width: 120, height: 120)
                                             .overlay(
                                                 VStack(spacing: 4) {
-                                                    Text(name.prefix(1).uppercased())
-                                                        .font(.system(size: 48, weight: .black, design: .rounded))
+                                                    Image(systemName: "person.fill")
+                                                        .font(.system(size: 48, weight: .black))
                                                     Text("TAP TO EDIT")
                                                         .font(.system(size: 8, weight: .bold))
                                                         .tracking(1)
@@ -115,7 +115,7 @@ struct EditProfileView: View {
                                         withAnimation(.spring()) {
                                             profileImage = Image(uiImage: uiImage)
                                             selectedProfileImageURL = savedPath
-                                            appState.currentAlert = AppAlert(title: "Looking Great! ✨", message: "Your profile photo has been updated successfully.", icon: "sparkles", color: AppColors.primary, type: .success)
+                                            appState.currentAlert = AppAlert(title: "Looking Great! ", message: "Your profile photo has been updated successfully.", icon: "sparkles", color: AppColors.primary, type: .success)
                                         }
                                     }
                                 }

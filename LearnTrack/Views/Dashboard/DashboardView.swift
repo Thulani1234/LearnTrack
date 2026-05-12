@@ -12,52 +12,43 @@ struct DashboardView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var data: MockData
 
+    private var viewModel: DashboardViewModel { DashboardViewModel(appState: appState, router: router, data: data) }
+
     private var userDisplayName: String {
-        let name = appState.currentUser?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return name.isEmpty ? "User" : name
+        viewModel.userDisplayName
     }
 
     private var userInitial: String {
-        String(userDisplayName.prefix(1)).uppercased()
+        viewModel.userInitial
     }
     
     private var todayStudySeconds: Int {
-        let calendar = Calendar.current
-        return data.recentSessions
-            .filter { $0.isCompleted && calendar.isDateInToday($0.date) }
-            .reduce(0) { $0 + $1.durationSeconds }
+        viewModel.todayStudySeconds
     }
     
     private var dailyGoalSeconds: Int {
-        5 * 60 * 60 // default 5-hour daily study goal
+        viewModel.dailyGoalSeconds
     }
     
     private var dailyProgress: Double {
-        guard dailyGoalSeconds > 0 else { return 0 }
-        return min(1, Double(todayStudySeconds) / Double(dailyGoalSeconds))
+        viewModel.dailyProgress
     }
     
     private var dailyProgressText: String {
-        let hours = todayStudySeconds / 3600
-        let minutes = (todayStudySeconds % 3600) / 60
-        if todayStudySeconds == 0 {
-            return "Start studying to track your daily progress."
-        }
-        if hours > 0 {
-            return "You've completed \(hours)h \(minutes)m of study today."
-        }
-        return "You've completed \(minutes)m of study today."
+        viewModel.dailyProgressText
     }
     
     private var autoPlanItems: [Subject] {
-        if data.subjects.isEmpty {
-            return []
-        }
-        return Array(data.subjects.sorted { $0.progress < $1.progress }.prefix(3))
+        viewModel.autoPlanItems
     }
     
     private var hasDashboardData: Bool {
-        !data.subjects.isEmpty || !data.recentSessions.isEmpty || !data.academicResults.isEmpty
+        viewModel.hasDashboardData
+    }
+
+    // Dynamic greeting based on time
+    private var greetingText: String {
+        viewModel.greetingText
     }
     
     var body: some View {
@@ -65,60 +56,70 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 28) {
                 // Header
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(Date().formatted(.dateTime.weekday().month().day()))
-                            .font(AppTypography.caption)
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .center, spacing: 10) {
+                            Text(greetingText)
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .foregroundColor(AppColors.primary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(AppColors.primary.opacity(0.12))
+                                .cornerRadius(14)
+                            Text(Date().formatted(.dateTime.weekday().month().day()))
+                                .font(AppTypography.caption)
+                                .foregroundColor(AppColors.textSecondary)
+                        }
+                        Text(userDisplayName)
+                            .font(.system(size: 38, weight: .heavy, design: .rounded))
+                            .foregroundColor(AppColors.textPrimary)
+                            .lineLimit(1)
+
+                        Text("Consistent study habits contribute to sustained academic growth.")
+                            .font(AppTypography.bodySmall)
                             .foregroundColor(AppColors.textSecondary)
-                        Text("Welcome,")
-                            .font(AppTypography.body)
-                            .foregroundColor(AppColors.textPrimary)
-                        Text("\(userDisplayName) 👋")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(AppColors.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     Spacer()
-                    HStack(spacing: 12) {
-                        HStack(spacing: 6) {
-                            Text("🔥")
-                            Text("7")
-                                .font(AppTypography.headline)
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.orange.opacity(0.1))
-                        .cornerRadius(20)
-                        
+                    VStack(spacing: 16) {
                         Button(action: {
-                            router.navigate(to: .notifications)
+                            viewModel.navigateToNotifications()
                         }) {
                             ZStack {
                                 Circle()
                                     .fill(AppColors.cardBackground)
-                                    .frame(width: 44, height: 44)
-                                    .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                                    .frame(width: 46, height: 46)
+                                    .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
                                 Image(systemName: "bell.fill")
+                                    .font(.system(size: 18, weight: .semibold))
                                     .foregroundColor(AppColors.textPrimary)
                                     .overlay(
                                         Circle()
                                             .fill(Color.red)
                                             .frame(width: 10, height: 10)
-                                            .offset(x: 8, y: -8)
+                                            .offset(x: 10, y: -10)
                                     )
                             }
                         }
-                        
                         Button(action: {
-                            withAnimation {
-                                appState.selectedTab = 5 // Navigate to Profile tab
-                            }
+                            viewModel.navigateToProfile()
                         }) {
-                            Circle()
-                                .fill(AppColors.primary)
-                                .frame(width: 44, height: 44)
-                                .overlay(Text(userInitial).foregroundColor(.white).fontWeight(.bold))
+                            ZStack {
+                                Circle()
+                                    .fill(LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .frame(width: 48, height: 48)
+                                Image(systemName: "person.fill")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
                         }
                     }
                 }
+                .padding(22)
+                .background(
+                    RoundedRectangle(cornerRadius: 28)
+                        .fill(LinearGradient(colors: [AppColors.background, AppColors.cardBackground], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .shadow(color: Color.black.opacity(0.03), radius: 20, x: 0, y: 10)
+                )
                 .padding(.horizontal)
                 .padding(.top, 10)
                 
@@ -154,7 +155,7 @@ struct DashboardView: View {
                             Text("No auto plan available yet")
                                 .font(AppTypography.headline)
                                 .foregroundColor(AppColors.textPrimary)
-                            Text("Add a subject and some study time to generate a personalized plan for today.")
+                            Text("Register a subject and allocate study hours to generate an automated academic plan.")
                                 .font(AppTypography.bodySmall)
                                 .foregroundColor(AppColors.textSecondary)
                         }
@@ -223,7 +224,7 @@ struct DashboardView: View {
                     .cornerRadius(12)
                 }
                 .padding(20)
-                .background(LinearGradient(colors: [Color.purple, Color.blue], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .background(LinearGradient(colors: [AppColors.primary, AppColors.tertiary], startPoint: .topLeading, endPoint: .bottomTrailing))
                 .cornerRadius(24)
                 .padding(.horizontal)
                 
@@ -231,7 +232,7 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
-                            SquareActionCard(title: "Timer", icon: "timer", color: .purple) {
+                            SquareActionCard(title: "Timer", icon: "timer", color: AppColors.secondary) {
                                 if let subject = data.subjects.first {
                                     router.navigate(to: .timer(subject))
                                 } else {
@@ -271,12 +272,24 @@ struct DashboardView: View {
         .navigationBarHidden(true)
         .onAppear {
             
+            
+            // Trigger login welcome notification
+            if appState.isLoggedIn && !appState.hasTriggeredLoginNotification {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    NotificationManager.shared.sendImmediateNotification(
+                        title: "Session Initiated",
+                        body: "Authentication successful. Access to the dashboard is now available."
+                    )
+                    appState.hasTriggeredLoginNotification = true
+                }
+            }
+
             // Check for pending notifications when navigating to home page
             if let title = UserDefaults.standard.string(forKey: "pendingNotificationTitle"),
                let body = UserDefaults.standard.string(forKey: "pendingNotificationBody"),
                let type = UserDefaults.standard.string(forKey: "pendingNotificationType") {
                 
-                print("✅ Dashboard: Found pending notification: \(title)")
+                print(" Dashboard: Found pending notification: \(title)")
                 
                 // Display immediately
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -338,7 +351,7 @@ struct DailyStudyGoalSection: View {
                     .frame(width: 100, height: 100)
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Almost there, \(userName)!")
+                        Text("Performance target approaching, \(userName).")
                             .font(.system(size: 18, weight: .bold))
                         Text(progressLabel)
                             .font(.system(size: 14))
@@ -356,7 +369,7 @@ struct DailyStudyGoalSection: View {
                     Text("Welcome to your dashboard")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(AppColors.textPrimary)
-                    Text("Add your first subject, log a study session, or enter a result to see your progress summary here.")
+                    Text("Record your initial subject and academic results to enable performance analytics.")
                         .font(.system(size: 14))
                         .foregroundColor(AppColors.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)

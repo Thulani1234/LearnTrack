@@ -18,12 +18,15 @@ class AppState: ObservableObject {
     @Published var pushNotificationAlert: AppAlert? = nil
     @Published var isJoiningRoom: Bool = false
     @Published var joiningRoomName: String = ""
+    @Published var hasTriggeredLoginNotification: Bool = false
     @Published var currentUser: User? = nil {
         didSet {
             if let currentUser {
                 MockData.shared.configure(for: currentUser)
+                hasTriggeredLoginNotification = false
             } else {
                 MockData.shared.resetForSignedOutUser()
+                hasTriggeredLoginNotification = false
             }
         }
     }

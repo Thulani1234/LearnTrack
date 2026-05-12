@@ -21,7 +21,7 @@ struct SubjectsView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("My Subjects")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.system(size: 32, weight: .heavy, design: .rounded))
                             .foregroundColor(AppColors.textPrimary)
                         Text("Manage your academic curriculum.")
                             .font(AppTypography.body)
@@ -42,40 +42,7 @@ struct SubjectsView: View {
                 .padding(.horizontal)
                 .padding(.top, 20)
                 
-                // Active Study Section (Live Feel)
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("ACTIVE NOW")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                        .padding(.horizontal)
-                    
-                    HStack(spacing: 12) {
-                        Circle()
-                            .fill(Color.green)
-                            .frame(width: 8, height: 8)
-                            .padding(4)
-                            .background(Color.green.opacity(0.2))
-                            .clipShape(Circle())
-                        
-                        Text("24 students are studying right now")
-                            .font(AppTypography.caption)
-                            .foregroundColor(AppColors.textPrimary)
-                        Spacer()
-                        Button("Join Live") {
-                            // Join live session
-                        }
-                        .font(.system(size: 10, weight: .bold))
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(AppColors.primary.opacity(0.1))
-                        .foregroundColor(AppColors.primary)
-                        .cornerRadius(8)
-                    }
-                    .padding()
-                    .background(AppColors.cardBackground)
-                    .cornerRadius(20)
-                    .padding(.horizontal)
-                }
+
                 
                 // Subjects List
                 VStack(alignment: .leading, spacing: 20) {
@@ -112,8 +79,8 @@ struct SubjectGridCard: View {
                     Circle()
                         .fill(Color(hex: subject.colorHex).opacity(0.15))
                         .frame(width: 40, height: 40)
-                    Image(systemName: "book.fill")
-                        .font(.system(size: 18))
+                    Image(systemName: subject.icon)
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(Color(hex: subject.colorHex))
                 }
                 Spacer()
@@ -121,7 +88,7 @@ struct SubjectGridCard: View {
                 HStack(spacing: 8) {
                     Button(action: { router.navigate(to: .editSubject(subject)) }) {
                         Image(systemName: "pencil")
-                            .font(.system(size: 14))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(AppColors.primary)
                             .padding(8)
                             .background(AppColors.primary.opacity(0.1))
@@ -130,7 +97,7 @@ struct SubjectGridCard: View {
                     
                     Button(action: { showDeleteAlert = true }) {
                         Image(systemName: "trash")
-                            .font(.system(size: 14))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.red.opacity(0.6))
                             .padding(8)
                             .background(Color.red.opacity(0.05))
@@ -141,16 +108,17 @@ struct SubjectGridCard: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(subject.name)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(AppTypography.headline)
                     .foregroundColor(AppColors.textPrimary)
                 
                 HStack {
                     Text("Target: \(subject.targetScore)%")
-                        .font(AppTypography.caption)
+                        .font(AppTypography.bodySmall)
                         .foregroundColor(AppColors.textSecondary)
                     Spacer()
                     Text("\(Int(subject.progress * 100))%")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(AppTypography.bodySmall)
+                        .fontWeight(.semibold)
                         .foregroundColor(Color(hex: subject.colorHex))
                 }
             }

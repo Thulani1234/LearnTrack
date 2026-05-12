@@ -12,10 +12,10 @@ struct MeetingRoomView: View {
     @State private var animatePulse = false
     
     let participants = [
-        ("Sara", "S", Color.orange),
-        ("Ahmed", "A", Color.blue),
-        ("Mike", "M", Color.green),
-        ("Jessica", "J", Color.purple),
+        ("User 1", "U", Color.orange),
+        ("User 2", "U", Color.blue),
+        ("User 3", "U", Color.green),
+        ("User 4", "U", Color.indigo),
         ("You", "Y", AppColors.primary)
     ]
     
@@ -78,7 +78,7 @@ struct MeetingRoomView: View {
                 // Bottom Controls Bar
                 VStack(spacing: 24) {
                     // Quick Quote or Motivation
-                    Text("Stay focused, team! 🚀")
+                    Text("Stay focused, team! ")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
                     
@@ -157,7 +157,7 @@ struct ParticipantCard: View {
                         Circle()
                             .fill(color.opacity(0.2))
                             .frame(width: 80, height: 80)
-                        Text(initial)
+                        Image(systemName: "person.fill")
                             .font(.system(size: 32, weight: .bold))
                             .foregroundColor(color)
                     }
@@ -196,7 +196,7 @@ struct ParticipantCard: View {
             }
             
             // Highlight for active speaker
-            if name == "Ahmed" {
+            if name == "User 2" {
                 RoundedRectangle(cornerRadius: 24)
                     .stroke(AppColors.primary, lineWidth: 3)
             }

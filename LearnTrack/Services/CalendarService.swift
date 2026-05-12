@@ -151,7 +151,7 @@ class CalendarService: ObservableObject {
             "Science": .green,
             "English": .blue,
             "History": .orange,
-            "ICT": .purple,
+            "ICT": .cyan,
             "Music": .pink
         ]
         return subjectColors[subject] ?? .gray

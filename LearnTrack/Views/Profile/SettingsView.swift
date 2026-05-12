@@ -38,7 +38,7 @@ struct SettingsView: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(AppColors.textSecondary.opacity(0.6))
                         
-                        ToggleItem(icon: "faceid", title: "Face ID / Touch ID", isOn: $useFaceID, color: .blue)
+                        ToggleItem(icon: "app.fill", title: "Face ID / Touch ID", isOn: $useFaceID, color: AppColors.primary)
                     }
                     .padding(.horizontal)
                     

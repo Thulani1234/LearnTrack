@@ -82,11 +82,11 @@ struct PlanGeneratedView: View {
                             .padding(.horizontal)
                             
                             VStack(spacing: 8) {
-                                Text("Your Plan is Ready!")
+                                Text("Study Plan Generated")
                                     .font(.system(size: 32, weight: .black, design: .rounded))
                                     .foregroundColor(.white)
                                 
-                                Text("AI has optimized your study journey")
+                                Text("Academic schedule optimization is complete.")
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(.white.opacity(0.9))
                             }
@@ -108,14 +108,14 @@ struct PlanGeneratedView: View {
                         // AI Insight Card
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Label("AI STRATEGY", systemImage: "brain.head.profile.fill")
+                                Label("ACADEMIC STRATEGY", systemImage: "briefcase.fill")
                                     .font(.system(size: 10, weight: .black))
                                     .foregroundColor(AppColors.primary)
                                     .tracking(1)
                                 Spacer()
                             }
                             
-                            Text("Strategic mapping complete. We've balanced your load across \(data.subjects.count) subjects to ensure consistent progress without burnout.")
+                            Text("Strategic curriculum mapping concluded. Study load has been balanced across \(data.subjects.count) subjects to ensure consistent progress and academic sustainability.")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(AppColors.textPrimary)
                                 .lineSpacing(4)
@@ -279,7 +279,7 @@ struct PlanGeneratedView: View {
                 date: sessionDate,
                 durationSeconds: 45 * 60,
                 isCompleted: false,
-                summary: "AI-generated study session for \(subject.name)."
+                summary: "Study session for \(subject.name)."
             )
         }
         generatedPlanSessions.forEach { session in

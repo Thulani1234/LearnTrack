@@ -28,9 +28,9 @@ struct LiveView: View {
                     .offset(x: 150, y: 300)
                 
                 // Floating Emojis
-                Text("🚀").font(.system(size: 40)).opacity(0.1).offset(x: -100, y: 100)
-                Text("📚").font(.system(size: 30)).opacity(0.1).offset(x: 120, y: -50)
-                Text("💡").font(.system(size: 35)).opacity(0.1).offset(x: -80, y: -300)
+                Text("").font(.system(size: 40)).opacity(0.1).offset(x: -100, y: 100)
+                Text("").font(.system(size: 30)).opacity(0.1).offset(x: 120, y: -50)
+                Text("").font(.system(size: 35)).opacity(0.1).offset(x: -80, y: -300)
             }
             .ignoresSafeArea()
             
@@ -39,27 +39,15 @@ struct LiveView: View {
                     // Header
                     HStack {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Live Study")
+                            Text("Live Study Sessions")
                                 .font(.system(size: 36, weight: .black, design: .rounded))
                                 .foregroundColor(AppColors.textPrimary)
                             
-                            HStack(spacing: 8) {
-                                ZStack {
-                                    Circle().fill(Color.green.opacity(0.2)).frame(width: 14, height: 14)
-                                    Circle().fill(Color.green).frame(width: 8, height: 8)
-                                }
-                                Text("1,240 Students Online")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(Color.green)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 4)
-                                    .background(Color.green.opacity(0.08))
-                                    .cornerRadius(20)
-                            }
+
                         }
                         Spacer()
                         
-                        Button(action: { /* Profile action */ }) {
+                        Button(action: { /* Profile action - removed */ }) {
                             ZStack {
                                 Circle()
                                     .fill(AppColors.cardBackground)
@@ -74,89 +62,56 @@ struct LiveView: View {
                     .padding(.horizontal)
                     .padding(.top, 20)
                     
-                    // Community Goal Section
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("COMMUNITY FOCUS GOAL")
-                                .font(.system(size: 10, weight: .black))
-                                .foregroundColor(AppColors.textSecondary.opacity(0.5))
-                                .tracking(1)
-                            Spacer()
-                            Text("82%")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(AppColors.primary)
-                        }
-                        
-                        GeometryReader { geo in
-                            ZStack(alignment: .leading) {
-                                Capsule().fill(AppColors.cardBackground).frame(height: 8)
-                                Capsule()
-                                    .fill(LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .leading, endPoint: .trailing))
-                                    .frame(width: geo.size.width * 0.82, height: 8)
-                            }
-                        }
-                        .frame(height: 8)
-                        
-                        Text("12,450 / 15,000 focus hours reached today!")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(AppColors.textSecondary)
-                    }
-                    .padding(20)
-                    .background(AppColors.cardBackground.opacity(0.4))
-                    .cornerRadius(24)
-                    .padding(.horizontal)
+
                     
                     // Premium Start a Session Card
                     VStack(alignment: .leading, spacing: 20) {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Host a Room")
+                                Text("Create a Private Study Room")
                                     .font(.system(size: 24, weight: .bold))
-                                    .foregroundColor(.white)
-                                Text("Create your own focus space and invite others to study together.")
+                                    .foregroundColor(AppColors.textPrimary)
+                                Text("Establish a private academic focus environment and facilitate collaborative study sessions with users.")
                                     .font(.system(size: 15))
-                                    .foregroundColor(.white.opacity(0.8))
+                                    .foregroundColor(AppColors.textSecondary)
                                     .lineSpacing(4)
                             }
                             Spacer()
-                            Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.system(size: 40))
-                                .foregroundColor(.white.opacity(0.3))
                         }
                         
                         Button(action: { showingCreateSheet = true }) {
                             HStack {
-                                Text("Start New Session")
+                                Text("Start Session")
                                     .font(.system(size: 16, weight: .bold))
                                 Spacer()
                                 Image(systemName: "plus.circle.fill")
                             }
-                            .foregroundColor(AppColors.primary)
+                            .foregroundColor(.white)
                             .padding(.horizontal, 24)
                             .padding(.vertical, 18)
-                            .background(Color.white)
+                            .background(AppColors.primary)
                             .cornerRadius(20)
-                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                            .shadow(color: AppColors.primary.opacity(0.2), radius: 10, x: 0, y: 5)
                         }
                     }
                     .padding(32)
                     .background(
                         ZStack {
-                            LinearGradient(colors: [AppColors.primary, AppColors.secondary], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            LinearGradient(
+                                colors: [Color(hex: "F0F9FF"), Color(hex: "E0F2FE")],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                             
-                            // Abstract Mesh Pattern
                             Circle()
-                                .fill(Color.white.opacity(0.1))
-                                .frame(width: 200, height: 200)
-                                .offset(x: 100, y: -80)
-                            Circle()
-                                .fill(Color.white.opacity(0.1))
-                                .frame(width: 150, height: 150)
-                                .offset(x: -80, y: 60)
+                                .fill(AppColors.primary.opacity(0.05))
+                                .frame(width: 300, height: 300)
+                                .offset(x: 120, y: -100)
+                                .blur(radius: 40)
                         }
                     )
                     .cornerRadius(32)
-                    .shadow(color: AppColors.primary.opacity(0.4), radius: 20, x: 0, y: 15)
+                    .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 15)
                     .padding(.horizontal)
                     
                     // Trending Topics Tag Cloud
@@ -173,7 +128,7 @@ struct LiveView: View {
                                 TrendingTag(text: "Late Night", icon: "moon.fill")
                                 TrendingTag(text: "Coding", icon: "chevron.left.forwardslash.chevron.right")
                                 TrendingTag(text: "Deep Focus", icon: "brain")
-                                TrendingTag(text: "Group Study", icon: "person.3.fill")
+                                TrendingTag(text: "User Study", icon: "person.3.fill")
                             }
                             .padding(.horizontal)
                         }
@@ -189,10 +144,6 @@ struct LiveView: View {
                         
                         VStack(spacing: 0) {
                             HStack(spacing: 15) {
-                                Image(systemName: "key.fill")
-                                    .foregroundColor(AppColors.primary.opacity(0.5))
-                                    .font(.system(size: 18))
-                                
                                 TextField("Enter 6-digit code...", text: $sessionCode)
                                     .font(.system(size: 18, weight: .semibold, design: .monospaced))
                             }
@@ -220,40 +171,6 @@ struct LiveView: View {
                         }
                     }
                     .padding(.horizontal)
-                    
-                    // Global Study Pulse
-                    VStack(alignment: .leading, spacing: 20) {
-                        HStack {
-                            Text("GLOBAL PULSE")
-                                .font(.system(size: 12, weight: .black))
-                                .foregroundColor(AppColors.textSecondary.opacity(0.4))
-                                .tracking(2)
-                            Spacer()
-                            HStack(spacing: 4) {
-                                Circle().fill(Color.red).frame(width: 6, height: 6)
-                                Text("LIVE")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(.red)
-                            }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(8)
-                        }
-                        .padding(.horizontal)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                PulseCard(name: "David", subject: "Physics", icon: "atom", color: .blue)
-                                PulseCard(name: "Elena", subject: "Design", icon: "paintbrush.fill", color: .purple)
-                                PulseCard(name: "Kojo", subject: "Math", icon: "plus.forwardslash.minus", color: .orange)
-                                PulseCard(name: "Zoe", subject: "Biology", icon: "leaf.fill", color: .green)
-                            }
-                            .padding(.horizontal)
-                            .padding(.bottom, 10)
-                        }
-                    }
-                    .padding(.bottom, 40)
                 }
             }
         }
@@ -282,7 +199,8 @@ struct TrendingTag: View {
             Image(systemName: icon)
                 .font(.system(size: 12))
             Text(text)
-                .font(.system(size: 12, weight: .bold))
+                .font(AppTypography.bodySmall)
+                .fontWeight(.semibold)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -292,41 +210,6 @@ struct TrendingTag: View {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(AppColors.primary.opacity(0.1), lineWidth: 1)
         )
-    }
-}
-
-struct PulseCard: View {
-    let name: String
-    let subject: String
-    let icon: String
-    let color: Color
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.1))
-                    .frame(width: 44, height: 44)
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.system(size: 14, weight: .bold))
-            }
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(name)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(AppColors.textPrimary)
-                Text("Studying \(subject)")
-                    .font(.system(size: 11))
-                    .foregroundColor(AppColors.textSecondary)
-            }
-        }
-        .padding(.leading, 8)
-        .padding(.trailing, 16)
-        .padding(.vertical, 8)
-        .background(AppColors.cardBackground)
-        .cornerRadius(22)
-        .shadow(color: Color.black.opacity(0.03), radius: 10, x: 0, y: 5)
     }
 }
 
@@ -369,7 +252,7 @@ struct CreateSessionView: View {
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(AppColors.textSecondary.opacity(0.6))
                             
-                            TextField("e.g. Physics Final Revision 🚀", text: $roomName)
+                            TextField("e.g. Physics Final Revision ", text: $roomName)
                                 .font(.system(size: 18, weight: .medium))
                                 .padding(20)
                                 .background(
@@ -445,14 +328,23 @@ struct SubjectSelectionCard: View {
     let action: () -> Void
     var body: some View {
         Button(action: action) {
-            VStack {
-                Image(systemName: subject.icon).font(.title2)
-                Text(subject.name).font(.caption).bold()
+            VStack(spacing: 10) {
+                Image(systemName: subject.icon)
+                    .font(.title2)
+                    .foregroundColor(isSelected ? Color(hex: subject.colorHex) : AppColors.textPrimary)
+                Text(subject.name)
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(AppColors.textPrimary)
             }
-            .frame(maxWidth: .infinity).padding(.vertical, 16)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
             .background(isSelected ? Color(hex: subject.colorHex).opacity(0.2) : AppColors.cardBackground)
             .cornerRadius(16)
-            .overlay(RoundedRectangle(cornerRadius: 16).stroke(isSelected ? Color(hex: subject.colorHex) : Color.clear, lineWidth: 2))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(isSelected ? Color(hex: subject.colorHex) : Color.clear, lineWidth: 2)
+            )
         }
     }
 }

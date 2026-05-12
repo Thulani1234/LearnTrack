@@ -30,9 +30,9 @@ class UserDataSeeder {
             )
             
             if let user = result.user {
-                print("✅ User created: \(user.name) (\(user.email))")
+                print(" User created: \(user.name) (\(user.email))")
             } else if let error = result.error {
-                print("❌ Failed to create user: \(userData.email) - \(error.localizedDescription)")
+                print(" Failed to create user: \(userData.email) - \(error.localizedDescription)")
             }
         }
         

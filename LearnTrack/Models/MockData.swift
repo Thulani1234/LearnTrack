@@ -59,7 +59,7 @@ class MockData: ObservableObject {
             Subject(name: "Mathematics", colorHex: "6366F1", progress: 0.7, targetScore: 95, currentScore: 89, icon: "function"),
             Subject(name: "Science", colorHex: "14B8A6", progress: 0.4, targetScore: 90, currentScore: 75, icon: "flask.fill"),
             Subject(name: "English", colorHex: "F59E0B", progress: 0.9, targetScore: 85, currentScore: 82, icon: "book.fill"),
-            Subject(name: "ICT", colorHex: "A855F7", progress: 0.6, targetScore: 100, currentScore: 92, icon: "laptopcomputer")
+            Subject(name: "ICT", colorHex: "0EA5E9", progress: 0.6, targetScore: 100, currentScore: 92, icon: "laptopcomputer")
         ]
         
         subjects = initialSubjects
@@ -89,7 +89,7 @@ class MockData: ObservableObject {
         
         notes = [
             Note(title: "Physics Formulas", content: "F=ma, E=mc^2, v=u+at. Important for the upcoming semester finals...", colorHex: "3B82F6", category: "Physics", dateCreated: Date(), attachments: []),
-            Note(title: "Reaction Mechanisms", content: "Organic chemistry reaction mechanisms. Remember to focus on nucleophilic...", colorHex: "A855F7", category: "Chemistry", dateCreated: Date(), attachments: [])
+            Note(title: "Reaction Mechanisms", content: "Organic chemistry reaction mechanisms. Remember to focus on nucleophilic...", colorHex: "0EA5E9", category: "Chemistry", dateCreated: Date(), attachments: [])
         ]
         
         for note in notes {

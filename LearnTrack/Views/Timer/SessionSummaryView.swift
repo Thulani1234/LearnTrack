@@ -32,10 +32,10 @@ struct SessionSummaryView: View {
                             .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
                         
                         VStack(spacing: 4) {
-                            Text("Brilliant Work!")
+                            Text("Session Concluded")
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
-                            Text("Session complete for \(subject.name)")
+                            Text("The session for \(subject.name) has ended.")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.white.opacity(0.9))
                         }
@@ -57,7 +57,7 @@ struct SessionSummaryView: View {
                     // Auto Summarize Section
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
-                            Text("AI SESSION INSIGHTS")
+                            Text("ANALYTIC INSIGHTS")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(AppColors.textSecondary.opacity(0.6))
                             Spacer()
@@ -65,7 +65,7 @@ struct SessionSummaryView: View {
                                 Button(action: autoSummarize) {
                                     HStack(spacing: 6) {
                                         Image(systemName: "sparkles")
-                                        Text("Auto Summarize")
+                                        Text("Generate Summary")
                                     }
                                     .font(.system(size: 12, weight: .bold))
                                     .foregroundColor(AppColors.primary)
@@ -81,7 +81,7 @@ struct SessionSummaryView: View {
                             HStack(spacing: 12) {
                                 ProgressView()
                                     .tint(AppColors.primary)
-                                Text("AI is analyzing your study patterns...")
+                                Text("System is analyzing study metrics...")
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(AppColors.textSecondary)
                                 Spacer()
@@ -179,7 +179,7 @@ struct SessionSummaryView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             withAnimation {
                 isSummarizing = false
-                summaryText = "During this \(subject.name) session, you maintained a high focus level for 85% of the time. You successfully covered the core concepts and showed strong retention in the interactive segments. Great job staying on track!"
+                summaryText = "The \(subject.name) session data indicates a concentration level of 85%. Concepts were covered sequentially with verified retention in evaluated segments."
             }
         }
     }

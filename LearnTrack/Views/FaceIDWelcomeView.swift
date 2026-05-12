@@ -317,7 +317,7 @@ struct FaceIDWelcomeView: View {
                         // Handle passcode
                     }) {
                         HStack(spacing: 12) {
-                            Image(systemName: "key.fill")
+                            Image(systemName: "number.square.fill")
                                 .font(.system(size: 20))
                             Text("Use Passcode")
                                 .font(.system(size: 16, weight: .medium))

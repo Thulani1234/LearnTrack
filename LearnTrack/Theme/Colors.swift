@@ -12,33 +12,45 @@ struct AppColors {
     
     @Environment(\.colorScheme) static var colorScheme
     
-    // Primary & Accent
-    static let primary = Color(hex: "6366F1") // Indigo
-    static let secondary = Color(hex: "A855F7") // Purple
-    static let accent = Color(hex: "14B8A6") // Teal
-    
+    // Primary & Accent (Blue Theme)
+    static let primary = Color(hex: "3B82F6") // Vibrant blue
+    static let secondary = Color(hex: "2563EB") // Deep blue
+    static let tertiary = Color(hex: "93C5FD") // Soft blue
+    static let accent = Color(hex: "DBEAFE") // Blue accent
+
+    // Theme Blue (alias for primary)
+    static let themeBlue = primary
+
     // Backgrounds - Adaptive
     static var background: Color {
         Color(UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark
-                ? UIColor(hex: "0F172A") // Dark background
-                : UIColor(hex: "F8FAFC") // Light background
+                ? UIColor(hex: "0F172A") // Deep navy/slate background
+                : UIColor(hex: "F8FAFC") // Near-white slate background
+        })
+    }
+    
+    static var backgroundGreen: Color {
+        Color(UIColor { traitCollection in
+            traitCollection.userInterfaceStyle == .dark
+                ? UIColor(hex: "0E1C15") // Deep forest green background
+                : UIColor(hex: "F1F9F1") // Soft mint green background
         })
     }
     
     static var cardBackground: Color {
         Color(UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark
-                ? UIColor(hex: "1E293B") // Dark card
-                : UIColor(hex: "FFFFFF") // Light card
+                ? UIColor(hex: "172A44") // Dark slate card
+                : UIColor(hex: "FFFFFF") // Clean white card
         })
     }
     
     static var cardElevated: Color {
         Color(UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark
-                ? UIColor(hex: "334155") // Dark elevated
-                : UIColor(hex: "E2E8F0") // Light elevated
+                ? UIColor(hex: "1F3856") // Elevated slate surface
+                : UIColor(hex: "E5E9F0") // Light grey elevated surface
         })
     }
     
@@ -46,16 +58,16 @@ struct AppColors {
     static var textPrimary: Color {
         Color(UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark
-                ? UIColor(hex: "F8FAFC") // Light text in dark mode
-                : UIColor(hex: "0F172A") // Dark text in light mode
+                ? UIColor(hex: "F0F4F8") // Soft light text in dark mode
+                : UIColor(hex: "1A202C") // Balanced dark text in light mode
         })
     }
     
     static var textSecondary: Color {
         Color(UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark
-                ? UIColor(hex: "94A3B8") // Light secondary in dark mode
-                : UIColor(hex: "64748B") // Dark secondary in light mode
+                ? UIColor(hex: "8B95A9") // Medium secondary in dark mode
+                : UIColor(hex: "6B7280") // Balanced secondary in light mode
         })
     }
     

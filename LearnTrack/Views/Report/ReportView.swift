@@ -28,7 +28,7 @@ struct ReportView: View {
                     
                     // Hero Metrics
                     HStack(spacing: 20) {
-                        HeroMetricCard(title: "Avg Score", value: "\(calculateAvgScore())%", icon: "star.fill", color: .purple, delay: 0.1)
+                        HeroMetricCard(title: "Avg Score", value: "\(calculateAvgScore())%", icon: "star.fill", color: AppColors.primary, delay: 0.1)
                         HeroMetricCard(title: "Results", value: "\(mockData.academicResults.count)", icon: "doc.text.fill", color: .blue, delay: 0.2)
                     }
                     .padding(.horizontal)
@@ -48,7 +48,7 @@ struct ReportView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         HStack {
                             Text("Weekly Progress")
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .font(AppTypography.title)
                                 .foregroundColor(AppColors.textPrimary)
                             Spacer()
                             Text("Last 4 Weeks")
@@ -65,7 +65,7 @@ struct ReportView: View {
                     // Subject Performance
                     VStack(alignment: .leading, spacing: 20) {
                         Text("Subject Performance")
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(AppTypography.title)
                             .foregroundColor(AppColors.textPrimary)
                             .padding(.horizontal)
                         
@@ -127,7 +127,7 @@ struct ReportView: View {
     
     private func getPerformanceData() -> [PerformanceData] {
         [
-            .init(week: "W1", hours: 10, color: .purple),
+            .init(week: "W1", hours: 10, color: AppColors.primary),
             .init(week: "W2", hours: 15, color: .blue),
             .init(week: "W3", hours: 12, color: .pink),
             .init(week: "W4", hours: 20, color: .orange)
@@ -138,13 +138,14 @@ struct ReportView: View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Performance Report")
-                    .font(.system(size: 34, weight: .black, design: .rounded))
+                    .font(AppTypography.titleLarge)
+                    .fontWeight(.bold)
                     .foregroundColor(AppColors.textPrimary)
                 
                 HStack(spacing: 8) {
                     Circle().fill(Color.green).frame(width: 8, height: 8)
                     Text("Top 5% in your class")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(AppTypography.body)
                         .foregroundColor(AppColors.textSecondary)
                 }
             }
@@ -174,16 +175,16 @@ struct BackgroundView: View {
     
     var body: some View {
         ZStack {
-            Color(hex: "F8FAFC").ignoresSafeArea()
+            AppColors.background.ignoresSafeArea()
             
             Circle()
-                .fill(Color.purple.opacity(0.15))
+                .fill(AppColors.primary.opacity(0.18))
                 .frame(width: 400, height: 400)
                 .blur(radius: 80)
                 .offset(x: isAnimating ? 150 : -100, y: isAnimating ? -200 : 250)
             
             Circle()
-                .fill(Color.blue.opacity(0.15))
+                .fill(AppColors.secondary.opacity(0.14))
                 .frame(width: 350, height: 350)
                 .blur(radius: 80)
                 .offset(x: isAnimating ? -150 : 100, y: isAnimating ? 200 : -250)
@@ -215,20 +216,20 @@ struct HeroMetricCard: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(value)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(AppTypography.titleLarge)
                     .foregroundColor(AppColors.textPrimary)
                 Text(title)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(AppTypography.bodySmall)
                     .foregroundColor(AppColors.textSecondary)
             }
         }
         .padding(24)
         .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial)
+        .background(AppColors.cardBackground)
         .cornerRadius(32)
         .overlay(
             RoundedRectangle(cornerRadius: 32)
-                .stroke(.white.opacity(0.5), lineWidth: 1)
+                .stroke(AppColors.textSecondary.opacity(0.2), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.03), radius: 15, x: 0, y: 10)
         .opacity(show ? 1 : 0)
@@ -253,7 +254,7 @@ struct ResultsTimelinePanel: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Previous Results")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(AppTypography.title)
                         .foregroundColor(AppColors.textPrimary)
                     Text("Your latest marks across subjects")
                         .font(AppTypography.bodySmall)
@@ -304,7 +305,7 @@ struct ResultsTimelinePanel: View {
                 Button(action: viewAllAction) {
                     HStack {
                         Text("View all results")
-                            .font(.system(size: 14, weight: .bold))
+                            .font(AppTypography.body.weight(.semibold))
                         Spacer()
                         Image(systemName: "arrow.right")
                             .font(.system(size: 13, weight: .bold))
@@ -343,11 +344,11 @@ struct ResultTimelineRow: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(result.title)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(AppTypography.body.weight(.bold))
                     .foregroundColor(AppColors.textPrimary)
                     .lineLimit(1)
                 Text("\(subject) · \(result.category.rawValue) · \(result.date.formatted(.dateTime.month().day()))")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(AppTypography.caption)
                     .foregroundColor(AppColors.textSecondary)
             }
             
@@ -355,15 +356,15 @@ struct ResultTimelineRow: View {
             
             VStack(alignment: .trailing, spacing: 3) {
                 Text("\(result.percentage)%")
-                    .font(.system(size: 18, weight: .black, design: .rounded))
+                    .font(AppTypography.headline.weight(.black))
                     .foregroundColor(statusColor)
                 Text(result.grade)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(AppTypography.caption.weight(.bold))
                     .foregroundColor(statusColor)
             }
         }
         .padding(14)
-        .background(AppColors.background)
+        .background(AppColors.cardBackground)
         .cornerRadius(18)
     }
     
@@ -422,7 +423,7 @@ struct ChartCard: View {
                     AxisValueLabel() {
                         if let intValue = value.as(Int.self) {
                             Text("\(intValue)h")
-                                .font(.system(size: 10))
+                                .font(AppTypography.caption)
                                 .foregroundColor(AppColors.textSecondary)
                         }
                     }
@@ -431,17 +432,17 @@ struct ChartCard: View {
             .chartXAxis {
                 AxisMarks(values: .automatic) { _ in
                     AxisValueLabel()
-                        .font(.system(size: 10, weight: .bold))
+                        .font(AppTypography.caption.weight(.bold))
                         .foregroundStyle(AppColors.textSecondary)
                 }
             }
         }
         .padding(24)
-        .background(.ultraThinMaterial)
+        .background(AppColors.cardBackground)
         .cornerRadius(32)
         .overlay(
             RoundedRectangle(cornerRadius: 32)
-                .stroke(.white.opacity(0.5), lineWidth: 1)
+                .stroke(AppColors.textSecondary.opacity(0.15), lineWidth: 1)
         )
         .padding(.horizontal)
     }
@@ -453,7 +454,7 @@ struct SubjectDistributionChart: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Score Distribution")
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .font(AppTypography.title)
                 .foregroundColor(AppColors.textPrimary)
             
             HStack(spacing: 30) {
@@ -475,11 +476,11 @@ struct SubjectDistributionChart: View {
                                 .fill(Color(hex: subject.colorHex))
                                 .frame(width: 10, height: 10)
                             Text(subject.name)
-                                .font(.system(size: 12, weight: .medium))
+                                .font(AppTypography.caption.weight(.medium))
                                 .foregroundColor(AppColors.textPrimary)
                             Spacer()
                             Text("\(subject.currentScore)%")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(AppTypography.caption.weight(.bold))
                                 .foregroundColor(AppColors.textSecondary)
                         }
                     }
@@ -487,11 +488,11 @@ struct SubjectDistributionChart: View {
             }
         }
         .padding(24)
-        .background(.ultraThinMaterial)
+        .background(AppColors.cardBackground)
         .cornerRadius(32)
         .overlay(
             RoundedRectangle(cornerRadius: 32)
-                .stroke(.white.opacity(0.5), lineWidth: 1)
+                .stroke(AppColors.textSecondary.opacity(0.15), lineWidth: 1)
         )
         .padding(.horizontal)
     }
@@ -519,16 +520,16 @@ struct ModernSubjectRow: View {
                     .rotationEffect(.degrees(-90))
                 
                 Text("\(score)")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(AppTypography.headline.weight(.bold))
                     .foregroundColor(AppColors.textPrimary)
             }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(subject)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(AppTypography.headline)
                     .foregroundColor(AppColors.textPrimary)
                 Text("Consistent Improvement")
-                    .font(.system(size: 13))
+                    .font(AppTypography.bodySmall)
                     .foregroundColor(AppColors.textSecondary)
             }
             
@@ -539,9 +540,9 @@ struct ModernSubjectRow: View {
                 .foregroundColor(AppColors.textSecondary)
         }
         .padding(20)
-        .background(Color.white.opacity(0.6))
+        .background(AppColors.cardBackground)
         .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.02), radius: 10, x: 0, y: 5)
+        .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 5)
         .opacity(show ? 1 : 0)
         .offset(x: show ? 0 : -20)
         .onAppear {
@@ -561,20 +562,20 @@ struct InsightCard: View {
                 Image(systemName: "sparkles")
                     .font(.title3)
                     .foregroundColor(.white)
-                Text("AI Learning Insights")
-                    .font(.system(size: 18, weight: .bold))
+                Text("Personalized Learning Insights")
+                    .font(AppTypography.headline)
                     .foregroundColor(.white)
                 Spacer()
             }
             
-            Text("Your study pattern shows peak focus in the mornings. We recommend shifting Science practice to 9 AM for better retention.")
-                .font(.system(size: 15))
+            Text("Establish a private academic focus environment and facilitate collaborative study sessions with peers.")
+                .font(AppTypography.body)
                 .lineSpacing(4)
                 .foregroundColor(.white.opacity(0.9))
             
             Button(action: action) {
                 Text("View Full Analysis")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(AppTypography.bodySmall.weight(.semibold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)

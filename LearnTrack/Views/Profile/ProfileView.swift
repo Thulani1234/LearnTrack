@@ -35,15 +35,15 @@ struct ProfileView: View {
                                 .frame(width: 120, height: 120)
                                 .shadow(color: AppColors.primary.opacity(0.3), radius: 15, x: 0, y: 10)
                             
-                            Text(String((appState.currentUser?.name ?? "User").prefix(1)).uppercased())
-                                .font(.system(size: 50, weight: .bold, design: .rounded))
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 50, weight: .bold))
                                 .foregroundColor(.white)
                         }
                     }
                     .accessibilityElement(children: .ignore)
                     
                     VStack(spacing: 6) {
-                        Text("\(appState.currentUser?.name ?? "User") 👋")
+                        Text("\(appState.currentUser?.name ?? "User") ")
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(AppColors.textPrimary)
                         Text("Student")
@@ -55,13 +55,6 @@ struct ProfileView: View {
                     .accessibilityValue(appState.currentUser?.name ?? "User")
                 }
                 .padding(.top, 40)
-                
-                // Achievement Stats
-                HStack(spacing: 16) {
-                    AchievementCard(icon: "flame.fill", value: "7", title: "Streak", color: .orange)
-                    AchievementCard(icon: "timer", value: "45h", title: "Study", color: .purple)
-                }
-                .padding(.horizontal)
                 
                 // Account Settings
                 VStack(alignment: .leading, spacing: 20) {
@@ -113,7 +106,7 @@ struct ProfileView: View {
                         .padding(.horizontal)
                     
                     VStack(spacing: 0) {
-                        ProfileOptionItem(icon: "questionmark.circle.fill", title: "Help Center", color: .purple) {
+                        ProfileOptionItem(icon: "questionmark.circle.fill", title: "Help Center", color: .indigo) {
                             router.navigate(to: .help)
                         }
                         Divider().padding(.leading, 60)
@@ -127,69 +120,7 @@ struct ProfileView: View {
                     .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 5)
                 }
                 
-                // My Documents Section
-                VStack(alignment: .leading, spacing: 20) {
-                    HStack {
-                        Text("MY DOCUMENTS")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                        Spacer()
-                        
-                        Menu {
-                            PhotosPicker(selection: $selectedItem, matching: .images) {
-                                Label("Photo Library", systemImage: "photo.on.rectangle")
-                            }
-                            
-                            Button(action: { showingFilePicker = true }) {
-                                Label("Browse Files", systemImage: "folder")
-                            }
-                        } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: "plus.circle.fill")
-                                Text("Add Media")
-                            }
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(AppColors.primary)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(AppColors.primary.opacity(0.1))
-                            .cornerRadius(10)
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            // Document Files
-                            ForEach(myDocuments, id: \.self) { doc in
-                                HStack(spacing: 12) {
-                                    Image(systemName: "doc.fill")
-                                        .foregroundColor(AppColors.primary)
-                                    Text(doc)
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(AppColors.textPrimary)
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(AppColors.cardBackground)
-                                .cornerRadius(16)
-                                .shadow(color: Color.black.opacity(0.02), radius: 5, x: 0, y: 2)
-                            }
-                            
-                            // Selected Images from Gallery
-                            if let profileImage = profileImage {
-                                profileImage
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 100, height: 44)
-                                    .cornerRadius(12)
-                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppColors.primary.opacity(0.1), lineWidth: 1))
-                            }
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, 5)
-                    }
-                }
+
                 
                 // Logout
                 Button(action: {
@@ -242,38 +173,6 @@ struct ProfileView: View {
             }
         }
         
-    }
-}
-
-struct AchievementCard: View {
-    var icon: String
-    var value: String
-    var title: String
-    var color: Color
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-                .frame(width: 44, height: 44)
-                .background(color.opacity(0.1))
-                .clipShape(Circle())
-            
-            VStack(spacing: 2) {
-                Text(value)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(AppColors.textPrimary)
-                Text(title)
-                    .font(.system(size: 12))
-                    .foregroundColor(AppColors.textSecondary)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 20)
-        .background(AppColors.cardBackground)
-        .cornerRadius(24)
-        .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 4)
     }
 }
 
