@@ -115,8 +115,9 @@ struct StudyTimerView: View {
                                             Circle()
                                                 .fill(currentSubject.id == subj.id ? Color(hex: subj.colorHex) : AppColors.cardBackground)
                                                 .frame(width: 50, height: 50)
-                                            Text(emoji(for: subj.name))
-                                                .font(.title2)
+                                            Image(systemName: subj.icon)
+                                                .font(.system(size: 20, weight: .semibold))
+                                                .foregroundColor(currentSubject.id == subj.id ? .white : Color(hex: subj.colorHex))
                                         }
                                         Text(subj.name)
                                             .font(.system(size: 12, weight: .bold))
@@ -350,13 +351,5 @@ struct StudyTimerView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
-    func emoji(for subjectName: String) -> String {
-        switch subjectName.lowercased() {
-        case "english": return ""
-        case "science": return ""
-        case "ict": return ""
-        case "maths", "math": return ""
-        default: return ""
-        }
     }
-}
+

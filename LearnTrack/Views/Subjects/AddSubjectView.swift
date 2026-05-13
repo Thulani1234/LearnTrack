@@ -194,8 +194,8 @@ struct AddSubjectView: View {
                         
                         withAnimation {
                             appState.currentAlert = AppAlert(
-                                title: "Subject Registered",
-                                message: "The subject \(newSubject.name) has been successfully added to the curriculum record.",
+                                title: subjectToEdit == nil ? "Subject Registered" : "Subject Updated",
+                                message: subjectToEdit == nil ? "The subject \(newSubject.name) has been successfully added to the curriculum record." : "The subject \(newSubject.name) has been successfully updated.",
                                 icon: newSubject.icon,
                                 color: selectedColor,
                                 type: .success

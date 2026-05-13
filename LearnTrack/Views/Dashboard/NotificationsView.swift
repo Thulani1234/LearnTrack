@@ -145,11 +145,18 @@ struct NotificationsView: View {
                             body: "This is a push notification! It shows even while you are using the app."
                         )
                     }) {
-                        Image(systemName: "bell.badge.fill")
-                            .foregroundColor(AppColors.primary)
-                            .padding(10)
-                            .background(AppColors.primary.opacity(0.1))
-                            .clipShape(Circle())
+                        ZStack {
+                            Circle()
+                                .fill(AppColors.primary.opacity(0.1))
+                                .frame(width: 42, height: 42)
+                            Image(systemName: "bell.fill")
+                                .foregroundColor(AppColors.primary)
+                                .font(.system(size: 18, weight: .semibold))
+                            Circle()
+                                .fill(Color.red)
+                                .frame(width: 10, height: 10)
+                                .offset(x: 12, y: -12)
+                        }
                     }
                     
                     Button(action: {}) {

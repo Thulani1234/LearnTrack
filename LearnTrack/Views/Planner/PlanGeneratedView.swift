@@ -22,7 +22,7 @@ struct PlanGeneratedView: View {
         
         return subjects.prefix(3).map { subject in
             PlanSessionItem(
-                icon: emoji(for: subject.name),
+                icon: subject.icon,
                 title: subject.name,
                 duration: "\(Int.random(in: 30...90)) min"
             )
@@ -75,9 +75,6 @@ struct PlanGeneratedView: View {
                                         .clipShape(Circle())
                                 }
                                 Spacer()
-                                Image(systemName: "sparkles")
-                                    .font(.title2)
-                                    .foregroundColor(.white)
                             }
                             .padding(.horizontal)
                             
@@ -86,18 +83,10 @@ struct PlanGeneratedView: View {
                                     .font(.system(size: 32, weight: .black, design: .rounded))
                                     .foregroundColor(.white)
                                 
-                                Text("Academic schedule optimization is complete.")
+                                Text("Your study plan is ready to use.")
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(.white.opacity(0.9))
                             }
-                            .padding(.bottom, 20)
-                            
-                            HStack(spacing: 12) {
-                                PlanStatPill(icon: "clock.fill", value: "\(weeklyHours)h", label: "Weekly hours")
-                                PlanStatPill(icon: "chart.line.uptrend.xyaxis", value: "15–25%", label: "Improvement")
-                                PlanStatPill(icon: "graduationcap.fill", value: weekFocus, label: "Week focus")
-                            }
-                            .padding(.horizontal)
                             .padding(.bottom, 40)
                         }
                         .padding(.top, 20)
@@ -107,15 +96,12 @@ struct PlanGeneratedView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         // AI Insight Card
                         VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Label("ACADEMIC STRATEGY", systemImage: "briefcase.fill")
-                                    .font(.system(size: 10, weight: .black))
-                                    .foregroundColor(AppColors.primary)
-                                    .tracking(1)
-                                Spacer()
-                            }
+                            Text("Academic strategy")
+                                .font(.system(size: 12, weight: .black))
+                                .foregroundColor(AppColors.primary)
+                                .tracking(1)
                             
-                            Text("Strategic curriculum mapping concluded. Study load has been balanced across \(data.subjects.count) subjects to ensure consistent progress and academic sustainability.")
+                            Text("This plan spreads your work across the main subjects so you can keep a steady pace and stay on track.")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(AppColors.textPrimary)
                                 .lineSpacing(4)
@@ -177,9 +163,9 @@ struct PlanGeneratedView: View {
                             SectionHeader(title: "SMART TIPS")
                                 .padding(.horizontal)
                             VStack(spacing: 12) {
-                                TipItem(text: "Start each session by reviewing yesterday's notes")
-                                TipItem(text: "Use active recall instead of re-reading")
-                                TipItem(text: "Track progress weekly to stay motivated")
+                                TipItem(text: "Review your notes before each study session")
+                                TipItem(text: "Practice active recall rather than just reading")
+                                TipItem(text: "Check your progress every week")
                             }
                             .padding(.horizontal)
                         }
@@ -286,17 +272,6 @@ struct PlanGeneratedView: View {
             data.addScheduledSession(session)
         }
         hasSeededPlan = true
-    }
-    
-    private func emoji(for subject: String) -> String {
-        let name = subject.lowercased()
-        if name.contains("math") { return "function" }
-        if name.contains("sci") { return "testtube.2" }
-        if name.contains("hist") { return "book.closed.fill" }
-        if name.contains("phys") { return "bolt.fill" }
-        if name.contains("bio") { return "leaf.fill" }
-        if name.contains("chem") { return "flask.fill" }
-        return "book.fill"
     }
     
     private func subjectAccentColor(for subjectId: UUID) -> Color {

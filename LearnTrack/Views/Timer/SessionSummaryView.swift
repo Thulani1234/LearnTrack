@@ -10,9 +10,6 @@ struct SessionSummaryView: View {
     var isCompleted: Bool
     var progressGain: Int? = nil
     
-    @State private var isSummarizing = false
-    @State private var summaryText: String? = nil
-    
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
@@ -26,6 +23,20 @@ struct SessionSummaryView: View {
                     .clipShape(RoundedCorner(radius: 40, corners: [.bottomLeft, .bottomRight]))
                     
                     VStack(spacing: 16) {
+                        HStack {
+                            Button(action: { dismiss() }) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(10)
+                                    .background(Color.white.opacity(0.15))
+                                    .clipShape(Circle())
+                            }
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 16)
+
                         Image(systemName: "checkmark.seal.fill")
                             .font(.system(size: 60))
                             .foregroundColor(.white)
@@ -40,7 +51,7 @@ struct SessionSummaryView: View {
                                 .foregroundColor(.white.opacity(0.9))
                         }
                     }
-                    .padding(.top, 40)
+                    .padding(.top, 24)
                     .padding(.bottom, 40)
                 }
                 .ignoresSafeArea()
@@ -49,73 +60,11 @@ struct SessionSummaryView: View {
                     // Stats
                     HStack(spacing: 16) {
                         SummaryCard(title: "Duration", value: timeString(totalTime), icon: "timer", color: .blue)
-                        SummaryCard(title: "Efficiency", value: "92%", icon: "bolt.fill", color: .green)
+                        SummaryCard(title: "Efficiency", value: "\(calculateEfficiency())%", icon: "bolt.fill", color: .green)
                     }
                     .padding(.horizontal)
                     .offset(y: -20)
                     
-                    // Auto Summarize Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Text("ANALYTIC INSIGHTS")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                            Spacer()
-                            if summaryText == nil {
-                                Button(action: autoSummarize) {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "sparkles")
-                                        Text("Generate Summary")
-                                    }
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(AppColors.primary)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .background(AppColors.primary.opacity(0.1))
-                                    .cornerRadius(20)
-                                }
-                            }
-                        }
-                        
-                        if isSummarizing {
-                            HStack(spacing: 12) {
-                                ProgressView()
-                                    .tint(AppColors.primary)
-                                Text("System is analyzing study metrics...")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(AppColors.textSecondary)
-                                Spacer()
-                            }
-                            .padding(20)
-                            .background(AppColors.cardBackground)
-                            .cornerRadius(24)
-                        } else if let summary = summaryText {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text(summary)
-                                    .font(.system(size: 15))
-                                    .foregroundColor(AppColors.textPrimary)
-                                    .lineSpacing(4)
-                                
-                                Divider()
-                                
-                                HStack {
-                                    Label("Deep Focus", systemImage: "brain.head.profile.fill")
-                                    Spacer()
-                                    Label("Productive", systemImage: "chart.line.uptrend.xyaxis")
-                                }
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.primary)
-                            }
-                            .padding(20)
-                            .background(AppColors.cardBackground)
-                            .cornerRadius(24)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .stroke(AppColors.primary.opacity(0.2), lineWidth: 1)
-                            )
-                        }
-                    }
-                    .padding(.horizontal)
                     
                     // Quick Actions
                     VStack(alignment: .leading, spacing: 16) {
@@ -140,7 +89,7 @@ struct SessionSummaryView: View {
                                         title: subject.name,
                                         startDate: Date().addingTimeInterval(-TimeInterval(totalTime)),
                                         endDate: Date(),
-                                        notes: summaryText ?? "Study session completed in LearnTrack."
+                                        notes: "Study session completed in LearnTrack."
                                     )
                                 }
                             }
@@ -173,21 +122,23 @@ struct SessionSummaryView: View {
         }
     }
     
-    private func autoSummarize() {
-        isSummarizing = true
-        // Simulate AI generation
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            withAnimation {
-                isSummarizing = false
-                summaryText = "The \(subject.name) session data indicates a concentration level of 85%. Concepts were covered sequentially with verified retention in evaluated segments."
-            }
-        }
-    }
-    
     func timeString(_ time: Int) -> String {
         let minutes = time / 60
         let seconds = time % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+    
+    private func calculateEfficiency() -> Int {
+        let minutes = totalTime / 60
+        if minutes < 1 {
+            return 40
+        } else if minutes < 5 {
+            return 50 + (minutes * 5)
+        } else if minutes < 30 {
+            return 70 + ((minutes - 5) / 5)
+        } else {
+            return min(95, 80 + ((minutes - 30) / 10))
+        }
     }
 }
 

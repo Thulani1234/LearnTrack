@@ -59,6 +59,7 @@
 		467C66812FA888DB004A0E7A /* LearnTrackWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LearnTrackWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		467C66832FA888DB004A0E7A /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		467C66852FA888DB004A0E7A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		468EA4282FB4A58C00E9644E /* LearnTrack.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = LearnTrack.xctestplan; sourceTree = "<group>"; };
 		469994502FAB5D11008B3CAB /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
 		46AC70002FA9000000AC7001 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
 		46TEST0012F9B1CF500EB8FA9 /* LearnTrackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearnTrackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -129,6 +130,7 @@
 		4604F69F2F9B1CF500EB8FA9 = {
 			isa = PBXGroup;
 			children = (
+				468EA4282FB4A58C00E9644E /* LearnTrack.xctestplan */,
 				4604F6AA2F9B1CF500EB8FA9 /* LearnTrack */,
 				467C66872FA888DB004A0E7A /* LearnTrackWidget */,
 				46TEST0052F9B1CF500EB8FA9 /* LearnTrackTests */,

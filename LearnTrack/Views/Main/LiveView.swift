@@ -114,25 +114,6 @@ struct LiveView: View {
                     .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 15)
                     .padding(.horizontal)
                     
-                    // Trending Topics Tag Cloud
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("TRENDING FOCUS TOPICS")
-                            .font(.system(size: 10, weight: .black))
-                            .foregroundColor(AppColors.textSecondary.opacity(0.5))
-                            .tracking(1)
-                            .padding(.horizontal)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                TrendingTag(text: "Final Exams", icon: "pencil.and.outline")
-                                TrendingTag(text: "Late Night", icon: "moon.fill")
-                                TrendingTag(text: "Coding", icon: "chevron.left.forwardslash.chevron.right")
-                                TrendingTag(text: "Deep Focus", icon: "brain")
-                                TrendingTag(text: "User Study", icon: "person.3.fill")
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
                     
                     // Join with Code Section
                     VStack(alignment: .leading, spacing: 20) {

@@ -106,7 +106,8 @@ let noteToEdit: Note?
                     colorHex: selectedColor.toHex() ?? "6366F1",
                     category: category,
                     dateCreated: noteToEdit?.dateCreated ?? Date(),
-                    attachments: noteAttachments
+                    attachments: noteAttachments,
+                    userId: appState.currentUser?.id ?? UUID()
                 )
 
                 if noteToEdit != nil {

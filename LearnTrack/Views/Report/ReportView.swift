@@ -28,8 +28,8 @@ struct ReportView: View {
                     
                     // Hero Metrics
                     HStack(spacing: 20) {
-                        HeroMetricCard(title: "Avg Score", value: "\(calculateAvgScore())%", icon: "star.fill", color: AppColors.primary, delay: 0.1)
-                        HeroMetricCard(title: "Results", value: "\(mockData.academicResults.count)", icon: "doc.text.fill", color: .blue, delay: 0.2)
+                        HeroMetricCard(title: "Avg Score", value: "\(calculateAvgScore())%", color: AppColors.primary, delay: 0.1)
+                        HeroMetricCard(title: "Results", value: "\(mockData.academicResults.count)", color: .blue, delay: 0.2)
                     }
                     .padding(.horizontal)
                     
@@ -126,11 +126,42 @@ struct ReportView: View {
     }
     
     private func getPerformanceData() -> [PerformanceData] {
-        [
+        let calendar = Calendar.current
+        guard let currentWeekStart = calendar.dateInterval(of: .weekOfYear, for: Date())?.start else {
+            return [
+                .init(week: "W1", hours: 10, color: AppColors.primary),
+                .init(week: "W2", hours: 15, color: AppColors.primary),
+                .init(week: "W3", hours: 12, color: AppColors.primary),
+                .init(week: "W4", hours: 20, color: AppColors.primary)
+            ]
+        }
+
+        let weekStarts = (0..<4).reversed().compactMap { offset -> Date? in
+            calendar.date(byAdding: .weekOfYear, value: -offset, to: currentWeekStart)
+        }
+
+        let sessionsByWeekStart = Dictionary(grouping: mockData.recentSessions.compactMap { session -> (Date, StudySession)? in
+            guard let start = calendar.dateInterval(of: .weekOfYear, for: session.date)?.start else {
+                return nil
+            }
+            return (start, session)
+        }) { $0.0 }
+        .mapValues { $0.map { $0.1 } }
+
+        let data = weekStarts.enumerated().map { index, startDate -> PerformanceData in
+            let hours = sessionsByWeekStart[startDate]?
+                .reduce(0) { total, session in
+                    total + Int(session.durationSeconds / 3600)
+                } ?? 0
+            return PerformanceData(week: "W\(index + 1)", hours: hours, color: AppColors.primary)
+        }
+
+        let hasRealData = data.contains { $0.hours > 0 }
+        return hasRealData ? data : [
             .init(week: "W1", hours: 10, color: AppColors.primary),
-            .init(week: "W2", hours: 15, color: .blue),
-            .init(week: "W3", hours: 12, color: .pink),
-            .init(week: "W4", hours: 20, color: .orange)
+            .init(week: "W2", hours: 15, color: AppColors.primary),
+            .init(week: "W3", hours: 12, color: AppColors.primary),
+            .init(week: "W4", hours: 20, color: AppColors.primary)
         ]
     }
     
@@ -142,12 +173,6 @@ struct ReportView: View {
                     .fontWeight(.bold)
                     .foregroundColor(AppColors.textPrimary)
                 
-                HStack(spacing: 8) {
-                    Circle().fill(Color.green).frame(width: 8, height: 8)
-                    Text("Top 5% in your class")
-                        .font(AppTypography.body)
-                        .foregroundColor(AppColors.textSecondary)
-                }
             }
             Spacer()
             
@@ -196,24 +221,13 @@ struct BackgroundView: View {
 struct HeroMetricCard: View {
     let title: String
     let value: String
-    let icon: String
     let color: Color
     let delay: Double
     
     @State private var show = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.title3)
-                    .foregroundColor(color)
-                    .padding(10)
-                    .background(color.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                Spacer()
-            }
-            
+        VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(value)
                     .font(AppTypography.titleLarge)
@@ -559,9 +573,6 @@ struct InsightCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Image(systemName: "sparkles")
-                    .font(.title3)
-                    .foregroundColor(.white)
                 Text("Personalized Learning Insights")
                     .font(AppTypography.headline)
                     .foregroundColor(.white)

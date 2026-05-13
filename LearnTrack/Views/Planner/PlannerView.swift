@@ -106,28 +106,14 @@ struct PlannerView: View {
                             .offset(x: 200, y: -40)
                         
                         VStack(alignment: .leading, spacing: 20) {
-                            HStack(spacing: 16) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.white.opacity(0.2))
-                                        .frame(width: 56, height: 56)
-                                    Image(systemName: "sparkles")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(.white)
-                                        .shadow(color: .white.opacity(0.5), radius: 10)
-                                }
-                                .scaleEffect(animatePulse ? 1.1 : 1.0)
-                                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: animatePulse)
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("AI Smart Plan")
-                                        .font(.system(size: 22, weight: .black))
-                                        .foregroundColor(.white)
-                                    Text("OPTIMIZED FOR YOU")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(.white.opacity(0.7))
-                                        .tracking(1)
-                                }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Personalized Study Planner")
+                                    .font(.system(size: 22, weight: .black))
+                                    .foregroundColor(.white)
+                                Text("OPTIMIZED FOR YOU")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .tracking(1)
                             }
                             
                             VStack(alignment: .leading, spacing: 8) {

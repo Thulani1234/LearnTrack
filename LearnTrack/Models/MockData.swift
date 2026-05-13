@@ -33,6 +33,28 @@ class MockData: ObservableObject {
         currentUserId = user.id
         mapCoreDataToState()
         voiceRecordings = voiceRecordingsByUser[user.id] ?? []
+        
+        // Load notes from Firestore
+        firestore.fetchNotes(for: user.id) { [weak self] notes, error in
+            if let error = error {
+                print("Error fetching notes: \(error.localizedDescription)")
+            } else {
+                DispatchQueue.main.async {
+                    self?.notes = notes
+                }
+            }
+        }
+        
+        // Load voice recordings from Firestore
+        firestore.fetchVoiceRecordings(for: user.id) { [weak self] recordings, error in
+            if let error = error {
+                print("Error fetching voice recordings: \(error.localizedDescription)")
+            } else {
+                DispatchQueue.main.async {
+                    self?.voiceRecordings = recordings
+                }
+            }
+        }
     }
     
     func resetForSignedOutUser() {
@@ -56,10 +78,10 @@ class MockData: ObservableObject {
     
     private func seedInitialData() {
         let initialSubjects = [
-            Subject(name: "Mathematics", colorHex: "6366F1", progress: 0.7, targetScore: 95, currentScore: 89, icon: "function"),
+            Subject(name: "Mathematics", colorHex: "6366F1", progress: 0.7, targetScore: 95, currentScore: 85, icon: "function"),
             Subject(name: "Science", colorHex: "14B8A6", progress: 0.4, targetScore: 90, currentScore: 75, icon: "flask.fill"),
-            Subject(name: "English", colorHex: "F59E0B", progress: 0.9, targetScore: 85, currentScore: 82, icon: "book.fill"),
-            Subject(name: "ICT", colorHex: "0EA5E9", progress: 0.6, targetScore: 100, currentScore: 92, icon: "laptopcomputer")
+            Subject(name: "English", colorHex: "F59E0B", progress: 0.9, targetScore: 88, currentScore: 82, icon: "book.fill"),
+            Subject(name: "ICT", colorHex: "0EA5E9", progress: 0.6, targetScore: 95, currentScore: 92, icon: "laptopcomputer")
         ]
         
         subjects = initialSubjects
@@ -71,7 +93,9 @@ class MockData: ObservableObject {
         
         recentSessions = [
             StudySession(subjectId: subjects[0].id, date: Date(), durationSeconds: 45 * 60, isCompleted: true, summary: "Completed algebra practice."),
-            StudySession(subjectId: subjects[1].id, date: Date().addingTimeInterval(-86400), durationSeconds: 30 * 60, isCompleted: true, summary: "Read chapter 3 of biology.")
+            StudySession(subjectId: subjects[1].id, date: Date().addingTimeInterval(-86400), durationSeconds: 30 * 60, isCompleted: true, summary: "Read chapter 3 of biology."),
+            StudySession(subjectId: subjects[2].id, date: Date().addingTimeInterval(-86400 * 2), durationSeconds: 50 * 60, isCompleted: true, summary: "English reading practice."),
+            StudySession(subjectId: subjects[3].id, date: Date().addingTimeInterval(-86400 * 3), durationSeconds: 60 * 60, isCompleted: true, summary: "ICT project work.")
         ]
         
         for session in recentSessions {
@@ -88,8 +112,8 @@ class MockData: ObservableObject {
         }
         
         notes = [
-            Note(title: "Physics Formulas", content: "F=ma, E=mc^2, v=u+at. Important for the upcoming semester finals...", colorHex: "3B82F6", category: "Physics", dateCreated: Date(), attachments: []),
-            Note(title: "Reaction Mechanisms", content: "Organic chemistry reaction mechanisms. Remember to focus on nucleophilic...", colorHex: "0EA5E9", category: "Chemistry", dateCreated: Date(), attachments: [])
+            Note(title: "Physics Formulas", content: "F=ma, E=mc^2, v=u+at. Important for the upcoming semester finals...", colorHex: "3B82F6", category: "Physics", dateCreated: Date(), attachments: [], userId: currentUserId ?? UUID()),
+            Note(title: "Reaction Mechanisms", content: "Organic chemistry reaction mechanisms. Remember to focus on nucleophilic...", colorHex: "0EA5E9", category: "Chemistry", dateCreated: Date(), attachments: [], userId: currentUserId ?? UUID())
         ]
         
         for note in notes {
@@ -104,7 +128,8 @@ class MockData: ObservableObject {
                 duration: "04:12",
                 date: Date().formatted(.dateTime.month().day()),
                 waveform: [0.2, 0.4, 0.8, 0.6, 0.3],
-                audioURL: nil
+                audioURL: nil,
+                userId: currentUserId ?? UUID()
             ),
             VoiceRecording(
                 title: "Lab summary",
@@ -113,7 +138,8 @@ class MockData: ObservableObject {
                 duration: "03:28",
                 date: Date().addingTimeInterval(-86400).formatted(.dateTime.month().day()),
                 waveform: [0.1, 0.5, 0.6, 0.4, 0.2],
-                audioURL: nil
+                audioURL: nil,
+                userId: currentUserId ?? UUID()
             )
         ]
         if let currentUserId {
@@ -252,16 +278,21 @@ class MockData: ObservableObject {
         // Save to Firestore
         firestore.saveSubject(subject)
         
-        // Save to CoreData
+        // Save or update CoreData
         let context = coreData.viewContext
-        let cdSubject = CDSubject(context: context)
+        let request: NSFetchRequest<CDSubject> = CDSubject.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", subject.id as CVarArg)
+        request.fetchLimit = 1
+        let cdSubject = (try? context.fetch(request).first) ?? CDSubject(context: context)
         cdSubject.id = subject.id
         cdSubject.name = subject.name
         cdSubject.colorHex = subject.colorHex
         cdSubject.progress = subject.progress
         cdSubject.targetScore = Int32(subject.targetScore)
         cdSubject.icon = subject.icon
-        cdSubject.createdDate = Date()
+        if cdSubject.createdDate == nil {
+            cdSubject.createdDate = Date()
+        }
         cdSubject.updatedDate = Date()
         if let currentUserId {
             cdSubject.user = coreData.fetchUser(by: currentUserId)

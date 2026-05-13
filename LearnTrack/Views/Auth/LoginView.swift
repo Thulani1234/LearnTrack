@@ -217,13 +217,13 @@ struct LoginView: View {
                 
                 // Set current user in app state
                 appState.currentUser = user
+                appState.selectedTab = 0
                 
                 // Reset signup flag and force lock so the Face ID screen appears after login
                 appState.showLoginAfterSignup = false
-                appState.lock()
-                
                 withAnimation {
                     appState.isLoggedIn = true
+                    appState.lock()
                 }
             } else if let error = result.error {
                 showError = true
@@ -262,9 +262,11 @@ struct LoginView: View {
                 
                 if let user = loginResult.user {
                     appState.currentUser = user
+                    appState.selectedTab = 0
                     appState.showLoginAfterSignup = false
                     withAnimation {
                         appState.isLoggedIn = true
+                        appState.lock()
                     }
                 } else {
                     // Create new user with Apple credentials
@@ -277,9 +279,11 @@ struct LoginView: View {
                     
                     if let user = registerResult.user {
                         appState.currentUser = user
+                        appState.selectedTab = 0
                         appState.showLoginAfterSignup = false
                         withAnimation {
                             appState.isLoggedIn = true
+                            appState.lock()
                         }
                     }
                 }

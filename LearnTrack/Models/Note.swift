@@ -36,6 +36,7 @@ struct Note: Identifiable, Hashable, Codable {
     var category: String
     var dateCreated: Date
     var attachments: [NoteAttachment]
+    var userId: UUID
     
     init(
         id: UUID = UUID(),
@@ -44,7 +45,8 @@ struct Note: Identifiable, Hashable, Codable {
         colorHex: String,
         category: String,
         dateCreated: Date,
-        attachments: [NoteAttachment] = []
+        attachments: [NoteAttachment] = [],
+        userId: UUID
     ) {
         self.id = id
         self.title = title
@@ -53,6 +55,7 @@ struct Note: Identifiable, Hashable, Codable {
         self.category = category
         self.dateCreated = dateCreated
         self.attachments = attachments
+        self.userId = userId
     }
     
     var attachmentNames: [String] {

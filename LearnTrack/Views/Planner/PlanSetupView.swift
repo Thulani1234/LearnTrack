@@ -91,6 +91,7 @@ struct PlanSetupView: View {
                                             .foregroundColor(selectedDuration == index ? .white : AppColors.primary)
                                         Text(item.0)
                                             .font(.system(size: 24, weight: .bold))
+                                            .foregroundColor(selectedDuration == index ? .white : AppColors.textPrimary)
                                         Text(item.1)
                                             .font(.system(size: 12, weight: .medium))
                                             .foregroundColor(selectedDuration == index ? Color.white.opacity(0.9) : AppColors.textSecondary)

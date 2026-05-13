@@ -55,6 +55,7 @@ struct FaceIDView: View {
         FaceIDManager.shared.authenticate { success, error in
             if success {
                 withAnimation {
+                    appState.selectedTab = 0
                     appState.unlock()
                 }
             } else {

@@ -18,10 +18,10 @@ struct TargetActualView: View {
                         }
                         Spacer()
                     }
-                    Text("Target vs Actual")
+                    Text("Target > Actual")
                         .font(AppTypography.title)
                         .foregroundColor(AppColors.textPrimary)
-                    Text("How close are you to your goals?")
+                    Text("Target marks are compared against actual performance.")
                         .font(AppTypography.body)
                         .foregroundColor(AppColors.textSecondary)
                 }
@@ -40,7 +40,7 @@ struct TargetActualView: View {
                 }
                 .padding(.horizontal)
                 
-                ActionNeededCard()
+                ActionNeededCard(subject: subjects.filter { $0.currentScore < $0.targetScore }.sorted(by: { ($0.targetScore - $0.currentScore) > ($1.targetScore - $1.currentScore) }).first)
                     .padding(.horizontal)
                     .padding(.bottom, 24)
             }
@@ -188,21 +188,46 @@ struct LegendChip: View {
 }
 
 struct ActionNeededCard: View {
+    var subject: Subject?
+
+    private var titleText: String {
+        subject == nil ? "All targets are on track" : "Action needed"
+    }
+
+    private var messageText: String {
+        guard let subject else {
+            return "All target marks are above actual marks. Keep up the steady progress."
+        }
+        let gap = subject.targetScore - subject.currentScore
+        if gap > 0 {
+            return "Target is \(gap)% above actual for \(subject.name). Focus on this subject in your next study plan."
+        }
+        return "Actual is \(-gap)% above target for \(subject.name). Keep the strong performance going."
+    }
+
+    private var cardColor: Color {
+        subject == nil ? AppColors.success.opacity(0.12) : AppColors.error.opacity(0.12)
+    }
+
+    private var borderColor: Color {
+        subject == nil ? AppColors.success.opacity(0.3) : AppColors.error.opacity(0.3)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Action needed")
+            Text(titleText)
                 .font(AppTypography.headline)
                 .foregroundColor(AppColors.textPrimary)
-            Text("Maths is 17% below your target grade. LearnTrack has increased Maths priority for your next study plan.")
+            Text(messageText)
                 .font(AppTypography.body)
                 .foregroundColor(AppColors.textSecondary)
         }
         .padding()
-        .background(AppColors.error.opacity(0.12))
+        .background(cardColor)
         .cornerRadius(24)
         .overlay(
             RoundedRectangle(cornerRadius: 24)
-                .stroke(AppColors.error.opacity(0.3), lineWidth: 1)
+                .stroke(borderColor, lineWidth: 1)
         )
     }
 }

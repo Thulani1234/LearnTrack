@@ -142,8 +142,9 @@ struct CreativeHistoryCard: View {
                     .fill(Color(hex: subject.colorHex).opacity(0.1))
                     .frame(width: 54, height: 54)
                 
-                Text(emoji(for: subject.name))
-                    .font(.title2)
+                Image(systemName: subject.icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(Color(hex: subject.colorHex))
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -184,15 +185,5 @@ struct CreativeHistoryCard: View {
     private func formatDuration(_ seconds: Int) -> String {
         let mins = seconds / 60
         return mins > 0 ? "\(mins)m" : "\(seconds)s"
-    }
-    
-    private func emoji(for subjectName: String) -> String {
-        switch subjectName.lowercased() {
-        case "english": return ""
-        case "science": return ""
-        case "ict": return ""
-        case "maths", "math": return ""
-        default: return ""
-        }
     }
 }

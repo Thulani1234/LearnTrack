@@ -8,6 +8,30 @@
 import Foundation
 import FirebaseFirestore
 
+struct VoiceRecordingDTO: Codable, Hashable {
+    var id: String
+    var title: String
+    var topic: String
+    var subjectId: String?
+    var duration: String
+    var date: String
+    var waveform: [Double]
+    var audioFileName: String?
+    var userId: String
+
+    init(recording: VoiceRecording) {
+        self.id = recording.id.uuidString
+        self.title = recording.title
+        self.topic = recording.topic
+        self.subjectId = recording.subjectId?.uuidString
+        self.duration = recording.duration
+        self.date = recording.date
+        self.waveform = recording.waveform.map { Double($0) }
+        self.audioFileName = recording.audioURL?.lastPathComponent
+        self.userId = recording.userId.uuidString
+    }
+}
+
 class FirestoreManager {
     static let shared = FirestoreManager()
     private let db = Firestore.firestore()
@@ -99,6 +123,22 @@ class FirestoreManager {
         saveDocument(collection: "notes", documentId: note.id.uuidString, data: note)
     }
     
+    func fetchNotes(for userId: UUID, completion: @escaping ([Note], Error?) -> Void) {
+        db.collection("notes").whereField("userId", isEqualTo: userId.uuidString).getDocuments { snapshot, error in
+            if let error = error {
+                completion([], error)
+                return
+            }
+            
+            let notes = snapshot?.documents.compactMap { doc -> Note? in
+                let data = doc.data()
+                return try? self.decodeFromFirestoreData(Note.self, data: data)
+            } ?? []
+            
+            completion(notes, nil)
+        }
+    }
+    
     func saveFCMToken(userId: String, token: String) {
         let data: [String: Any] = [
             "userId": userId,
@@ -120,7 +160,7 @@ class FirestoreManager {
     }
 
     func saveVoiceRecording(_ recording: VoiceRecording, completion: @escaping (Error?) -> Void = { _ in }) {
-        let dto = VoiceRecordingDTO(from: recording)
+        let dto = VoiceRecordingDTO(recording: recording)
         saveDocument(collection: "voiceRecordings", documentId: dto.id, data: dto) { error in
             if let error = error {
                 print(" Firestore write failed: voiceRecordings/\(dto.id) — \(error)")
@@ -131,28 +171,6 @@ class FirestoreManager {
         }
     }
 
-    private struct VoiceRecordingDTO: Codable, Hashable {
-        var id: String
-        var title: String
-        var topic: String
-        var subjectId: String?
-        var duration: String
-        var date: String
-        var waveform: [Double]
-        var audioFileName: String?
-
-        init(from recording: VoiceRecording) {
-            self.id = recording.id.uuidString
-            self.title = recording.title
-            self.topic = recording.topic
-            self.subjectId = recording.subjectId?.uuidString
-            self.duration = recording.duration
-            self.date = recording.date
-            self.waveform = recording.waveform.map { Double($0) }
-            self.audioFileName = recording.audioURL?.lastPathComponent
-        }
-    }
-    
     // Deletion
     func deleteDocument(collection: String, documentId: String) {
         db.collection(collection).document(documentId).delete { error in
@@ -168,6 +186,23 @@ class FirestoreManager {
         deleteDocument(collection: "subjects", documentId: id.uuidString)
     }
     
+    func fetchVoiceRecordings(for userId: UUID, completion: @escaping ([VoiceRecording], Error?) -> Void) {
+        db.collection("voiceRecordings").whereField("userId", isEqualTo: userId.uuidString).getDocuments { snapshot, error in
+            if let error = error {
+                completion([], error)
+                return
+            }
+            
+            let recordings = snapshot?.documents.compactMap { doc -> VoiceRecording? in
+                let data = doc.data()
+                guard let dto = try? self.decodeFromFirestoreData(VoiceRecordingDTO.self, data: data) else { return nil }
+                return VoiceRecording(from: dto)
+            } ?? []
+            
+            completion(recordings, nil)
+        }
+    }
+
     func deleteResult(_ id: UUID) {
         deleteDocument(collection: "results", documentId: id.uuidString)
     }

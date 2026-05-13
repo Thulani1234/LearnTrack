@@ -96,7 +96,7 @@ struct DashboardView: View {
                                         Circle()
                                             .fill(Color.red)
                                             .frame(width: 10, height: 10)
-                                            .offset(x: 10, y: -10)
+                                            .offset(x: 12, y: -12)
                                     )
                             }
                         }
@@ -135,27 +135,17 @@ struct DashboardView: View {
                 
                 // Today's Auto Plan
                 VStack(alignment: .leading, spacing: 16) {
-                    HStack {
-                        Text("TODAY'S AUTO PLAN")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(AppColors.textSecondary.opacity(0.6))
-                        Spacer()
-                        Text("Auto-generated")
-                            .font(.system(size: 10, weight: .bold))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(AppColors.primary.opacity(0.1))
-                            .foregroundColor(AppColors.primary)
-                            .cornerRadius(8)
-                    }
-                    .padding(.horizontal)
+                    Text("TODAY'S AUTO PLAN")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                        .padding(.horizontal)
                     
-                    if autoPlanItems.isEmpty {
+                    if data.subjects.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("No auto plan available yet")
+                            Text("No subjects added yet")
                                 .font(AppTypography.headline)
                                 .foregroundColor(AppColors.textPrimary)
-                            Text("Register a subject and allocate study hours to generate an automated academic plan.")
+                            Text("Add a subject to see study time and daily study items here.")
                                 .font(AppTypography.bodySmall)
                                 .foregroundColor(AppColors.textSecondary)
                         }
@@ -166,14 +156,13 @@ struct DashboardView: View {
                         .padding(.horizontal)
                     } else {
                         VStack(spacing: 0) {
-                            ForEach(Array(autoPlanItems.enumerated()), id: \ .element.id) { index, subject in
+                            ForEach(data.subjects) { subject in
                                 AutoPlanItem(
                                     icon: subject.icon,
-                                    title: "\(subject.name) — \((index + 1) * 30) min",
-                                    status: index == 0 ? "Urgent" : (index == 1 ? "Soon" : "Planned"),
-                                    isCompleted: false
+                                    title: subject.name,
+                                    studyTime: studyTimeText(for: subject)
                                 )
-                                if index < autoPlanItems.count - 1 {
+                                if subject.id != data.subjects.last?.id {
                                     Divider().padding(.leading, 60)
                                 }
                             }
@@ -184,49 +173,6 @@ struct DashboardView: View {
                         .shadow(color: Color.black.opacity(0.04), radius: 15, x: 0, y: 5)
                     }
                 }
-                
-                // Live Session Card
-                HStack {
-                    Circle()
-                        .fill(Color.green)
-                        .frame(width: 10, height: 10)
-                        .padding(4)
-                        .background(Color.green.opacity(0.2))
-                        .clipShape(Circle())
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(appState.joiningRoomName.isEmpty ? "Live Study Rooms" : "Live Session Active")
-                            .font(AppTypography.headline)
-                            .foregroundColor(.white)
-                        Text(appState.joiningRoomName.isEmpty ? "Start or join a live focus room from the Live tab." : "3 students studying Science now")
-                            .font(AppTypography.caption)
-                            .foregroundColor(.white.opacity(0.8))
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    Spacer()
-                    Button(appState.joiningRoomName.isEmpty ? "Open Live" : "Join") {
-                        if appState.joiningRoomName.isEmpty {
-                            withAnimation {
-                                appState.selectedTab = 2
-                            }
-                        } else {
-                            withAnimation {
-                                appState.isJoiningRoom = true
-                            }
-                        }
-                    }
-                    .font(AppTypography.bodySmall)
-                    .fontWeight(.bold)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.white.opacity(0.2))
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                }
-                .padding(20)
-                .background(LinearGradient(colors: [AppColors.primary, AppColors.tertiary], startPoint: .topLeading, endPoint: .bottomTrailing))
-                .cornerRadius(24)
-                .padding(.horizontal)
                 
                 // Quick Actions
                 VStack(alignment: .leading, spacing: 16) {
@@ -307,6 +253,26 @@ struct DashboardView: View {
                 }
             }
         }
+    }
+    
+    private func studyTimeText(for subject: Subject) -> String {
+        let totalSeconds = data.recentSessions
+            .filter { $0.subjectId == subject.id }
+            .reduce(0) { $0 + $1.durationSeconds }
+        let totalMinutes = totalSeconds / 60
+        if totalMinutes <= 0 {
+            return "Study time: 0m"
+        }
+        if totalMinutes >= 60 {
+            let hours = totalMinutes / 60
+            let minutes = totalMinutes % 60
+            if minutes > 0 {
+                return "Study time: \(hours)h \(minutes)m"
+            } else {
+                return "Study time: \(hours)h"
+            }
+        }
+        return "Study time: \(totalMinutes)m"
     }
 }
 
@@ -397,44 +363,30 @@ struct DailyStudyGoalSection: View {
 }
 
 struct AutoPlanItem: View {
-    @EnvironmentObject var router: AppRouter
-    @EnvironmentObject var data: MockData
     var icon: String
     var title: String
-    var status: String
-    var isCompleted: Bool
+    var studyTime: String
     
     var body: some View {
-        Button(action: {
-            if let subjectName = title.components(separatedBy: " — ").first,
-               let subject = data.subjects.first(where: { $0.name == subjectName }) {
-                router.navigate(to: .timer(subject))
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(AppColors.primary)
+                .frame(width: 44, height: 44)
+                .background(AppColors.background)
+                .cornerRadius(14)
+            
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(AppColors.textPrimary)
+                Text(studyTime)
+                    .font(.system(size: 12))
+                    .foregroundColor(AppColors.textSecondary)
             }
-        }) {
-            HStack(spacing: 16) {
-                Image(systemName: icon)
-                    .font(.system(size: 18))
-                    .foregroundColor(AppColors.primary)
-                    .frame(width: 44, height: 44)
-                    .background(AppColors.background)
-                    .cornerRadius(14)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(AppColors.textPrimary)
-                    Text(status)
-                        .font(.system(size: 12))
-                        .foregroundColor(status == "Urgent" ? .red : (status == "Soon" ? .orange : .blue))
-                }
-                Spacer()
-                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundColor(isCompleted ? Color.green : AppColors.textSecondary.opacity(0.3))
-            }
-            .padding(16)
+            Spacer()
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(16)
     }
 }
 

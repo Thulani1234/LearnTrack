@@ -5,6 +5,7 @@ import Combine
 struct VoiceNotesView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var data: MockData
+    @EnvironmentObject var appState: AppState
     @State private var isRecording = false
     @State private var searchText = ""
     @State private var recordingTime = 0
@@ -205,7 +206,8 @@ struct VoiceNotesView: View {
             duration: timeString(time: lastRecordingTime),
             date: "Today",
             waveform: (0..<8).map { _ in CGFloat.random(in: 0.2...0.9) },
-            audioURL: lastAudioURL
+            audioURL: lastAudioURL,
+            userId: appState.currentUser?.id ?? UUID()
         )
         data.addVoiceRecording(recording)
         
